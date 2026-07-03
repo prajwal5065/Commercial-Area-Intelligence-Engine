@@ -1,5 +1,0 @@
-How to run the code?
-- Navigate to .\SUB_AREA_MAPPER, then .\Master Agent.
-- In Master Agent run "streamlit run .\Exp_Full_Dash.py
-
-"run_pipeline.py" is the main Master agent code!!
