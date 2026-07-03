@@ -1,0 +1,63 @@
+```json
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Powai",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Powai Lake",
+      "parent_zone": "Powai",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Powai_Lake",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Hiranandani Gardens",
+      "parent_zone": "Powai",
+      "business_volume": 600,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Hiranandani_Gardens",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "IIT Bombay",
+      "parent_zone": "Powai",
+      "business_volume": 400,
+      "city": "Mumbai",
+      "source_url": "https://www.iitb.ac.in/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "MIDC",
+      "url": "https://www.midcindia.org/",
+      "category": "validation",
+      "priority": "medium"
+    },
+    {
+      "name": "Maharashtra Government Portal",
+      "url": "https://www.maharashtra.gov.in/",
+      "category": "business",
+      "priority": "high"
+    }
+  ]
+}
+```

@@ -1,0 +1,61 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "MIHAN SEZ",
+    "city": "Nagpur",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "MIHAN SEZ Phase 1",
+      "parent_zone": "MIHAN SEZ",
+      "business_volume": 1000,
+      "city": "Nagpur",
+      "source_url": "https://en.wikipedia.org/wiki/Mihan",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "MIHAN SEZ Phase 2",
+      "parent_zone": "MIHAN SEZ",
+      "business_volume": 800,
+      "city": "Nagpur",
+      "source_url": "https://www.midcindia.org/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "MIHAN SEZ Phase 3",
+      "parent_zone": "MIHAN SEZ",
+      "business_volume": 600,
+      "city": "Nagpur",
+      "source_url": "https://www.nagpur.gov.in/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Mihan",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "MIDC",
+      "url": "https://www.midcindia.org/",
+      "category": "validation",
+      "priority": "high"
+    },
+    {
+      "name": "Nagpur Government Portal",
+      "url": "https://www.nagpur.gov.in/",
+      "category": "business",
+      "priority": "medium"
+    }
+  ]
+}

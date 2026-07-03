@@ -1,0 +1,236 @@
+import json
+import os
+import re
+import time
+import logging
+from datetime import datetime
+from typing import Optional, Dict, Any
+
+import requests
+from dotenv import load_dotenv
+from supabase import create_client
+
+load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+log = logging.getLogger(__name__)
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+if not GROQ_API_KEY:
+    raise EnvironmentError("Missing GROQ_API_KEY in .env file")
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise EnvironmentError("Missing SUPABASE_URL or SUPABASE_KEY in .env file")
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.3-70b-versatile"
+
+
+def call_groq(prompt: str) -> str:
+    """Call Groq API directly — same pattern as Agents 2 and 3."""
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "temperature": 0.1,
+        "max_tokens": 8000,
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+    }
+    resp = requests.post(GROQ_API_URL, headers=headers, json=payload, timeout=120)
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"]
+
+REQUIRED_KEYS = {"status", "agent", "input", "results", "supporting_sources"}
+
+
+def sanitize_filename(name: str) -> str:
+    """Remove illegal filename characters and replace spaces with underscores."""
+    safe = re.sub(r'[\\/*?:"<>|]', "", name)
+    return safe.replace(" ", "_")
+
+
+def validate_response(data: dict) -> bool:
+    """Check if the parsed JSON contains all required top-level keys."""
+    if not isinstance(data, dict):
+        return False
+    return REQUIRED_KEYS.issubset(data.keys())
+
+
+def extract_json(raw: str) -> Optional[dict]:
+    """Strip markdown fences and extract JSON object from raw string."""
+    content = raw.strip()
+    if content.startswith("```"):
+        content = re.sub(r'^```\w*\n?', '', content)
+        content = re.sub(r'\n?```$', '', content)
+        content = content.strip()
+    
+    start = content.find("{")
+    end = content.rfind("}") + 1
+    if start != -1 and end > start:
+        try:
+            return json.loads(content[start:end])
+        except json.JSONDecodeError:
+            return None
+    return None
+
+
+def insert_subareas_to_supabase(data: dict) -> Dict[str, int]:
+    """Extract results from validated JSON and insert into Supabase."""
+    if not isinstance(data, dict) or "input" not in data or "results" not in data:
+        return {"inserted": 0, "skipped": 0, "failed": 0}
+
+    zone_name = data["input"].get("zone_name", "Unknown")
+    country = data["input"].get("country", "Unknown")
+
+    inserted_count = 0
+    skipped_count = 0
+    failed_count = 0
+
+    for item in data["results"]:
+        row = {
+            "zone_name": zone_name,
+            "subarea_name": item.get("subarea_name"),
+            "parent_zone": item.get("parent_zone"),
+            "business_volume": item.get("business_volume"),
+            "city": item.get("city"),
+            "country": country,
+            "source_url": item.get("source_url"),
+            "retrieved_at": item.get("retrieved_at"),
+            "status": item.get("status")
+        }
+
+        try:
+            supabase.table("subareas").insert(row).execute()
+            inserted_count += 1
+            log.info(f"Supabase inserted: {row['subarea_name']}")
+        except Exception as e:
+            err_str = str(e)
+            if "23505" in err_str or "duplicate" in err_str.lower():
+                log.warning(f"Supabase skipped duplicate: {row['subarea_name']}")
+                skipped_count += 1
+            else:
+                log.error(f"Supabase failed to insert {row['subarea_name']}: {e}")
+                failed_count += 1
+
+    log.info(f"Supabase sync for {zone_name}: Inserted={inserted_count}, Skipped={skipped_count}, Failed={failed_count}")
+    return {"inserted": inserted_count, "skipped": skipped_count, "failed": failed_count}
+
+
+def process_zone(zone_name: str, city: str, country: str) -> Dict[str, Any]:
+    """Execute the sub-area mapping pipeline for a single zone."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    prompt_path = os.path.join(current_dir, "prompt.txt")
+    output_dir = os.path.join(current_dir, "outputs")
+    os.makedirs(output_dir, exist_ok=True)
+
+    try:
+        log.info(f"Loading prompt from {prompt_path}")
+        with open(prompt_path, "r", encoding="utf-8") as file:
+            prompt_template = file.read()
+    except Exception as e:
+        log.error(f"Failed to load prompt: {e}")
+        return {"status": "ERROR", "zone": zone_name, "path": None}
+
+    final_prompt = prompt_template.format(
+        zone_name=zone_name,
+        city=city,
+        country=country
+    )
+
+    wait_times = [4, 8, 16, 32, 64]
+    raw_response = None
+
+    for attempt, wait_sec in enumerate(wait_times, start=1):
+        try:
+            log.info(f"Sending request for {zone_name} (attempt {attempt}/{len(wait_times)})")
+            raw_response = call_groq(final_prompt)
+            break
+        except Exception as e:
+            err_str = str(e).lower()
+            if "429" in err_str or "rate_limit" in err_str or "timeout" in err_str or "network" in err_str:
+                log.warning(f"{zone_name}: Retryable error on attempt {attempt}. Waiting {wait_sec}s. Error: {e}")
+                if attempt < len(wait_times):
+                    time.sleep(wait_sec)
+                else:
+                    log.error(f"{zone_name}: All {len(wait_times)} attempts failed.")
+                    return {"status": "ERROR", "zone": zone_name, "path": None}
+            else:
+                log.error(f"{zone_name}: Non-retryable error: {e}")
+                return {"status": "ERROR", "zone": zone_name, "path": None}
+
+    if not raw_response:
+        return {"status": "ERROR", "zone": zone_name, "path": None}
+
+    parsed_data = None
+    for parse_attempt in range(2):
+        parsed_data = extract_json(raw_response)
+        if parsed_data and validate_response(parsed_data):
+            break
+        else:
+            log.warning(f"{zone_name}: Invalid JSON or missing keys (validation attempt {parse_attempt + 1}/2)")
+            if parse_attempt == 1:
+                log.error(f"{zone_name}: Validation failed twice. Saving raw response.")
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                safe_zone = sanitize_filename(zone_name)
+                raw_filename = f"raw_{safe_zone}_{timestamp}.json"
+                raw_path = os.path.join(output_dir, raw_filename)
+                try:
+                    with open(raw_path, "w", encoding="utf-8") as f:
+                        f.write(raw_response)
+                    log.info(f"Saved raw response to {raw_path}")
+                except Exception as e:
+                    log.error(f"Failed to save raw response: {e}")
+                return {"status": "ERROR", "zone": zone_name, "path": raw_path}
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_zone = sanitize_filename(zone_name)
+    filename = f"{safe_zone}_{timestamp}.json"
+    output_path = os.path.join(output_dir, filename)
+
+    try:
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(parsed_data, f, indent=2, ensure_ascii=False)
+        log.info(f"Saved output to {output_path}")
+    except Exception as e:
+        log.error(f"Failed to save output file: {e}")
+        return {"status": "ERROR", "zone": zone_name, "path": None}
+
+    # Automatically insert into Supabase
+    db_summary = {"inserted": 0, "skipped": 0, "failed": 0}
+    try:
+        log.info(f"Starting automatic Supabase insertion for {zone_name}")
+        db_summary = insert_subareas_to_supabase(parsed_data)
+    except Exception as e:
+        log.error(f"Critical error during Supabase insertion: {e}")
+
+    return {
+        "status": "SUCCESS", 
+        "zone": zone_name, 
+        "path": output_path,
+        "db_inserted": db_summary.get("inserted", 0),
+        "db_skipped": db_summary.get("skipped", 0),
+        "db_failed": db_summary.get("failed", 0)
+    }
+
+
+if __name__ == "__main__":
+    zone_name = input("Enter zone name: ").strip()
+    city = input("Enter city: ").strip()
+    country = input("Enter country: ").strip()
+
+    if not zone_name or not city or not country:
+        log.error("Zone name, city, and country are required.")
+    else:
+        result = process_zone(zone_name, city, country)
+        log.info(f"Finished processing. Final status: {result['status']}")

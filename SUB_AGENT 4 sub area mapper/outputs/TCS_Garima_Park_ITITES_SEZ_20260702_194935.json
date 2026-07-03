@@ -1,0 +1,55 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "TCS Garima Park IT/ITES SEZ",
+    "city": "Surat",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Block A",
+      "parent_zone": "TCS Garima Park IT/ITES SEZ",
+      "business_volume": 1000,
+      "city": "Surat",
+      "source_url": "https://www.tcs.com",
+      "retrieved_at": "2023-12-01T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Block B",
+      "parent_zone": "TCS Garima Park IT/ITES SEZ",
+      "business_volume": 800,
+      "city": "Surat",
+      "source_url": "https://www.tcs.com",
+      "retrieved_at": "2023-12-01T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Block C",
+      "parent_zone": "TCS Garima Park IT/ITES SEZ",
+      "business_volume": 600,
+      "city": "Surat",
+      "source_url": "https://www.tcs.com",
+      "retrieved_at": "2023-12-01T12:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "TCS Official Website",
+      "url": "https://www.tcs.com",
+      "category": "business",
+      "priority": "high"
+    },
+    {
+      "name": "Surat City Official Website",
+      "url": "https://www.suratmunicipal.gov.in",
+      "category": "geography",
+      "priority": "medium"
+    }
+  ]
+}

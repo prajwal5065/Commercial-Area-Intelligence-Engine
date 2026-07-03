@@ -1,0 +1,47 @@
+```json
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Vikroli",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Vikroli East",
+      "parent_zone": "Vikroli",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Vikroli",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Vikroli West",
+      "parent_zone": "Vikroli",
+      "business_volume": 600,
+      "city": "Mumbai",
+      "source_url": "https://www.google.com/maps/place/Vikroli,+Mumbai,+Maharashtra",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Vikroli",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "Google Maps",
+      "url": "https://www.google.com/maps/place/Vikroli,+Mumbai,+Maharashtra",
+      "category": "geography",
+      "priority": "high"
+    }
+  ]
+}
+```

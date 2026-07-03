@@ -1,0 +1,61 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Bhopal SEZ",
+    "city": "Bhopal",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Bhopal SEZ Phase 1",
+      "parent_zone": "Bhopal SEZ",
+      "business_volume": 1000,
+      "city": "Bhopal",
+      "source_url": "https://www.investindia.in/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Bhopal SEZ Phase 2",
+      "parent_zone": "Bhopal SEZ",
+      "business_volume": 800,
+      "city": "Bhopal",
+      "source_url": "https://www.makeinindia.com/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Bhopal SEZ Phase 3",
+      "parent_zone": "Bhopal SEZ",
+      "business_volume": 600,
+      "city": "Bhopal",
+      "source_url": "https://www.india.gov.in/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Invest India",
+      "url": "https://www.investindia.in/",
+      "category": "business",
+      "priority": "high"
+    },
+    {
+      "name": "Make in India",
+      "url": "https://www.makeinindia.com/",
+      "category": "business",
+      "priority": "high"
+    },
+    {
+      "name": "India Government Portal",
+      "url": "https://www.india.gov.in/",
+      "category": "geography",
+      "priority": "high"
+    }
+  ]
+}

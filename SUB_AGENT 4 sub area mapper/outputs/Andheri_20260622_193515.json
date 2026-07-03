@@ -1,0 +1,45 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Andheri",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Andheri East",
+      "parent_zone": "Andheri",
+      "business_volume": 1000,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Andheri",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Andheri West",
+      "parent_zone": "Andheri",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Andheri",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Andheri",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "Mumbai Metropolitan Region Development Authority",
+      "url": "https://mmrda.maharashtra.gov.in/",
+      "category": "validation",
+      "priority": "high"
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+```text id="3jlwm6"
+SUB-AGENT 4 — SUB-AREA MAPPER
+
+TASK
+Analyze the given zone and return its sub-areas ranked by BUSINESS ACTIVITY.
+
+INPUT
+zone_name: {zone_name}
+city: {city}
+country: {country}
+
+OBJECTIVE
+
+* Identify REAL and widely recognized sub-areas within the zone
+* Prioritize HIGH ACCURACY and GOOD COVERAGE
+* Avoid hallucinations and unrelated localities
+* Return COMPLETE results for all major known sub-areas
+
+---
+
+SUBAREA VALIDATION RULES
+
+Include a sub-area ONLY IF:
+
+* It is commonly recognized as part of the given zone
+* It is smaller than the main zone
+* It is geographically associated with the zone
+* It is widely referenced in maps, government records, or official planning usage
+
+Exclude:
+
+* Independent neighboring localities
+* Roads, streets, buildings, tech parks
+* Apartments, layouts, gated communities
+* Fabricated or unofficial names
+
+---
+
+BOUNDARY RULE FOR HINJEWADI (STRICT)
+
+Hinjewadi is a structured IT zone.
+
+Include:
+* Hinjewadi Phase 1
+* Hinjewadi Phase 2
+* Hinjewadi Phase 3
+
+Include nearby micro-localities ONLY IF they are strongly associated with Hinjewadi in official or commercial usage.
+
+Possible associated localities may include:
+* Maan
+* Marunji
+* Bhoirwadi
+
+STRICTLY EXCLUDE:
+* Wakad
+* Baner
+* Balewadi
+* Tathawade
+* Pimpri
+* Aundh
+
+Do NOT include nearby areas just because they are geographically close.
+
+---
+
+COVERAGE REQUIREMENT (IMPORTANT)
+
+Return ALL major recognized sub-areas associated with Hinjewadi.
+
+Do NOT under-return results due to over-filtering.
+
+If confidence is moderate-to-high and supported by reliable sources → INCLUDE.
+
+Prefer COMPLETE coverage over minimal output.
+
+---
+
+BUSINESS ACTIVITY RULE
+
+Rank sub-areas based on relative commercial/business activity.
+
+Expected ranking pattern:
+* Phase 1 → highest business concentration
+* Phase 2 → strong commercial activity
+* Phase 3 → growing activity
+* Associated villages/localities → lower activity
+
+Use realistic scale such as:
+* 1000
+* 800
+* 600
+* 400
+* 300
+
+Do NOT generate random values.
+
+---
+For unstructured urban zones like Andheri:
+- return ONLY true internal subdivisions
+- do NOT include adjacent neighborhoods
+- if only Andheri East and Andheri West are valid, STOP there
+
+SOURCE RULES
+
+Prefer HIGH-QUALITY sources such as:
+
+* wikipedia.org
+* MIDC
+* Maharashtra government portals
+* Pune Metropolitan Region Development Authority (PMRDA)
+* OpenStreetMap
+* Google Maps
+
+STRICTLY EXCLUDE:
+
+* Blogs
+* Marketing content
+* SEO-generated articles
+* Low-quality aggregators
+
+Include multiple reliable sources when available.
+
+Avoid duplicate or low-value sources.
+
+---
+
+OUTPUT RULES
+
+* Return ONLY valid raw JSON
+* Do NOT wrap output inside markdown or code blocks
+* No explanations
+* No extra text
+* URLs must be clean plain URLs
+* Use ISO timestamp format
+
+---
+
+OUTPUT FORMAT
+
+{{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {{
+    "zone_name": "<ZONE_NAME>",
+    "city": "<CITY>",
+    "country": "<COUNTRY>"
+  }},
+  "results": [
+    {{
+      "rank": 1,
+      "subarea_name": "",
+      "parent_zone": "<ZONE_NAME>",
+      "business_volume": 0,
+      "city": "<CITY>",
+      "source_url": "",
+      "retrieved_at": "",
+      "status": "SUCCESS"
+    }}
+  ],
+  "supporting_sources": [
+    {{
+      "name": "",
+      "url": "",
+      "category": "geography | validation | business",
+      "priority": "high | medium"
+    }}
+  ]
+}}
+
+---
+
+FINAL VALIDATION
+
+Before returning:
+
+* Ensure all sub-areas are valid
+* Remove unrelated localities
+* Remove duplicate entries
+* Ensure output is complete for major known sub-areas
+* Ensure JSON is valid
+* Ensure no markdown formatting is returned
+```
