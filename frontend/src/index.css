@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/jetbrains-mono/700.css";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  --color-ink-950: #0B0F17;
+  --color-ink-900: #12161F;
+  --color-ink-850: #171C27;
+  --color-ink-800: #1E2430;
+  --color-ink-700: #2A3140;
+  --color-ink-600: #3A4356;
+  --color-ink-500: #566079;
+  --color-ink-400: #7C879E;
+  --color-ink-300: #A6AFC2;
+  --color-ink-200: #CDD3E0;
+  --color-ink-100: #E7EAF2;
+
+  --color-signal-500: #F5A623;
+  --color-signal-400: #FFC65C;
+  --color-signal-600: #D68A0F;
+
+  --color-status-running: #F5A623;
+  --color-status-done: #2DD4A7;
+  --color-status-error: #F0554C;
+  --color-status-pending: #566079;
+}
+
+html {
+  background: var(--color-ink-950);
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-ink-950);
+  color: var(--color-ink-100);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-signal-500);
+  color: var(--color-ink-950);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-signal-500);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--color-ink-700);
+  border-radius: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
