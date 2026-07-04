@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { api, type SessionStatus, type LogEntry } from "../lib/api";
-import { Download, Play, Square, RotateCcw, ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Clock, Cpu, HardDrive, Activity } from "lucide-react";
+import { Download, Play, Square, RotateCcw, ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Clock, Activity, Wand2, SlidersHorizontal } from "lucide-react";
+import { StageConfigurator } from "../components/StageConfigurator";
 
 interface Props {
   sessionId: string;
@@ -74,7 +75,6 @@ function AgentStageRow({
   const isDone    = lower === "done";
   const isRunning = lower === "running";
   const isFailed  = lower === "failed" || lower === "error";
-  const isPending = lower === "pending";
 
   return (
     <div className={`rounded-xl border transition-all ${
@@ -185,6 +185,20 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   const [starting, setStarting] = useState(false);
   const esRef = useRef<EventSource | null>(null);
 
+  // ── Manual (stage-by-stage) run mode ─────────────────────────────────
+  const [runMode, setRunMode] = useState<"auto" | "manual">("auto");
+  const [manualTopN, setManualTopN] = useState("10");
+  const [countryOptions, setCountryOptions] = useState<string[]>([]);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [manualCityTopN, setManualCityTopN] = useState("10");
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  const [manualZoneTopN, setManualZoneTopN] = useState("10");
+  const [zoneOptions, setZoneOptions] = useState<string[]>([]);
+  const [selectedZones, setSelectedZones] = useState<string[]>([]);
+  const [manualSubareaTopN, setManualSubareaTopN] = useState("10");
+  const [manualStarting, setManualStarting] = useState<string | null>(null);
+
   const isRunning = status.running;
   const pStatus   = status.pipeline_status ?? "idle";
   const isDone    = pStatus === "done";
@@ -286,6 +300,79 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
     }
   }
 
+  // ── Manual stage-by-stage handlers ───────────────────────────────────
+  const stage1Done = (status.agent_status["1"] ?? "").toLowerCase() === "done";
+  const stage2Done = (status.agent_status["2"] ?? "").toLowerCase() === "done";
+  const stage3Done = (status.agent_status["3"] ?? "").toLowerCase() === "done";
+  const stage4Done = (status.agent_status["4"] ?? "").toLowerCase() === "done";
+
+  useEffect(() => {
+    if (runMode !== "manual" || !stage1Done) return;
+    api.getCountries(sessionId).then((rows) =>
+      setCountryOptions(rows.map((r) => r.country_name).filter((v): v is string => !!v))
+    ).catch(() => {});
+  }, [runMode, stage1Done, sessionId]);
+
+  useEffect(() => {
+    if (runMode !== "manual" || !stage2Done) return;
+    api.getCities(sessionId).then((rows) =>
+      setCityOptions([...new Set(rows.map((r) => r.city).filter((v): v is string => !!v))])
+    ).catch(() => {});
+  }, [runMode, stage2Done, sessionId]);
+
+  useEffect(() => {
+    if (runMode !== "manual" || !stage3Done) return;
+    api.getZones(sessionId).then((rows) =>
+      setZoneOptions([...new Set(rows.map((r) => r.zone_name))])
+    ).catch(() => {});
+  }, [runMode, stage3Done, sessionId]);
+
+  async function handleManualRun1() {
+    setManualStarting("1");
+    try {
+      await api.runAgent1(sessionId, parseInt(manualTopN, 10) || null);
+      refresh();
+    } finally {
+      setManualStarting(null);
+    }
+  }
+  async function handleManualRun2() {
+    setManualStarting("2");
+    try {
+      await api.runAgent2(sessionId, selectedCountries);
+      refresh();
+    } finally {
+      setManualStarting(null);
+    }
+  }
+  async function handleManualRun3() {
+    setManualStarting("3");
+    try {
+      await api.runAgent3(sessionId, selectedCities);
+      refresh();
+    } finally {
+      setManualStarting(null);
+    }
+  }
+  async function handleManualRun4() {
+    setManualStarting("4");
+    try {
+      await api.runAgent4(sessionId, selectedZones);
+      refresh();
+    } finally {
+      setManualStarting(null);
+    }
+  }
+  async function handleManualRun5() {
+    setManualStarting("5");
+    try {
+      await api.runAgent5(sessionId);
+      refresh();
+    } finally {
+      setManualStarting(null);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
 
@@ -300,8 +387,31 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
              "Ready to run"}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {!isRunning && !isDone && !isFailed && (
+            <div className="flex items-center rounded-lg bg-ink-850 border border-ink-700 p-0.5">
+              <button
+                onClick={() => setRunMode("auto")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                  runMode === "auto" ? "bg-signal-500 text-ink-950" : "text-ink-400 hover:text-ink-200"
+                }`}
+              >
+                <Wand2 className="w-3.5 h-3.5" />
+                Auto
+              </button>
+              <button
+                onClick={() => setRunMode("manual")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                  runMode === "manual" ? "bg-signal-500 text-ink-950" : "text-ink-400 hover:text-ink-200"
+                }`}
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                Manual
+              </button>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+          {!isRunning && !isDone && !isFailed && runMode === "auto" && (
             <button
               onClick={handleStart}
               disabled={starting || isRunning}
@@ -349,11 +459,21 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
               </button>
             </>
           )}
+          {runMode === "manual" && !isDone && !isFailed && stage1Done && (
+            <button
+              onClick={handleReset}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-ink-800 text-ink-300 border border-ink-700 font-medium text-sm hover:bg-ink-700 transition-all"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset
+            </button>
+          )}
+          </div>
         </div>
       </div>
 
-      {/* ── Pipeline Config (only when idle) ──────────────────────────── */}
-      {!isRunning && isIdle && (
+      {/* ── Pipeline Config: Auto mode (only when idle) ───────────────── */}
+      {!isRunning && isIdle && runMode === "auto" && (
         <div className="bg-ink-900 border border-ink-800 rounded-xl p-4 flex flex-wrap items-end gap-4">
           <div>
             <label className="block font-mono text-[10px] uppercase tracking-widest text-ink-500 mb-1.5">
@@ -376,6 +496,169 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
           </label>
         </div>
       )}
+
+      {/* ── Pipeline Config: Manual mode — configure & run each stage ──── */}
+      {!isRunning && runMode === "manual" && (
+        <div className="flex flex-col gap-4">
+          {/* Stage 1: Countries */}
+          <div className="bg-ink-900 border border-ink-800 rounded-xl p-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-ink-100">
+                1 · Country Discovery
+                {stage1Done && <span className="ml-2 text-xs font-normal text-emerald-400">Done</span>}
+              </h3>
+              <button
+                onClick={handleManualRun1}
+                disabled={manualStarting !== null}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-signal-500 text-ink-950 text-xs font-bold hover:bg-signal-400 disabled:opacity-50 transition-all"
+              >
+                <Play className="w-3 h-3" />
+                {manualStarting === "1" ? "Running…" : stage1Done ? "Re-run" : "Run"}
+              </button>
+            </div>
+            <StageConfigurator
+              label="Countries"
+              numberLabel="e.g. 10"
+              numberValue={manualTopN}
+              onNumberChange={setManualTopN}
+              nameOptions={[]}
+              selectedNames={[]}
+              onSelectedNamesChange={() => {}}
+              disabled={manualStarting !== null}
+            />
+            <p className="text-[11px] text-ink-500 -mt-1">
+              Number mode ranks countries by GDP and takes the top N. Named search isn't available
+              at this stage — country discovery is what populates the list everything else searches by name.
+            </p>
+          </div>
+
+          {/* Stage 2: Cities */}
+          <div className={`bg-ink-900 border rounded-xl p-4 flex flex-col gap-3 ${stage1Done ? "border-ink-800" : "border-ink-800 opacity-50"}`}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-ink-100">
+                2 · City Discovery
+                {stage2Done && <span className="ml-2 text-xs font-normal text-emerald-400">Done</span>}
+              </h3>
+              <button
+                onClick={handleManualRun2}
+                disabled={!stage1Done || manualStarting !== null}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-signal-500 text-ink-950 text-xs font-bold hover:bg-signal-400 disabled:opacity-40 transition-all"
+              >
+                <Play className="w-3 h-3" />
+                {manualStarting === "2" ? "Running…" : stage2Done ? "Re-run" : "Run"}
+              </button>
+            </div>
+            <StageConfigurator
+              label="Cities"
+              numberLabel="e.g. 10"
+              numberValue={manualCityTopN}
+              onNumberChange={setManualCityTopN}
+              nameOptions={countryOptions}
+              selectedNames={selectedCountries}
+              onSelectedNamesChange={setSelectedCountries}
+              disabled={!stage1Done || manualStarting !== null}
+            />
+            <p className="text-[11px] text-ink-500 -mt-1">
+              Name mode filters to specific countries (e.g. India, USA, Japan) discovered in Stage 1
+              before running city segmentation on them.
+            </p>
+          </div>
+
+          {/* Stage 3: Zones */}
+          <div className={`bg-ink-900 border rounded-xl p-4 flex flex-col gap-3 ${stage2Done ? "border-ink-800" : "border-ink-800 opacity-50"}`}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-ink-100">
+                3 · Zone Discovery
+                {stage3Done && <span className="ml-2 text-xs font-normal text-emerald-400">Done</span>}
+              </h3>
+              <button
+                onClick={handleManualRun3}
+                disabled={!stage2Done || manualStarting !== null}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-signal-500 text-ink-950 text-xs font-bold hover:bg-signal-400 disabled:opacity-40 transition-all"
+              >
+                <Play className="w-3 h-3" />
+                {manualStarting === "3" ? "Running…" : stage3Done ? "Re-run" : "Run"}
+              </button>
+            </div>
+            <StageConfigurator
+              label="Cities to zone-map"
+              numberLabel="e.g. 10"
+              numberValue={manualZoneTopN}
+              onNumberChange={setManualZoneTopN}
+              nameOptions={cityOptions}
+              selectedNames={selectedCities}
+              onSelectedNamesChange={setSelectedCities}
+              disabled={!stage2Done || manualStarting !== null}
+            />
+          </div>
+
+          {/* Stage 4: Sub-areas */}
+          <div className={`bg-ink-900 border rounded-xl p-4 flex flex-col gap-3 ${stage3Done ? "border-ink-800" : "border-ink-800 opacity-50"}`}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-ink-100">
+                4 · Sub-Area Mapping
+                {stage4Done && <span className="ml-2 text-xs font-normal text-emerald-400">Done</span>}
+              </h3>
+              <button
+                onClick={handleManualRun4}
+                disabled={!stage3Done || manualStarting !== null}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-signal-500 text-ink-950 text-xs font-bold hover:bg-signal-400 disabled:opacity-40 transition-all"
+              >
+                <Play className="w-3 h-3" />
+                {manualStarting === "4" ? "Running…" : stage4Done ? "Re-run" : "Run"}
+              </button>
+            </div>
+            <StageConfigurator
+              label="Zones to sub-area map"
+              numberLabel="e.g. 10"
+              numberValue={manualSubareaTopN}
+              onNumberChange={setManualSubareaTopN}
+              nameOptions={zoneOptions}
+              selectedNames={selectedZones}
+              onSelectedNamesChange={setSelectedZones}
+              disabled={!stage3Done || manualStarting !== null}
+            />
+          </div>
+
+          {/* Stage 5: Scraper */}
+          <div className={`bg-ink-900 border rounded-xl p-4 flex items-center justify-between ${stage4Done ? "border-ink-800" : "border-ink-800 opacity-50"}`}>
+            <div>
+              <h3 className="text-sm font-semibold text-ink-100">
+                5 · Execution Engine (Lead Scraper)
+              </h3>
+              <p className="text-[11px] text-ink-500 mt-0.5">
+                Scrapes company data for all mapped sub-areas from the previous stage.
+              </p>
+            </div>
+            <button
+              onClick={handleManualRun5}
+              disabled={!stage4Done || manualStarting !== null}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-signal-500 text-ink-950 text-xs font-bold hover:bg-signal-400 disabled:opacity-40 transition-all shrink-0"
+            >
+              <Play className="w-3.5 h-3.5" />
+              {manualStarting === "5" ? "Running…" : "Run Scraper"}
+            </button>
+          </div>
+
+          {(status.agent_status["5"] ?? "").toLowerCase() === "done" && (
+            <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <p className="text-sm font-medium text-emerald-400 flex-1">
+                All stages complete — {counts.companies?.toLocaleString() ?? 0} companies found.
+              </p>
+              {status.output_file && (
+                <a href={api.downloadUrl(sessionId)} download>
+                  <button className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-medium text-xs hover:bg-emerald-500/20 transition-all">
+                    <Download className="w-3.5 h-3.5" />
+                    Download
+                  </button>
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
 
       {/* ── Progress Bar ───────────────────────────────────────────────── */}
       {(isRunning || isDone || isFailed) && (
@@ -423,7 +706,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
       )}
 
       {/* ── Metrics Row ────────────────────────────────────────────────── */}
-      {(isRunning || isDone || isFailed) && (
+      {(isRunning || isDone || isFailed || (runMode === "manual" && stage1Done)) && (
         <div className="flex flex-wrap gap-3">
           <MetricCard label="Countries" value={counts.countries ?? 0} />
           <MetricCard label="Cities" value={counts.cities ?? 0} />
@@ -442,7 +725,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
       )}
 
       {/* ── Agent Pipeline Stages ─────────────────────────────────────── */}
-      {(isRunning || isDone || isFailed) && (
+      {(isRunning || isDone || isFailed || (runMode === "manual" && stage1Done)) && (
         <div className="bg-ink-900 border border-ink-800 rounded-xl">
           <div className="px-5 py-4 border-b border-ink-800">
             <h3 className="text-sm font-semibold text-ink-100">Agent Pipeline</h3>
@@ -510,7 +793,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
       )}
 
       {/* ── Idle state hint ───────────────────────────────────────────── */}
-      {isIdle && logs.length === 0 && (
+      {isIdle && logs.length === 0 && runMode === "auto" && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="w-16 h-16 rounded-2xl bg-signal-500/10 border border-signal-500/20 flex items-center justify-center mb-4">
             <Play className="w-7 h-7 text-signal-400" />
