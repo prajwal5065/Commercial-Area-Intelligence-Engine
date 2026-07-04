@@ -1,16 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { api, type SessionStatus } from "../lib/api";
 
-/**
- * Creates (or resumes) a session against the FastAPI backend and polls
- * /sessions/{id}/status on an interval - the direct equivalent of the
- * original Streamlit app's st.rerun() loop while a background thread runs.
- *
- * The session id is kept in memory only for this component tree (not
- * localStorage - artifacts/browser storage restrictions aside, a fresh
- * session per page load matches the original app's per-browser-tab model
- * closely enough and avoids stale session_id 404s after a backend restart).
- */
 export function usePipelineSession() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [status, setStatus] = useState<SessionStatus | null>(null);
@@ -22,15 +12,12 @@ export function usePipelineSession() {
     let cancelled = false;
     api
       .createSession()
-      .then((r) => {
-        if (!cancelled) setSessionId(r.session_id);
-      })
+      .then((r) => { if (!cancelled) setSessionId(r.session_id); })
       .catch((e) => {
-        if (!cancelled) setConnectionError(e instanceof Error ? e.message : "Failed to connect");
+        if (!cancelled)
+          setConnectionError(e instanceof Error ? e.message : "Failed to connect to backend");
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -49,7 +36,8 @@ export function usePipelineSession() {
         setConnectionError(e instanceof Error ? e.message : "Connection failed");
       } finally {
         if (!cancelled) {
-          timerRef.current = setTimeout(poll, runningRef.current ? 1500 : 4000);
+          // Poll faster when running (1s), slower when idle (5s)
+          timerRef.current = setTimeout(poll, runningRef.current ? 1000 : 5000);
         }
       }
     }

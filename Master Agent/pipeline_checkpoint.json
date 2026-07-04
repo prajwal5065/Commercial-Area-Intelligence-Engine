@@ -1,0 +1,119 @@
+{
+  "pipeline_id": "20260704_201959",
+  "saved_at": "2026-07-04T20:20:08.117652",
+  "countries": [
+    {
+      "iso_code": "USA",
+      "country_name": "United States",
+      "nominal_gdp_usd": 28750956130731,
+      "per_capita_usd": 84534,
+      "data_tier": 1,
+      "source_url": "https://api.worldbank.org/v2/country/US/indicator/NY.GDP.MKTP.CD?format=json",
+      "gdp_rank": 1,
+      "retrieved_at": "2026-06-20T12:20:22.963913+00:00"
+    },
+    {
+      "iso_code": "CHN",
+      "country_name": "China",
+      "nominal_gdp_usd": 18743803170827,
+      "per_capita_usd": 13303,
+      "data_tier": 1,
+      "source_url": "https://api.worldbank.org/v2/country/CN/indicator/NY.GDP.MKTP.CD?format=json",
+      "gdp_rank": 2,
+      "retrieved_at": "2026-06-20T12:20:22.963913+00:00"
+    },
+    {
+      "iso_code": "DEU",
+      "country_name": "Germany",
+      "nominal_gdp_usd": 4685592577804,
+      "per_capita_usd": 56103,
+      "data_tier": 1,
+      "source_url": "https://api.worldbank.org/v2/country/DE/indicator/NY.GDP.MKTP.CD?format=json",
+      "gdp_rank": 3,
+      "retrieved_at": "2026-06-20T12:20:22.963913+00:00"
+    },
+    {
+      "iso_code": "JPN",
+      "country_name": "Japan",
+      "nominal_gdp_usd": 4027597523550,
+      "per_capita_usd": 32487,
+      "data_tier": 1,
+      "source_url": "https://api.worldbank.org/v2/country/JP/indicator/NY.GDP.MKTP.CD?format=json",
+      "gdp_rank": 4,
+      "retrieved_at": "2026-06-20T12:20:22.963913+00:00"
+    },
+    {
+      "iso_code": "IND",
+      "country_name": "India",
+      "nominal_gdp_usd": 3909891533858,
+      "per_capita_usd": 2694,
+      "data_tier": 1,
+      "source_url": "https://api.worldbank.org/v2/country/IN/indicator/NY.GDP.MKTP.CD?format=json",
+      "gdp_rank": 5,
+      "retrieved_at": "2026-06-20T12:20:22.963913+00:00"
+    }
+  ],
+  "cities": [],
+  "zone_registry": {},
+  "subarea_rows": [],
+  "companies": [],
+  "metrics": {
+    "pipeline_id": "20260704_201959",
+    "start_time": 1783176599.3333244,
+    "end_time": 1783176608.1176522,
+    "status": "failed",
+    "agents": {
+      "1": {
+        "agent_id": "1",
+        "agent_name": "Agent 1 — Country Discovery",
+        "status": "done",
+        "start_time": 1783176599.8859973,
+        "end_time": 1783176599.8859973,
+        "input_count": 1,
+        "output_count": 5,
+        "error_count": 0,
+        "retry_count": 0,
+        "errors": [],
+        "items_in": [],
+        "items_out": [
+          "United States",
+          "China",
+          "Germany",
+          "Japan",
+          "India"
+        ],
+        "elapsed": "0.0s"
+      },
+      "2": {
+        "agent_id": "2",
+        "agent_name": "Agent 2 — City Discovery",
+        "status": "done",
+        "start_time": 1783176599.8975222,
+        "end_time": 1783176608.104604,
+        "input_count": 5,
+        "output_count": 0,
+        "error_count": 0,
+        "retry_count": 0,
+        "errors": [],
+        "items_in": [],
+        "items_out": [],
+        "elapsed": "8.2s"
+      }
+    },
+    "countries": 5,
+    "cities": 0,
+    "zones": 0,
+    "subareas": 0,
+    "companies_raw": 0,
+    "companies_deduped": 0,
+    "duplicates_removed": 0,
+    "invalid_records": 0,
+    "supabase_inserted": 0,
+    "peak_cpu": 24.0,
+    "peak_mem_mb": 75.15625,
+    "output_file": null,
+    "error": "General execution error (Details: Agent 2 produced 0 cities — cannot continue.)",
+    "failed_agent": null,
+    "elapsed": "8.8s"
+  }
+}

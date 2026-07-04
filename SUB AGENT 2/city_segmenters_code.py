@@ -6,6 +6,18 @@ import requests
 from datetime import datetime   
 from dotenv import load_dotenv
 
+# Reconfigure stdout/stderr to prevent UnicodeEncodeErrors on Windows CP1252/etc.
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(errors='replace')
+    except Exception:
+        pass
+if hasattr(sys.stderr, 'reconfigure'):
+    try:
+        sys.stderr.reconfigure(errors='replace')
+    except Exception:
+        pass
+
 load_dotenv()
 
 
@@ -134,15 +146,28 @@ def gather_search_context(country: str) -> str:
         f"{country} ministry urban development city categories official",
     ]
 
+    if not TAVILY_API_KEY:
+        print("  [Tavily] Skipping search — no API key.")
+        return ""
+
     all_results = []
+    tavily_failed = False
     for q in queries:
         print(f"  [Tavily] {q}")
         try:
             results = tavily_search(q)
             all_results.extend(results)
-            print(f"           → {len(results)} result(s)")
+            print(f"           -> {len(results)} result(s)")
         except Exception as e:
-            print(f"           → FAILED: {e}")
+            err_str = str(e).lower()
+            if any(kw in err_str for kw in ["432", "429", "rate limit", "rate_limit", "too many requests", "quota", "credits"]):
+                print(f"           -> Tavily plan limit reached — switching to LLM-only mode.")
+                tavily_failed = True
+                break
+            print(f"           -> FAILED: {e}")
+
+    if tavily_failed:
+        return ""
 
     print(f"  [Tavily] Total results collected: {len(all_results)}")
 
@@ -165,13 +190,26 @@ def groq_classify(country: str, search_context: str) -> str:
         "Authorization": f"Bearer {GROQ_API_KEY}",
     }
 
-    user_message = (
-        f"Country: {country}\n\n"
-        f"Web search results from official sources:\n\n{search_context}\n\n"
-        f"Task: Classify all cities of {country} into Tier 1, Tier 2, and Tier 3 "
-        f"using the search results above. Apply fallback Business Importance Mapping "
-        f"strategy if no explicit tier system exists. Return ONLY valid JSON."
-    )
+    if search_context:
+        user_message = (
+            f"Country: {country}\n\n"
+            f"Web search results from official sources:\n\n{search_context}\n\n"
+            f"Task: Classify all cities of {country} into Tier 1, Tier 2, and Tier 3 "
+            f"using the search results above. Apply fallback Business Importance Mapping "
+            f"strategy if no explicit tier system exists. Return ONLY valid JSON."
+        )
+    else:
+        # LLM-only fallback: no search context available
+        print("  [Groq] No Tavily context — using LLM training knowledge only.")
+        user_message = (
+            f"Country: {country}\n\n"
+            f"Web search is currently unavailable. Use your own comprehensive training knowledge "
+            f"to classify the most important cities of {country} into Tier 1, Tier 2, and Tier 3 "
+            f"based on economic importance, population, and administrative significance. "
+            f"For source_url, use the most relevant official government or statistical source URL you know. "
+            f"Apply the Business Importance Mapping fallback strategy. "
+            f"Return ONLY valid JSON — be thorough and list as many real cities as possible."
+        )
 
     payload = {
         "model":       GROQ_MODEL,
@@ -262,7 +300,7 @@ def parse_json(raw: str) -> dict:
     # Strip ```json ... ``` fences
     if cleaned.startswith("```"):
         cleaned = cleaned.split("\n", 1)[-1]
-        cleaned.rsplit("```", 1)[0].strip()
+        cleaned = cleaned.rsplit("```", 1)[0].strip()  # FIX: assign back to cleaned
 
     # ── Attempt 1: Parse as-is (handles correct nested format) ──
     try:
@@ -419,15 +457,21 @@ def process_country(country: str) -> dict:
         raise ValueError("GROQ_API_KEY not found")
 
     if not TAVILY_API_KEY:
-        raise ValueError("TAVILY_API_KEY not found")
+        print("  [Tavily] No API key — running in LLM-only mode.")
 
     print(f"\n[Agent] Country : {country}")
     print(f"[Agent] LLM     : {GROQ_MODEL} via Groq")
 
-    print("\n[Step 1/3] Searching official sources via Tavily...")
+    if TAVILY_API_KEY:
+        print("\n[Step 1/3] Searching official sources via Tavily...")
+    else:
+        print("\n[Step 1/3] Tavily unavailable — skipping search, using LLM-only mode...")
     search_context = gather_search_context(country)
 
-    print("\n[Step 2/3] Classifying cities via Groq...")
+    if search_context:
+        print("\n[Step 2/3] Classifying cities via Groq (with search context)...")
+    else:
+        print("\n[Step 2/3] Classifying cities via Groq (LLM-only, no search context)...")
     raw_response = groq_classify(country, search_context)
 
     print(f"  [Groq] Response received ({len(raw_response)} chars)")

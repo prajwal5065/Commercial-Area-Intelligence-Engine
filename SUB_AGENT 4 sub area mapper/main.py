@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import sys
 import time
 import logging
 from datetime import datetime
@@ -8,9 +9,19 @@ from typing import Optional, Dict, Any
 
 import requests
 from dotenv import load_dotenv
-from supabase import create_client
 
-load_dotenv()
+# ── Load .env: first try the sub-agent's own folder, then walk up to find
+# the project root .env so Supabase/Groq keys are always available when
+# this module is imported from a worker thread in run_pipeline.py.
+_HERE_MAIN = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(_HERE_MAIN, ".env"))          # sub-agent .env (if any)
+# Walk up directory tree looking for the project root .env
+_search = _HERE_MAIN
+for _ in range(5):
+    _candidate = os.path.join(_search, ".env")
+    if os.path.exists(_candidate):
+        load_dotenv(_candidate, override=False)          # project root .env
+    _search = os.path.dirname(_search)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,14 +31,26 @@ log = logging.getLogger(__name__)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
-    raise EnvironmentError("Missing GROQ_API_KEY in .env file")
+    log.warning("[main.py] GROQ_API_KEY not found in .env — process_zone calls will fail.")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-if not SUPABASE_URL or not SUPABASE_KEY:
-    raise EnvironmentError("Missing SUPABASE_URL or SUPABASE_KEY in .env file")
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Create Supabase client only when credentials are available.
+# Missing credentials are non-fatal: subareas are still written to disk;
+# only Supabase insertion is skipped.
+_supabase_available = bool(SUPABASE_URL and SUPABASE_KEY)
+if not _supabase_available:
+    log.warning("[main.py] SUPABASE_URL or SUPABASE_KEY missing — Supabase insertion disabled.")
+    supabase = None
+else:
+    try:
+        from supabase import create_client
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    except Exception as _e:
+        log.warning(f"[main.py] Could not create Supabase client: {_e} — insertion disabled.")
+        supabase = None
+        _supabase_available = False
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.3-70b-versatile"
@@ -87,6 +110,10 @@ def extract_json(raw: str) -> Optional[dict]:
 
 def insert_subareas_to_supabase(data: dict) -> Dict[str, int]:
     """Extract results from validated JSON and insert into Supabase."""
+    if not _supabase_available or supabase is None:
+        log.info("[main.py] Supabase unavailable — skipping DB insertion.")
+        return {"inserted": 0, "skipped": 0, "failed": 0}
+
     if not isinstance(data, dict) or "input" not in data or "results" not in data:
         return {"inserted": 0, "skipped": 0, "failed": 0}
 

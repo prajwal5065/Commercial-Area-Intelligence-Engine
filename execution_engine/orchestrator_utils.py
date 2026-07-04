@@ -10,9 +10,24 @@ Provides shared utilities for the unified concurrent pipeline:
 
 import math
 import json
+import traceback as _traceback
 from typing import List, Dict, Any, Callable, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
+import sys
+
+# Reconfigure stdout/stderr to prevent UnicodeEncodeErrors on Windows CP1252/etc.
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(errors='replace')
+    except Exception:
+        pass
+if hasattr(sys.stderr, 'reconfigure'):
+    try:
+        sys.stderr.reconfigure(errors='replace')
+    except Exception:
+        pass
+
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -71,18 +86,18 @@ def print_planning_block(phase_num: int, phase_name: str, total_items: int,
     
     Shows: Phase number, name, total items, batch capacity, instance count.
     """
-    print("\n" + "─" * 60)
+    print("\n" + "=" * 60)
     print(f"  PHASE {phase_num} PLANNING: {phase_name}")
-    print("─" * 60)
+    print("=" * 60)
     print(f"  Total {item_label}: N = {total_items}")
     print(f"  Capacity per instance: C_max = {c_max} {item_label}")
     print(f"  Required instances: K = ceil({total_items} / {c_max}) = {K}")
-    print("─" * 60 + "\n")
+    print("=" * 60 + "\n")
 
 
-# ═══════════════════════════════════════════════════════════════════
+# ===================================================================
 #  Dispatch Block Printing
-# ═══════════════════════════════════════════════════════════════════
+# ===================================================================
 
 def print_dispatch_block(agent_name: str, instance_id: str, input_data: List[Any],
                         expected_output_desc: str) -> None:
@@ -95,11 +110,11 @@ def print_dispatch_block(agent_name: str, instance_id: str, input_data: List[Any
     if len(input_data) > 3:
         input_str += f", ... (+{len(input_data) - 3} more)"
     
-    print(f"  ┌─ [{instance_id}]")
-    print(f"  │ Agent: {agent_name}")
-    print(f"  │ Input: [{input_str}]")
-    print(f"  │ Expected Output: {expected_output_desc}")
-    print(f"  └─")
+    print(f"  +- [{instance_id}]")
+    print(f"  | Agent: {agent_name}")
+    print(f"  | Input: [{input_str}]")
+    print(f"  | Expected Output: {expected_output_desc}")
+    print(f"  +-")
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -143,14 +158,18 @@ def fault_tolerant_dispatch(worker_fn: Callable, batches: List[Dict],
                 if attempt < max_retries:
                     print(f"  [{instance_id}] Retry {attempt + 1}/{max_retries} after error: {e}")
                 else:
-                    # Final failure — log and drop
+                    # Final failure — log full traceback and drop
+                    tb = _traceback.format_exc()
                     failure = {
                         "phase": agent_name,
                         "instance_id": instance_id,
                         "error": str(e),
+                        "traceback": tb,
                         "items_count": len(items),
                     }
-                    print(f"  [{instance_id}] ✗ DROPPED — Max retries exceeded. Error: {e}")
+                    print(f"  [{instance_id}] ✗ DROPPED — Max retries exceeded.")
+                    print(f"  [{instance_id}] Error: {e}")
+                    print(f"  [{instance_id}] Traceback:\n{tb}")
                     return None, failure
         
         return None, None
@@ -210,11 +229,17 @@ class PipelineState:
         # Execution tracking
         self.failures = []  # [{"phase": "...", "instance_id": "...", "error": "..."}]
         self.start_time = datetime.now()
-    
+        self.on_failure_callback = None
+
     def log_failure(self, phase_name: str, failure_dict: Dict) -> None:
         """Log a dropped slice (failed batch execution)."""
         failure_dict["phase"] = phase_name
         self.failures.append(failure_dict)
+        if self.on_failure_callback:
+            try:
+                self.on_failure_callback(phase_name, failure_dict)
+            except Exception:
+                pass
     
     def finalize(self) -> None:
         """Finalize pipeline state after all phases complete."""

@@ -1,0 +1,18 @@
+{
+  "status": "SUCCESS",
+  "city": "Mumbai",
+  "country": "India",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-04T13:19:51",
+  "zones": [
+    {
+      "zone_name": "Bandra Kurla Complex",
+      "business_count": 500,
+      "count_source": "authority_page",
+      "source_url": "https://www.workthere.com/spaces/mumbai-bandra-kurla-complex-bkc",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 1
+    }
+  ]
+}

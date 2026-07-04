@@ -1,6 +1,26 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-export type AgentStatus = "Pending" | "Running" | "Done" | "Error";
+export type AgentStatus = "Pending" | "Running" | "Done" | "Error" | "pending" | "running" | "done" | "failed" | "skipped";
+
+export interface LogEntry {
+  ts: string;
+  level: "INFO" | "WARN" | "ERROR" | "SUCCESS" | "STAGE" | "METRIC" | "EOF";
+  agent: string;
+  message: string;
+}
+
+export interface AgentDetail {
+  agent_id: string;
+  agent_name: string;
+  status: string;
+  elapsed: string;
+  input_count: number;
+  output_count: number;
+  error_count: number;
+  retry_count: number;
+  errors: string[];
+  items_out: string[];
+}
 
 export interface SessionStatus {
   session_id: string;
@@ -8,24 +28,37 @@ export interface SessionStatus {
   error: string | null;
   agent_status: Record<string, AgentStatus>;
   output_file: string | null;
+  // Production fields
+  pipeline_status: string;
+  elapsed: string | null;
+  counts: {
+    countries: number;
+    cities: number;
+    zones: number;
+    subareas: number;
+    companies: number;
+    companies_raw: number;
+    duplicates_removed: number;
+    supabase_inserted: number;
+  };
+  system: {
+    peak_cpu: number;
+    peak_mem_mb: number;
+    cpu_now: number;
+    mem_mb: number;
+  };
+  failed_agent: string | null;
+  agents_detail: Record<string, AgentDetail>;
 }
 
-export interface CompanyRow {
-  company_name?: string;
-  category?: string;
-  priority?: string;
-  subarea_name?: string;
-  zone_name?: string;
-  city_name?: string;
-  country_name?: string;
-  [key: string]: unknown;
-}
-
-export interface ExplorerOptions {
-  countries: string[];
-  cities: string[];
-  zones: string[];
-  subareas: string[];
+export interface PipelineRunRequest {
+  top_n?: number | null;
+  selected_countries?: string[];
+  selected_cities?: string[];
+  selected_zones?: string[];
+  max_scrolls?: number;
+  max_scrapers?: number;
+  skip_supabase?: boolean;
 }
 
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
@@ -38,19 +71,12 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
     try {
       const body = await res.json();
       detail = body.detail ?? detail;
-    } catch {
-      /* not json */
-    }
+    } catch { /* not json */ }
     throw new Error(detail);
   }
   return res.json();
 }
 
-/**
- * Matches Master Agent/backend_api.py exactly - a session-based FastAPI
- * backend (POST /sessions creates a session_id, everything else is scoped
- * under /sessions/{id}/...). See that file's docstring for design notes.
- */
 export const api = {
   health: () => req<{ status: string }>("/health"),
 
@@ -65,47 +91,64 @@ export const api = {
       method: "DELETE",
     }),
 
+  // ── Full pipeline ──────────────────────────────────────────────────
+  runFullPipeline: (sessionId: string, body: PipelineRunRequest = {}) =>
+    req<{ status: string; message: string }>(`/sessions/${sessionId}/pipeline/run`, {
+      method: "POST",
+      body: JSON.stringify({
+        top_n: body.top_n ?? null,
+        selected_countries: body.selected_countries ?? [],
+        selected_cities: body.selected_cities ?? [],
+        selected_zones: body.selected_zones ?? [],
+        max_scrolls: body.max_scrolls ?? 8,
+        max_scrapers: body.max_scrapers ?? 3,
+        skip_supabase: body.skip_supabase ?? false,
+      }),
+    }),
+
+  stopPipeline: (sessionId: string) =>
+    req<{ status: string }>(`/sessions/${sessionId}/pipeline/stop`, { method: "POST" }),
+
+  getLogs: (sessionId: string) =>
+    req<LogEntry[]>(`/sessions/${sessionId}/pipeline/logs`),
+
+  // SSE stream URL (not a fetch — use EventSource)
+  logsStreamUrl: (sessionId: string) =>
+    `${BASE_URL}/sessions/${sessionId}/pipeline/logs/stream`,
+
+  // ── Individual agents (manual mode) ──────────────────────────────
   runAgent1: (sessionId: string, topN: number | null) =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/1/run`, {
       method: "POST",
       body: JSON.stringify({ top_n: topN }),
     }),
-
   runAgent2: (sessionId: string, selectedCountries: string[]) =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/2/run`, {
       method: "POST",
       body: JSON.stringify({ selected_countries: selectedCountries }),
     }),
-
   runAgent3: (sessionId: string, selectedCities: string[]) =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/3/run`, {
       method: "POST",
       body: JSON.stringify({ selected_cities: selectedCities }),
     }),
-
   runAgent4: (sessionId: string, selectedZones: string[]) =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/4/run`, {
       method: "POST",
       body: JSON.stringify({ selected_zones: selectedZones }),
     }),
-
   runAgent5: (sessionId: string) =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/5/run`, { method: "POST" }),
 
+  // ── Data ──────────────────────────────────────────────────────────
   getCountries: (sessionId: string) =>
-    req<{ country_name?: string; gdp_rank?: number }[]>(
-      `/sessions/${sessionId}/data/countries`
-    ),
+    req<{ country_name?: string; gdp_rank?: number }[]>(`/sessions/${sessionId}/data/countries`),
 
   getCities: (sessionId: string) =>
-    req<{ city?: string; country?: string; tier?: number }[]>(
-      `/sessions/${sessionId}/data/cities`
-    ),
+    req<{ city?: string; country?: string; tier?: number }[]>(`/sessions/${sessionId}/data/cities`),
 
   getZones: (sessionId: string) =>
-    req<{ country: string; city: string; zone_name: string }[]>(
-      `/sessions/${sessionId}/data/zones`
-    ),
+    req<{ country: string; city: string; zone_name: string }[]>(`/sessions/${sessionId}/data/zones`),
 
   getSubareas: (sessionId: string) =>
     req<Record<string, unknown>[]>(`/sessions/${sessionId}/data/subareas`),
@@ -116,18 +159,7 @@ export const api = {
   ) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([k, v]) => v && params.set(k, v));
-    return req<CompanyRow[]>(`/sessions/${sessionId}/data/companies?${params.toString()}`);
-  },
-
-  getExplorerOptions: (
-    sessionId: string,
-    filters: { country?: string; city?: string; zone?: string }
-  ) => {
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([k, v]) => v && params.set(k, v));
-    return req<ExplorerOptions>(
-      `/sessions/${sessionId}/data/explorer-options?${params.toString()}`
-    );
+    return req<Record<string, unknown>[]>(`/sessions/${sessionId}/data/companies?${params.toString()}`);
   },
 
   downloadUrl: (sessionId: string) => `${BASE_URL}/sessions/${sessionId}/download`,

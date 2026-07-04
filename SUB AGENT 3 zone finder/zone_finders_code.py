@@ -42,10 +42,35 @@ load_dotenv()
 # Logging
 # --------------------------------------------------
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
+# Reconfigure stdout/stderr to prevent UnicodeEncodeErrors on Windows CP1252/etc.
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(errors='replace')
+    except Exception:
+        pass
+if hasattr(sys.stderr, 'reconfigure'):
+    try:
+        sys.stderr.reconfigure(errors='replace')
+    except Exception:
+        pass
+
+try:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+            logging.StreamHandler(stream=sys.stdout)
+        ]
+    )
+    for _h in logging.root.handlers:
+        if hasattr(_h, 'stream') and hasattr(_h.stream, 'reconfigure'):
+            try:
+                _h.stream.reconfigure(encoding='utf-8', errors='replace')
+            except Exception:
+                pass
+except Exception:
+    pass
+
 log = logging.getLogger(__name__)
 
 
@@ -165,7 +190,16 @@ def extract_best_count_from_results(results: list):
 #  TAVILY
 # ═══════════════════════════════════════════════════════════════════
 
+# Module-level flag — set to False the first time a plan-limit error is hit.
+TAVILY_AVAILABLE = True
+
+
 def tavily_search(query: str, max_results: int = 7) -> list:
+    global TAVILY_AVAILABLE
+
+    if not TAVILY_AVAILABLE or not TAVILY_API_KEY:
+        return []
+
     payload = {
         "api_key":             TAVILY_API_KEY,
         "query":               query,
@@ -177,6 +211,11 @@ def tavily_search(query: str, max_results: int = 7) -> list:
     for attempt in range(1, RETRY_ATTEMPTS + 1):
         try:
             resp = requests.post(TAVILY_API_URL, json=payload, timeout=30)
+            err_str = str(resp.status_code)
+            if resp.status_code in (429, 432):
+                log.warning(f"Tavily plan/rate limit hit (HTTP {resp.status_code}) — disabling Tavily for this run.")
+                TAVILY_AVAILABLE = False
+                return []
             resp.raise_for_status()
             data    = resp.json()
             results = data.get("results", [])
@@ -188,6 +227,11 @@ def tavily_search(query: str, max_results: int = 7) -> list:
                 })
             return results
         except Exception as e:
+            err_str = str(e).lower()
+            if any(kw in err_str for kw in ["432", "429", "rate limit", "rate_limit", "quota", "credits", "too many requests"]):
+                log.warning(f"Tavily plan/rate limit error — disabling Tavily for this run: {e}")
+                TAVILY_AVAILABLE = False
+                return []
             if attempt < RETRY_ATTEMPTS:
                 time.sleep(RETRY_DELAY_SEC)
             else:
@@ -258,6 +302,8 @@ def call_llm(system: str, user: str) -> str:
     cur_user = user
 
     for attempt in range(1, RETRY_ATTEMPTS + 1):
+        if ACTIVE_PROVIDER == "groq" and 'groq_limiter' in globals():
+            groq_limiter.wait()
         if LLM_FMT == "openai":
             payload = _openai_payload(system, cur_user)
             headers = {
@@ -414,24 +460,70 @@ Example: ["Hinjewadi IT Park","Magarpatta City","Pune Camp","Kothrud"]
 """
 
 
+PASS1_LLM_ONLY_SYSTEM = """
+You are a commercial zone analyst with comprehensive knowledge of cities worldwide.
+Given a city and country name, list ALL significant commercial zones from your training knowledge:
+IT parks, industrial estates, CBDs, SEZs, market districts, trade clusters, tech hubs.
+Output ONLY a raw JSON array of zone name strings. No other text.
+Example: ["Hinjewadi IT Park","Magarpatta City","Pune Camp","Kothrud"]
+Be thorough — list at least 8-15 zones if they exist.
+"""
+
+
 def discover_zones(city: str, country: str) -> list:
+    global TAVILY_AVAILABLE
     log.info(f"[Pass 1] Discovering zones for {city}, {country}")
+
+    # LLM-only path: Tavily unavailable or not configured
+    if not TAVILY_AVAILABLE or not TAVILY_API_KEY:
+        log.info(f"[Pass 1] Tavily unavailable — using LLM-only zone discovery for {city}")
+        try:
+            raw = call_llm(
+                PASS1_LLM_ONLY_SYSTEM,
+                f"City: {city}, Country: {country}\n\n"
+                f"List all significant commercial zones, business districts, IT parks, SEZs, "
+                f"industrial estates, and market areas in {city}. "
+                f"Output ONLY a JSON array of zone name strings.",
+            )
+            zones = extract_json_array(raw)
+            zones = [z for z in zones if isinstance(z, str) and z.strip()]
+            log.info(f"[Pass 1-LLM] {city}: {len(zones)} zones discovered (LLM-only)")
+            return zones
+        except Exception as e:
+            log.error(f"[Pass 1-LLM] {city}: LLM-only zone discovery failed — {e}")
+            return []
+
     results, seen = [], set()
-    # for q in [
-    #     f"{city} {country} major commercial zones business districts list",
-    #     f"{city} {country} IT parks industrial estates SEZ zones",
-    #     f"{city} {country} commercial areas market districts trade clusters",
-    # ]:
-    #     log.info(f"  [Tavily] {q[:80]}")
-    #     for r in tavily_search(q):
     tavily_limiter.wait()
-    for r in tavily_search(
-        f"{city} {country} IT parks SEZ industrial estates commercial zones business districts trade clusters list",
-        max_results=7
-    ):
-        if r.get("url", "") not in seen:
-            seen.add(r.get("url", ""))
-            results.append(r)
+    try:
+        for r in tavily_search(
+            f"{city} {country} IT parks SEZ industrial estates commercial zones business districts trade clusters list",
+            max_results=7
+        ):
+            if r.get("url", "") not in seen:
+                seen.add(r.get("url", ""))
+                results.append(r)
+    except Exception as e:
+        log.warning(f"[Pass 1] Tavily error for {city}: {e}")
+
+    # If Tavily returned nothing, fall back to LLM-only
+    if not results:
+        log.info(f"[Pass 1] No Tavily results for {city} — falling back to LLM-only")
+        try:
+            raw = call_llm(
+                PASS1_LLM_ONLY_SYSTEM,
+                f"City: {city}, Country: {country}\n\n"
+                f"List all significant commercial zones, business districts, IT parks, SEZs, "
+                f"industrial estates, and market areas in {city}. "
+                f"Output ONLY a JSON array of zone name strings.",
+            )
+            zones = extract_json_array(raw)
+            zones = [z for z in zones if isinstance(z, str) and z.strip()]
+            log.info(f"[Pass 1-LLM] {city}: {len(zones)} zones discovered (LLM-only fallback)")
+            return zones
+        except Exception as e:
+            log.error(f"[Pass 1-LLM] {city}: LLM fallback failed — {e}")
+            return []
 
     ctx = trim_to_budget(results_to_context(results, chars_per=400))
     raw = call_llm(
@@ -488,22 +580,25 @@ def fetch_zone_count(zone_name: str, city: str, country: str) -> dict:
     Layer 2 — LLM reads Tavily content   (catches what regex misses)
     Layer 3 — LLM estimates from knowledge (guaranteed non-null fallback)
     """
-    results, seen = [], set()
-    # for q in [
-    #     f'"{zone_name}" {city} number of companies businesses',
-    #     f'"{zone_name}" {city} businesses listed directory',
-    #     f'"{zone_name}" {city} total units tenants registered firms',
-    # ]:
-    for q in [
-        f'"{zone_name}" {city} number of companies businesses',
-        f'"{zone_name}" {city} businesses listed directory',
-        f'"{zone_name}" {city} total units tenants registered firms',
-    ]:
-        time.sleep(1)  # ADD THIS: Prevents Tavily 432 when looping through multiple zones
-        for r in tavily_search(q, max_results=5):
-            if r.get("url", "") not in seen:
-                seen.add(r.get("url", ""))
-                results.append(r)
+    # If Tavily is unavailable, skip straight to Layer 3 (LLM estimate)
+    if not TAVILY_AVAILABLE or not TAVILY_API_KEY:
+        log.info(f"  [L1/L2 skipped] Tavily unavailable for {zone_name} — going straight to LLM estimate")
+        results = []
+    else:
+        results, seen = [], set()
+        for q in [
+            f'"{zone_name}" {city} number of companies businesses',
+            f'"{zone_name}" {city} businesses listed directory',
+            f'"{zone_name}" {city} total units tenants registered firms',
+        ]:
+            if 'tavily_limiter' in globals():
+                tavily_limiter.wait()
+            else:
+                time.sleep(1)
+            for r in tavily_search(q, max_results=5):
+                if r.get("url", "") not in seen:
+                    seen.add(r.get("url", ""))
+                    results.append(r)
 
     # Layer 1: Regex
     hit = extract_best_count_from_results(results)
@@ -735,13 +830,14 @@ def main():
         sys.exit(1)
 
     missing = []
-    if not TAVILY_API_KEY:
-        missing.append("TAVILY_API_KEY")
     if not LLM_API_KEY:
         missing.append(P["api_key_env"])
     if missing:
         log.error(f"Missing in .env: {', '.join(missing)}")
         sys.exit(1)
+
+    if not TAVILY_API_KEY:
+        log.warning("TAVILY_API_KEY not set — running Agent 3 in LLM-only mode.")
 
     process_city(city, country)
 

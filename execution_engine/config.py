@@ -12,7 +12,11 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 EXECUTION_ENGINE_WORKERS = int(os.getenv("EXECUTION_ENGINE_WORKERS", "1"))
 
 if not SUPABASE_URL or not SUPABASE_KEY:
-    raise EnvironmentError("Missing SUPABASE_URL or SUPABASE_KEY in .env file")
+    import logging as _logging
+    _logging.warning(
+        "execution_engine/config.py: SUPABASE_URL or SUPABASE_KEY missing in .env — "
+        "Supabase persistence will be disabled. Scraping will still run."
+    )  # FIX: was hard raise EnvironmentError, which crashed scraper threads silently
 
 # ==========================================
 # PLAYWRIGHT CONFIGURATION

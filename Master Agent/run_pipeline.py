@@ -13,7 +13,7 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 if os.path.basename(project_root).lower().replace(" ", "_") in ("master_agent", "master agent"):
     project_root = os.path.dirname(project_root)
 
-sub1_path = os.path.join(project_root, "SUB AGENT 1", "SUB AGENT 1 gdp ranker")
+sub1_path = os.path.join(project_root, "SUB AGENT 1")  # FIX: correct path (no sub-subdirectory)
 sub2_path = os.path.join(project_root, "SUB AGENT 2")
 sub3_path = os.path.join(project_root, "SUB AGENT 3 zone finder")
 sub4_path = os.path.join(project_root, "SUB_AGENT 4 sub area mapper")
@@ -33,6 +33,20 @@ os.environ.pop("OPEN_ROUTER_AI_KEY", None)
 
 # Import module functions safely
 import city_segmenters_code
+
+# Import Sub-Agent 4's process_zone at module level so import errors are
+# caught immediately rather than silently swallowed inside a thread worker.
+try:
+    from main import process_zone as _process_zone_fn
+except Exception as _import_err:
+    import warnings
+    warnings.warn(
+        f"[run_pipeline] Could not import process_zone from main.py: {_import_err}. "
+        "Phase 4 (Sub-Area Mapping) will fail. Check that GROQ_API_KEY is set.",
+        ImportWarning,
+        stacklevel=1,
+    )
+    _process_zone_fn = None  # type: ignore
 
 # Import orchestrator protocol library
 from orchestrator_utils import (
@@ -173,17 +187,31 @@ def phase_2_city_segmentation(state):
 
     # Worker function for fault-tolerant dispatch
     def segmentation_worker(country_batch, instance_id):
-        import time # ADD THIS
+        import time
+        import traceback
         print(f"  [{instance_id}] Processing {len(country_batch)} countries: {country_batch}")
         results = {}
-        for country_name in country_batch:
-            time.sleep(1) # ADD THIS: Staggers Groq calls to prevent 429 errors
-            try:
-                data = city_segmenters_code.process_country(country_name)
-                results[country_name] = data
-            except Exception as e:
-                print(f"  [{instance_id}] ERROR for {country_name}: {e}")
-                results[country_name] = {"status": "FAILED", "error": str(e)}
+        for idx, country_name in enumerate(country_batch):
+            if idx > 0:
+                time.sleep(5)  # Stagger sequential calls to avoid Groq 429
+            max_retries = 3
+            for attempt in range(1, max_retries + 1):
+                try:
+                    data = city_segmenters_code.process_country(country_name)
+                    results[country_name] = data
+                    break
+                except Exception as e:
+                    err_str = str(e).lower()
+                    is_rate_limit = any(kw in err_str for kw in ["429", "rate limit", "rate_limit", "too many requests"])
+                    if is_rate_limit and attempt < max_retries:
+                        wait_secs = 20 * attempt  # 20s, 40s backoff
+                        print(f"  [{instance_id}] Groq rate limit for {country_name} (attempt {attempt}) — waiting {wait_secs}s before retry...")
+                        time.sleep(wait_secs)
+                    else:
+                        tb = traceback.format_exc()
+                        print(f"  [{instance_id}] ERROR for {country_name}: {e}")
+                        results[country_name] = {"status": "FAILED", "error": str(e), "traceback": tb}
+                        break
         return results
 
     # Execute with fault tolerance
@@ -191,7 +219,7 @@ def phase_2_city_segmentation(state):
         worker_fn=segmentation_worker,
         batches=batches,
         agent_name="Agent 2 — City Segmentor",
-        max_workers=K,    # can change to 2-------------------------------------
+        max_workers=1,    # Sequential to avoid hammering Groq free-tier limits
     )
 
     # Log failures
@@ -228,7 +256,14 @@ def phase_2_city_segmentation(state):
                                     "city": city_name, "country": country, "tier": 3
                                 })
                 else:
-                    print(f"  [WARNING] City segmentation failed for {country}: {data.get('error', 'unknown')}")
+                    err_msg = data.get("error", "unknown")
+                    tb = data.get("traceback", "")
+                    state.log_failure("Agent 2 — City Discovery", {
+                        "instance_id": f"Agent2-{country}",
+                        "error": f"City segmentation failed for {country}: {err_msg}",
+                        "traceback": tb,
+                    })
+                    print(f"  [WARNING] City segmentation failed for {country}: {err_msg}")
 
     print(f"\n  [Phase 2] Master City Registry built. {len(state.all_cities)} cities across "
           f"{len(state.master_city_registry)} countries.")
@@ -283,6 +318,7 @@ def phase_3_zone_finding(state):
         # Worker function — processes a batch of city dicts
     def zone_finder_worker(city_batch, instance_id):
         import time  # ADD THIS
+        import traceback
         from zone_finders_code import process_city
         print(f"  [{instance_id}] Processing {len(city_batch)} cities...")
         results = []
@@ -295,9 +331,21 @@ def phase_3_zone_finding(state):
                 if data and data.get("status") == "SUCCESS":
                     results.append(data)
                 else:
+                    err_msg = data.get("error", "Unknown error") if data else "No data returned"
                     print(f"  [{instance_id}] Zone finding returned non-SUCCESS for {city_name}")
+                    state.log_failure("Agent 3 — Zone Discovery", {
+                        "instance_id": f"Agent3-{city_name}",
+                        "error": f"Zone finding failed for {city_name}: {err_msg}",
+                        "traceback": ""
+                    })
             except Exception as e:
+                tb = traceback.format_exc()
                 print(f"  [{instance_id}] ERROR for {city_name}: {e}")
+                state.log_failure("Agent 3 — Zone Discovery", {
+                    "instance_id": f"Agent3-{city_name}",
+                    "error": f"Zone finding failed for {city_name}: {e}",
+                    "traceback": tb
+                })
         return results
 
     # Execute with fault tolerance
@@ -386,7 +434,16 @@ def phase_4_subarea_mapper(state):
 
     # Worker function — processes a batch of zone dicts
     def subarea_worker(zone_batch, instance_id):
-        from main import process_zone
+        # Use the module-level import; fall back to a fresh import if it
+        # wasn't available at startup (e.g., keys loaded after startup).
+        import traceback
+        process_zone = _process_zone_fn
+        if process_zone is None:
+            try:
+                from main import process_zone as process_zone  # noqa: F811
+            except Exception as e:
+                print(f"  [{instance_id}] CRITICAL: Cannot import process_zone: {e}")
+                return []
         print(f"  [{instance_id}] Processing {len(zone_batch)} zones...")
         results = []
         for zone_info in zone_batch:
@@ -400,22 +457,30 @@ def phase_4_subarea_mapper(state):
                 output_path = result_data.get("path") if isinstance(result_data, dict) else result_data
                 status = result_data.get("status", "SUCCESS") if isinstance(result_data, dict) else "SUCCESS"
                 
-                results.append({
-                    "zone_name": zone_name,
-                    "city": city,
-                    "country": country,
-                    "output_path": output_path,
-                    "status": status,
-                })
+                if status == "SUCCESS":
+                    results.append({
+                        "zone_name": zone_name,
+                        "city": city,
+                        "country": country,
+                        "output_path": output_path,
+                        "status": status,
+                        "_raw_data": result_data if isinstance(result_data, dict) else None,
+                    })
+                else:
+                    err_msg = result_data.get("error", "Unknown error") if isinstance(result_data, dict) else "Non-success status"
+                    print(f"  [{instance_id}] Zone mapping returned non-SUCCESS for {zone_name}")
+                    state.log_failure("Agent 4 — Sub-Area Mapping", {
+                        "instance_id": f"Agent4-{zone_name}",
+                        "error": f"Sub-area mapping failed for zone {zone_name}: {err_msg}",
+                        "traceback": ""
+                    })
             except Exception as e:
+                tb = traceback.format_exc()
                 print(f"  [{instance_id}] ERROR for zone {zone_name}: {e}")
-                results.append({
-                    "zone_name": zone_name,
-                    "city": city,
-                    "country": country,
-                    "output_path": None,
-                    "status": "FAILED",
-                    "error": str(e),
+                state.log_failure("Agent 4 — Sub-Area Mapping", {
+                    "instance_id": f"Agent4-{zone_name}",
+                    "error": f"Sub-area mapping failed for zone {zone_name}: {e}",
+                    "traceback": tb
                 })
         return results
 
@@ -448,6 +513,27 @@ def phase_4_subarea_mapper(state):
             country = result.get("country", "")
 
             if not res_path or not os.path.exists(res_path):
+                # --- Fallback: try to get subareas directly from the result dict ---
+                raw_data = result.get("_raw_data")
+                if isinstance(raw_data, dict) and "results" in raw_data:
+                    # process_zone returned data inline (no file I/O needed)
+                    parsed_zone = raw_data.get("input", {}).get("zone_name", zone_name)
+                    subareas = raw_data.get("results", [])
+                    state.master_subarea_registry[(parsed_zone, city, country)] = subareas
+                    for item in subareas:
+                        state.all_subarea_rows.append({
+                            "zone_name": parsed_zone,
+                            "subarea_name": item.get("subarea_name", ""),
+                            "parent_zone": item.get("parent_zone", ""),
+                            "business_volume": item.get("business_volume", 300),
+                            "city": item.get("city", city),
+                            "country": country,
+                            "source_url": item.get("source_url", ""),
+                            "retrieved_at": item.get("retrieved_at", datetime.now().isoformat()),
+                            "status": item.get("status", "SUCCESS"),
+                        })
+                else:
+                    print(f"  [Phase 4] No output file and no inline data for zone '{zone_name}' — skipping.")
                 continue
             try:
                 with open(res_path, "r", encoding="utf-8") as f:
@@ -474,40 +560,9 @@ def phase_4_subarea_mapper(state):
                         "status": item.get("status", "SUCCESS"),
                     })
             except Exception as e:
-                print(f"  [ERROR] Failed parsing subarea output file {res_path}: {e}")    
-        res_path = result.get("output_path")
-        zone_name = result.get("zone_name", "")
-        city = result.get("city", "")
-        country = result.get("country", "")
-
-        if not res_path or not os.path.exists(res_path):
-            continue
-        try:
-            with open(res_path, "r", encoding="utf-8") as f:
-                content = f.read()
-            # Parse JSON
-            start = content.find("{")
-            end = content.rfind("}") + 1
-            data = json.loads(content[start:end])
-
-            parsed_zone = data.get("input", {}).get("zone_name", zone_name)
-            subareas = data.get("results", [])
-            state.master_subarea_registry[(parsed_zone, city, country)] = subareas
-
-            for item in subareas:
-                state.all_subarea_rows.append({
-                    "zone_name": parsed_zone,
-                    "subarea_name": item.get("subarea_name", ""),
-                    "parent_zone": item.get("parent_zone", ""),
-                    "business_volume": item.get("business_volume", 300),
-                    "city": item.get("city", city),
-                    "country": country,
-                    "source_url": item.get("source_url", ""),
-                    "retrieved_at": item.get("retrieved_at", datetime.now().isoformat()),
-                    "status": item.get("status", "SUCCESS"),
-                })
-        except Exception as e:
-            print(f"  [ERROR] Failed parsing subarea output file {res_path}: {e}")
+                print(f"  [ERROR] Failed parsing subarea output file {res_path}: {e}")
+    # FIX: Removed orphaned duplicate code block that ran after the inner loop
+    # using the stale `result` variable from the last iteration, causing double-inserts.
 
     print(f"\n  [Phase 4] Sub-Area Mapping completed. Found {len(state.all_subarea_rows)} total sub-areas.")
 
@@ -535,6 +590,13 @@ def phase_4_5_supabase_insert(state, skip_supabase):
         response = supabase.table("subareas").insert(state.all_subarea_rows).execute()
         print(f"   [OK] Successfully inserted {len(state.all_subarea_rows)} subareas into 'subareas' table.")
     except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        state.log_failure("Agent 4 — Sub-Area Mapping", {
+            "instance_id": "Supabase-Subareas-Insert",
+            "error": f"Supabase insert failed: {e}",
+            "traceback": tb
+        })
         print(f"   [Warning] Supabase insert failed (might be duplicates handled by Agent 5): {e}")
 
 
@@ -576,6 +638,13 @@ def phase_5_5_supabase_insert_leads(state, skip_supabase):
         response = supabase.table("execution_results").insert(rows).execute()
         print(f"   [OK] Successfully inserted {len(rows)} leads into 'execution_results' table.")
     except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        state.log_failure("Execution Engine — Company Discovery", {
+            "instance_id": "Supabase-Leads-Insert",
+            "error": f"Supabase leads insert failed: {e}",
+            "traceback": tb
+        })
         print(f"   [Warning] Supabase leads insert failed: {e}")
 
 
@@ -636,6 +705,7 @@ def phase_5_lead_scraper(state, max_scrolls, max_scrapers):
     def scraper_worker(subarea_batch, instance_id):
         from execution_worker import scrape_subarea
         import config as exec_config
+        import traceback
         
         # Dynamically apply CLI scroll overrides
         exec_config.SCROLL_ITERATIONS = max_scrolls
@@ -650,7 +720,13 @@ def phase_5_lead_scraper(state, max_scrolls, max_scrapers):
                 )
                 all_companies.extend(results)
             except Exception as e:
+                tb = traceback.format_exc()
                 print(f"  [{instance_id}] ERROR scraping '{sa_info['subarea_name']}': {e}")
+                state.log_failure("Execution Engine — Company Discovery", {
+                    "instance_id": f"Agent5-{sa_info['subarea_name']}",
+                    "error": f"Scraping failed for subarea '{sa_info['subarea_name']}': {e}",
+                    "traceback": tb
+                })
         return all_companies
 
     # Cap concurrent browser instances for resource safety
@@ -666,10 +742,22 @@ def phase_5_lead_scraper(state, max_scrolls, max_scrapers):
     for f in failures:
         state.log_failure("Phase 5 — Lead Scraping", f)
 
+    # FIX: Flatten list-of-lists from fault_tolerant_dispatch before deduplication.
+    # scraper_worker returns a list[dict]; fault_tolerant_dispatch wraps each worker's
+    # result as one element, so all_results is [[{...},{...}], [{...}]] not [{...},{...}].
+    # The old code checked isinstance(item, dict) on the outer LIST, silently dropping
+    # ALL leads.
+    flat_results = []
+    for batch_result in all_results:
+        if isinstance(batch_result, list):
+            flat_results.extend(batch_result)
+        elif isinstance(batch_result, dict):
+            flat_results.append(batch_result)
+
     # Global deduplication
     unique_companies = []
     seen = set()
-    for item in all_results:
+    for item in flat_results:
         if isinstance(item, dict):
             norm_name = item.get("company_name", "").lower().strip()
             if norm_name and norm_name not in seen:
@@ -678,7 +766,7 @@ def phase_5_lead_scraper(state, max_scrolls, max_scrapers):
 
     state.scraped_companies = unique_companies
     print(f"\n  [Phase 5] Scraping completed. {len(unique_companies)} unique companies "
-          f"(down from {len(all_results)} total).")
+          f"(down from {len(flat_results)} total after flattening {len(all_results)} batches).")
 
 
 # ═══════════════════════════════════════════════════════════════════
