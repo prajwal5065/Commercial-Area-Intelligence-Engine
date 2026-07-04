@@ -123,6 +123,7 @@ class PipelineRunRequest(BaseModel):
 
 class Agent1Request(BaseModel):
     top_n: Optional[int] = None
+    countries: Optional[list[str]] = None
 
 
 class Agent2Request(BaseModel):
@@ -314,11 +315,12 @@ def _start_agent_thread(s: Session, target, *args) -> None:
     threading.Thread(target=target, args=(s, *args), daemon=True).start()
 
 
-def _run_agent_1(s: Session, top_n: Optional[int]) -> None:
+def _run_agent_1(s: Session, top_n: Optional[int], countries: Optional[list] = None) -> None:
     s.agent_status["1"] = "Running"
     try:
         args = Namespace(
-            countries=None, top_n=top_n, refresh_gdp=False,
+            countries=",".join(countries) if countries else None,
+            top_n=top_n, refresh_gdp=False,
             cities=None, zones=None, max_scrolls=8, max_scrapers=3, skip_supabase=True,
         )
         phase_1_gdp_ranking(s.state, args)
@@ -413,7 +415,7 @@ def _run_agent_5(s: Session) -> None:
 @app.post("/sessions/{session_id}/agents/1/run")
 def run_agent_1(session_id: str, body: Agent1Request):
     s = _get_session(session_id)
-    _start_agent_thread(s, _run_agent_1, body.top_n)
+    _start_agent_thread(s, _run_agent_1, body.top_n, body.countries)
     return {"status": "started"}
 
 

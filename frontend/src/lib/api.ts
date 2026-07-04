@@ -117,10 +117,10 @@ export const api = {
     `${BASE_URL}/sessions/${sessionId}/pipeline/logs/stream`,
 
   // ── Individual agents (manual mode) ──────────────────────────────
-  runAgent1: (sessionId: string, topN: number | null) =>
+  runAgent1: (sessionId: string, topN: number | null, countries: string[] = []) =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/1/run`, {
       method: "POST",
-      body: JSON.stringify({ top_n: topN }),
+      body: JSON.stringify({ top_n: topN, countries: countries.length ? countries : null }),
     }),
   runAgent2: (sessionId: string, selectedCountries: string[]) =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/2/run`, {

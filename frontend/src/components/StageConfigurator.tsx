@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { Hash, ListChecks, ChevronDown } from "lucide-react";
 
 export type StageMode = "number" | "name";
@@ -12,12 +12,20 @@ interface StageConfiguratorProps {
   selectedNames: string[];
   onSelectedNamesChange: (v: string[]) => void;
   disabled?: boolean;
+  /**
+   * When true, Name mode accepts free-typed values (press Enter/comma to add
+   * a tag) instead of requiring a pre-existing options list. Used for Stage 1
+   * (Countries), where there's no backend list to check boxes against until
+   * this very stage runs - so users type country names directly instead.
+   */
+  allowFreeText?: boolean;
 }
 
 /**
  * Lets the user configure one pipeline stage (countries / cities / zones /
  * sub-areas) either by a count ("Top N") or by explicitly picking named
- * items via a multi-select checkbox dropdown (e.g. India, USA, Japan).
+ * items - via a multi-select checkbox dropdown when a backend options list
+ * exists, or via a free-text tag input when it doesn't (allowFreeText).
  *
  * Maps directly onto the existing backend contract: Agent endpoints already
  * accept either `top_n` or a `selected_*` list - this only changes how the
@@ -32,10 +40,14 @@ export function StageConfigurator({
   selectedNames,
   onSelectedNamesChange,
   disabled,
+  allowFreeText,
 }: StageConfiguratorProps) {
   const [mode, setMode] = useState<StageMode>("number");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [tagDraft, setTagDraft] = useState("");
+
+  const useFreeText = allowFreeText && nameOptions.length === 0;
 
   const filteredOptions = nameOptions.filter((o) =>
     o.toLowerCase().includes(search.toLowerCase())
@@ -46,6 +58,23 @@ export function StageConfigurator({
       onSelectedNamesChange(selectedNames.filter((n) => n !== name));
     } else {
       onSelectedNamesChange([...selectedNames, name]);
+    }
+  }
+
+  function commitTagDraft() {
+    const value = tagDraft.trim();
+    if (value && !selectedNames.some((n) => n.toLowerCase() === value.toLowerCase())) {
+      onSelectedNamesChange([...selectedNames, value]);
+    }
+    setTagDraft("");
+  }
+
+  function handleTagKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      commitTagDraft();
+    } else if (e.key === "Backspace" && tagDraft === "" && selectedNames.length > 0) {
+      onSelectedNamesChange(selectedNames.slice(0, -1));
     }
   }
 
@@ -93,6 +122,39 @@ export function StageConfigurator({
           placeholder={numberLabel}
           className="w-full bg-ink-850 border border-ink-700 rounded-lg px-3 py-2.5 text-sm text-ink-100 focus:border-signal-500 focus:outline-none disabled:opacity-40"
         />
+      ) : useFreeText ? (
+        <div
+          className={`w-full flex flex-wrap items-center gap-1.5 bg-ink-850 border rounded-lg px-2.5 py-2 focus-within:border-signal-500 ${
+            disabled ? "border-ink-800 opacity-40" : "border-ink-700"
+          }`}
+        >
+          {selectedNames.map((n) => (
+            <span
+              key={n}
+              className="inline-flex items-center gap-1 bg-signal-500/10 border border-signal-500/30 text-signal-400 text-xs rounded-full pl-2.5 pr-1.5 py-1"
+            >
+              {n}
+              <button
+                type="button"
+                onClick={() => toggleName(n)}
+                disabled={disabled}
+                className="hover:text-signal-200"
+                aria-label={`Remove ${n}`}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+          <input
+            value={tagDraft}
+            onChange={(e) => setTagDraft(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+            onBlur={commitTagDraft}
+            disabled={disabled}
+            placeholder={selectedNames.length === 0 ? "Type a name, press Enter…" : "Add another…"}
+            className="flex-1 min-w-[120px] bg-transparent text-sm text-ink-100 placeholder-ink-500 focus:outline-none py-1 disabled:cursor-not-allowed"
+          />
+        </div>
       ) : (
         <div className="relative">
           <button
@@ -165,7 +227,7 @@ export function StageConfigurator({
         </div>
       )}
 
-      {mode === "name" && selectedNames.length > 0 && (
+      {mode === "name" && !useFreeText && selectedNames.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {selectedNames.map((n) => (
             <span

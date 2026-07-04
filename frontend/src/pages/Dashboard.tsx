@@ -188,6 +188,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   // ── Manual (stage-by-stage) run mode ─────────────────────────────────
   const [runMode, setRunMode] = useState<"auto" | "manual">("auto");
   const [manualTopN, setManualTopN] = useState("10");
+  const [manualCountryNames, setManualCountryNames] = useState<string[]>([]);
   const [countryOptions, setCountryOptions] = useState<string[]>([]);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [manualCityTopN, setManualCityTopN] = useState("10");
@@ -330,7 +331,11 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   async function handleManualRun1() {
     setManualStarting("1");
     try {
-      await api.runAgent1(sessionId, parseInt(manualTopN, 10) || null);
+      await api.runAgent1(
+        sessionId,
+        manualCountryNames.length ? null : parseInt(manualTopN, 10) || null,
+        manualCountryNames
+      );
       refresh();
     } finally {
       setManualStarting(null);
@@ -522,13 +527,15 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
               numberValue={manualTopN}
               onNumberChange={setManualTopN}
               nameOptions={[]}
-              selectedNames={[]}
-              onSelectedNamesChange={() => {}}
+              selectedNames={manualCountryNames}
+              onSelectedNamesChange={setManualCountryNames}
               disabled={manualStarting !== null}
+              allowFreeText
             />
             <p className="text-[11px] text-ink-500 -mt-1">
-              Number mode ranks countries by GDP and takes the top N. Named search isn't available
-              at this stage — country discovery is what populates the list everything else searches by name.
+              Number mode ranks countries by GDP and takes the top N. Name mode lets you type
+              specific countries directly (e.g. India, USA, Japan) — GDP ranking is skipped and
+              exactly those countries are used.
             </p>
           </div>
 
