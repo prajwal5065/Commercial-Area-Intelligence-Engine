@@ -288,6 +288,9 @@ def phase_3_zone_finding(state, stop_event=None):
         print("  [Phase 3] No cities to process. Skipping.")
         return
 
+    from zone_finders_code import _EXHAUSTED_PROVIDERS
+    _EXHAUSTED_PROVIDERS.clear()  # fresh fallback chain for this run (module state is shared across sessions)
+
     M = len(state.all_cities)
     C_MAX = 4  # 3-5 cities per instance per spec
 

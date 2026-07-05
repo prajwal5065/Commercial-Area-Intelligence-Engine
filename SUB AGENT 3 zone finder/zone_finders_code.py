@@ -13,13 +13,24 @@ Count strategy (three layers, first hit wins):
 Results are persisted to the zones table in Supabase via upsert.
 
 Switch LLM:  change ACTIVE_PROVIDER below to "groq", "gemini", or "openai"
+             (this is just the starting provider now — see automatic
+             fallback below)
+
+Automatic provider fallback: if ACTIVE_PROVIDER is rate-limited (HTTP 429)
+and exhausts its own RETRY_ATTEMPTS, call_llm() automatically switches to
+the next provider in FALLBACK_CHAIN that has an API key configured (e.g.
+GROQ_API_KEY exhausted -> GEMINI_API_KEY, if set), instead of returning
+empty/failing the whole zone-finding stage. Set the relevant *_API_KEY env
+vars for any provider you want available as a fallback; nothing else needs
+to change. If no fallback has a key configured, behavior is unchanged from
+before (raises after RETRY_ATTEMPTS on the single configured provider).
 
 .env keys required:
     SUPABASE_URL, SUPABASE_KEY
     TAVILY_API_KEY
-    GROQ_API_KEY        (if ACTIVE_PROVIDER = "groq")
-    GEMINI_API_KEY      (if ACTIVE_PROVIDER = "gemini")
-    OPENAI_API_KEY      (if ACTIVE_PROVIDER = "openai")
+    GROQ_API_KEY        (starting provider by default)
+    GEMINI_API_KEY      (optional — enables automatic fallback from Groq)
+    OPENAI_API_KEY      (optional — enables automatic fallback from Groq/Gemini)
 """
 import os
 import re
@@ -134,23 +145,68 @@ TAVILY_API_URL  = "https://api.tavily.com/search"
 RETRY_ATTEMPTS  = 5
 RETRY_DELAY_SEC = 5
 
+# Automatic fallback chain: if the active provider is rate-limited (429) and
+# exhausts its own retries, call_llm() switches to the next provider in this
+# list that has an API key configured, rather than failing the whole call
+# (issue: a single provider's rate limit was silently zeroing out entire
+# pipeline stages - see _switch_provider below). Only providers with a
+# non-empty env var are actually eligible; this list is just the preference
+# order. Configure by setting the corresponding *_API_KEY env var(s) -
+# nothing else to change.
+FALLBACK_CHAIN = ["groq", "gemini", "openai"]
+
 if ACTIVE_PROVIDER not in PROVIDERS:
     log.error(f"Unknown provider '{ACTIVE_PROVIDER}'. Choose: {list(PROVIDERS)}")
     sys.exit(1)
 
-P               = PROVIDERS[ACTIVE_PROVIDER]
-LLM_API_KEY     = os.getenv(P["api_key_env"])
-LLM_MODEL       = P["model"]
-LLM_MAX_OUT_TOK = P["max_out_tok"]
-LLM_API_URL     = P["api_url"]
-LLM_FMT         = P["request_fmt"]
-LLM_TPM_LIMIT   = P["tpm_limit"]
 
-_OVERHEAD_TOK = 700
-if LLM_TPM_LIMIT:
-    LLM_MAX_CONTEXT_CHARS = max((LLM_TPM_LIMIT - LLM_MAX_OUT_TOK - _OVERHEAD_TOK) * 4, 2000)
-else:
-    LLM_MAX_CONTEXT_CHARS = 60_000
+def _apply_provider(name: str) -> None:
+    """Set the module-level LLM_* variables from PROVIDERS[name]. Called at
+    import time for the initial ACTIVE_PROVIDER, and again by
+    _switch_provider() when a fallback is triggered mid-run."""
+    global ACTIVE_PROVIDER, P, LLM_API_KEY, LLM_MODEL, LLM_MAX_OUT_TOK
+    global LLM_API_URL, LLM_FMT, LLM_TPM_LIMIT, LLM_MAX_CONTEXT_CHARS
+    ACTIVE_PROVIDER = name
+    P               = PROVIDERS[ACTIVE_PROVIDER]
+    LLM_API_KEY     = os.getenv(P["api_key_env"])
+    LLM_MODEL       = P["model"]
+    LLM_MAX_OUT_TOK = P["max_out_tok"]
+    LLM_API_URL     = P["api_url"]
+    LLM_FMT         = P["request_fmt"]
+    LLM_TPM_LIMIT   = P["tpm_limit"]
+
+    _overhead_tok = 700
+    if LLM_TPM_LIMIT:
+        LLM_MAX_CONTEXT_CHARS = max((LLM_TPM_LIMIT - LLM_MAX_OUT_TOK - _overhead_tok) * 4, 2000)
+    else:
+        LLM_MAX_CONTEXT_CHARS = 60_000
+
+
+_EXHAUSTED_PROVIDERS: set[str] = set()
+
+
+def _switch_provider() -> bool:
+    """Try to move to the next provider in FALLBACK_CHAIN that has an API key
+    set and hasn't already been exhausted this run, skipping whichever is
+    currently active. Returns True if a switch happened. Called by call_llm()
+    after the active provider's own retries (RETRY_ATTEMPTS) are exhausted on
+    a 429, instead of failing the whole call outright."""
+    _EXHAUSTED_PROVIDERS.add(ACTIVE_PROVIDER)
+    candidates = [p for p in FALLBACK_CHAIN
+                  if p != ACTIVE_PROVIDER and p not in _EXHAUSTED_PROVIDERS and p in PROVIDERS]
+    for name in candidates:
+        if os.getenv(PROVIDERS[name]["api_key_env"]):
+            old = ACTIVE_PROVIDER
+            _apply_provider(name)
+            log.warning(
+                f"[FALLBACK] {old.upper()} rate-limited after {RETRY_ATTEMPTS} attempts — "
+                f"switching to {name.upper()} for the remainder of this run."
+            )
+            return True
+    return False
+
+
+_apply_provider(ACTIVE_PROVIDER)
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -408,6 +464,16 @@ def call_llm(system: str, user: str) -> str:
                     time.sleep(chunk)
                     remaining -= chunk
                 continue
+            else:
+                # This provider's retries are exhausted on a 429. Rather than
+                # failing the whole call (and silently producing zero zones -
+                # the original bug), try the next configured provider.
+                if _switch_provider():
+                    return call_llm(system, user)
+                raise RuntimeError(
+                    f"{ACTIVE_PROVIDER.upper()} rate-limited after {RETRY_ATTEMPTS} attempts "
+                    "and no fallback provider has an API key configured."
+                )
 
         if resp.status_code in (500, 502, 503):
             log.warning(f"[{ACTIVE_PROVIDER.upper()}] HTTP {resp.status_code} — retrying...")
