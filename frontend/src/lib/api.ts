@@ -126,10 +126,10 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ top_n: topN, countries: countries.length ? countries : null }),
     }),
-  runAgent2: (sessionId: string, selectedCountries: string[]) =>
+  runAgent2: (sessionId: string, selectedCountries: string[], provider: LlmProvider = "groq") =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/2/run`, {
       method: "POST",
-      body: JSON.stringify({ selected_countries: selectedCountries }),
+      body: JSON.stringify({ selected_countries: selectedCountries, provider }),
     }),
   runAgent3: (sessionId: string, selectedCities: string[]) =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/3/run`, {

@@ -137,6 +137,7 @@ class Agent1Request(BaseModel):
 
 class Agent2Request(BaseModel):
     selected_countries: list[str] = []
+    provider: str = "groq"  # "groq" | "gemini" | "openai" - manual LLM choice
 
 
 class Agent3Request(BaseModel):
@@ -414,7 +415,7 @@ def _run_agent_1(s: Session, top_n: Optional[int], countries: Optional[list] = N
         s._agent_running = False
 
 
-def _run_agent_2(s: Session, selected_countries: list) -> None:
+def _run_agent_2(s: Session, selected_countries: list, provider: str = "groq") -> None:
     if selected_countries:
         s.state.gdp_ranked_countries = [
             c for c in s.state.gdp_ranked_countries
@@ -423,7 +424,7 @@ def _run_agent_2(s: Session, selected_countries: list) -> None:
     s.agent_status["2"] = "Running"
     m = _manual_start(s, "2")
     try:
-        phase_2_city_segmentation(s.state)
+        phase_2_city_segmentation(s.state, provider=provider)
         s.agent_status["2"] = "Done"
         _manual_finish(s, m, True, len(s.state.all_cities))
     except Exception as e:
@@ -525,7 +526,7 @@ def run_agent_1(session_id: str, body: Agent1Request):
 @app.post("/sessions/{session_id}/agents/2/run")
 def run_agent_2(session_id: str, body: Agent2Request):
     s = _get_session(session_id)
-    _start_agent_thread(s, _run_agent_2, body.selected_countries)
+    _start_agent_thread(s, _run_agent_2, body.selected_countries, body.provider)
     return {"status": "started"}
 
 

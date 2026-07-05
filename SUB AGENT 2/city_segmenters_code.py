@@ -28,6 +28,36 @@ GROQ_MODEL   = "llama-3.3-70b-versatile"
 GROQ_MAX_TOK = 8000
 TAVILY_MAX_RES  = 7
 
+# ── Provider registry ─────────────────────────────────────────────
+# Mirrors SUB_AGENT 4 sub area mapper/main.py's PROVIDERS pattern, so the
+# same manual model-choice UI/API contract works for this agent too.
+PROVIDERS = {
+    "groq": {
+        "api_key_env": "GROQ_API_KEY",
+        "api_url":     "https://api.groq.com/openai/v1/chat/completions",
+        "model":       "llama-3.3-70b-versatile",
+        "request_fmt": "openai",
+    },
+    "gemini": {
+        "api_key_env": "GEMINI_API_KEY",
+        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "model":       "gemini-2.0-flash",
+        "request_fmt": "gemini",
+    },
+    "openai": {
+        "api_key_env": "OPENAI_API_KEY",
+        "api_url":     "https://api.openai.com/v1/chat/completions",
+        "model":       "gpt-4o-mini",
+        "request_fmt": "openai",
+    },
+}
+
+DEFAULT_PROVIDER = "groq"
+
+
+def _provider_has_key(provider: str) -> bool:
+    return bool(os.getenv(PROVIDERS.get(provider, {}).get("api_key_env", "")))
+
 
 SYSTEM_PROMPT = """
 
@@ -183,12 +213,25 @@ def gather_search_context(country: str) -> str:
 
 
 
-def groq_classify(country: str, search_context: str) -> str:
-    url = "https://api.groq.com/openai/v1/chat/completions"
-    headers = {
-        "Content-Type":  "application/json",
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-    }
+def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PROVIDER) -> str:
+    """Classify a country's cities via the chosen LLM provider. Name kept as
+    groq_classify for backward compatibility with any existing callers that
+    don't pass a provider - defaults to Groq, identical to prior behavior.
+
+    provider: one of PROVIDERS' keys ("groq" | "gemini" | "openai"). Falls
+    back to Groq with a warning if unknown or unconfigured, rather than
+    raising - a bad choice shouldn't crash a whole country's classification.
+    """
+    if provider not in PROVIDERS:
+        print(f"  [WARN] Unknown provider '{provider}', falling back to '{DEFAULT_PROVIDER}'.")
+        provider = DEFAULT_PROVIDER
+    if not _provider_has_key(provider):
+        print(f"  [WARN] {PROVIDERS[provider]['api_key_env']} not set for provider '{provider}' — "
+              f"falling back to '{DEFAULT_PROVIDER}'.")
+        provider = DEFAULT_PROVIDER
+
+    cfg = PROVIDERS[provider]
+    api_key = os.getenv(cfg["api_key_env"])
 
     if search_context:
         user_message = (
@@ -200,7 +243,7 @@ def groq_classify(country: str, search_context: str) -> str:
         )
     else:
         # LLM-only fallback: no search context available
-        print("  [Groq] No Tavily context — using LLM training knowledge only.")
+        print(f"  [{provider.upper()}] No Tavily context — using LLM training knowledge only.")
         user_message = (
             f"Country: {country}\n\n"
             f"Web search is currently unavailable. Use your own comprehensive training knowledge "
@@ -211,19 +254,38 @@ def groq_classify(country: str, search_context: str) -> str:
             f"Return ONLY valid JSON — be thorough and list as many real cities as possible."
         )
 
-    payload = {
-        "model":       GROQ_MODEL,
-        "temperature": 0.1,
-        "max_tokens":  GROQ_MAX_TOK,
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user",   "content": user_message},
-        ],
-    }
+    if cfg["request_fmt"] == "gemini":
+        payload = {
+            "contents": [{
+                "role": "user",
+                "parts": [{"text": f"{SYSTEM_PROMPT}\n\n{user_message}"}],
+            }],
+            "generationConfig": {"temperature": 0.1, "maxOutputTokens": GROQ_MAX_TOK},
+        }
+        headers = {"Content-Type": "application/json"}
+        url = f"{cfg['api_url']}?key={api_key}"
+    else:
+        payload = {
+            "model":       cfg["model"],
+            "temperature": 0.1,
+            "max_tokens":  GROQ_MAX_TOK,
+            "messages": [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user",   "content": user_message},
+            ],
+        }
+        headers = {
+            "Content-Type":  "application/json",
+            "Authorization": f"Bearer {api_key}",
+        }
+        url = cfg["api_url"]
 
     resp = requests.post(url, headers=headers, json=payload, timeout=120)
     resp.raise_for_status()
-    return resp.json()["choices"][0]["message"]["content"]
+    rj = resp.json()
+    if cfg["request_fmt"] == "gemini":
+        return rj["candidates"][0]["content"]["parts"][0]["text"]
+    return rj["choices"][0]["message"]["content"]
 
  
 # JSON Parsing
@@ -444,23 +506,35 @@ def print_results(data: dict) -> None:
 # ──────────────────────────────────────────────
 #  MAIN
 # ──────────────────────────────────────────────
-def process_country(country: str) -> dict:
+def process_country(country: str, provider: str = DEFAULT_PROVIDER) -> dict:
     """
     Reusable worker function for Master Agent.
     Takes a country name and returns parsed JSON data.
+
+    provider: which LLM to use for classification ("groq" | "gemini" |
+    "openai"). Manual choice, forwarded to groq_classify(). Defaults to
+    "groq", matching behavior before provider choice existed.
     """
 
     if not country:
         raise ValueError("Country name cannot be empty")
 
-    if not GROQ_API_KEY:
-        raise ValueError("GROQ_API_KEY not found")
+    if provider not in PROVIDERS:
+        provider = DEFAULT_PROVIDER
+    if not _provider_has_key(provider):
+        # groq_classify() will itself fall back further and warn; only raise
+        # here if there's truly no usable key anywhere in the chain.
+        if not any(_provider_has_key(p) for p in PROVIDERS):
+            raise ValueError(
+                "No LLM provider API key found (checked GROQ_API_KEY, "
+                "GEMINI_API_KEY, OPENAI_API_KEY)."
+            )
 
     if not TAVILY_API_KEY:
         print("  [Tavily] No API key — running in LLM-only mode.")
 
     print(f"\n[Agent] Country : {country}")
-    print(f"[Agent] LLM     : {GROQ_MODEL} via Groq")
+    print(f"[Agent] LLM     : {PROVIDERS.get(provider, PROVIDERS[DEFAULT_PROVIDER])['model']} via {provider}")
 
     if TAVILY_API_KEY:
         print("\n[Step 1/3] Searching official sources via Tavily...")
@@ -469,12 +543,12 @@ def process_country(country: str) -> dict:
     search_context = gather_search_context(country)
 
     if search_context:
-        print("\n[Step 2/3] Classifying cities via Groq (with search context)...")
+        print(f"\n[Step 2/3] Classifying cities via {provider} (with search context)...")
     else:
-        print("\n[Step 2/3] Classifying cities via Groq (LLM-only, no search context)...")
-    raw_response = groq_classify(country, search_context)
+        print(f"\n[Step 2/3] Classifying cities via {provider} (LLM-only, no search context)...")
+    raw_response = groq_classify(country, search_context, provider=provider)
 
-    print(f"  [Groq] Response received ({len(raw_response)} chars)")
+    print(f"  [{provider.upper()}] Response received ({len(raw_response)} chars)")
 
     print("\n[Step 3/3] Parsing JSON...")
     data = parse_json(raw_response)

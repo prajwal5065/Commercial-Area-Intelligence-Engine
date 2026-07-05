@@ -151,11 +151,16 @@ def phase_1_gdp_ranking(state, args):
 #  PHASE 2 — City Segmentation (Agent 2) — Massive Parallel
 # ═══════════════════════════════════════════════════════════════════
 
-def phase_2_city_segmentation(state):
+def phase_2_city_segmentation(state, provider: str = "groq"):
     """
     Take N countries from Phase 1.
     CALCULATE: K2 = ceil(N / C_max) with C_max = 3 countries per instance.
     DISPATCH: K2 identical Agent 2 instances in parallel.
+
+    provider: which LLM to use for city classification calls
+    ("groq" | "gemini" | "openai"). Manual choice, forwarded to
+    city_segmenters_code.process_country(). Defaults to "groq", matching
+    behavior before provider choice existed.
     """
     countries = [c.get("country_name", c) if isinstance(c, dict) else c
                  for c in state.gdp_ranked_countries]
@@ -197,7 +202,7 @@ def phase_2_city_segmentation(state):
             max_retries = 3
             for attempt in range(1, max_retries + 1):
                 try:
-                    data = city_segmenters_code.process_country(country_name)
+                    data = city_segmenters_code.process_country(country_name, provider=provider)
                     results[country_name] = data
                     break
                 except Exception as e:

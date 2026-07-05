@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { api, type SessionStatus, type LogEntry, type LlmProvider } from "../lib/api";
 import { Download, Play, Square, RotateCcw, ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Clock, Activity, Wand2, SlidersHorizontal } from "lucide-react";
 import { StageConfigurator } from "../components/StageConfigurator";
+import { ProviderToggle } from "../components/ProviderToggle";
 
 interface Props {
   sessionId: string;
@@ -198,6 +199,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   const [zoneOptions, setZoneOptions] = useState<string[]>([]);
   const [selectedZones, setSelectedZones] = useState<string[]>([]);
   const [manualSubareaTopN, setManualSubareaTopN] = useState("10");
+  const [stage2Provider, setStage2Provider] = useState<LlmProvider>("groq");
   const [stage4Provider, setStage4Provider] = useState<LlmProvider>("groq");
   const [manualStarting, setManualStarting] = useState<string | null>(null);
 
@@ -351,7 +353,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   async function handleManualRun2() {
     setManualStarting("2");
     try {
-      await api.runAgent2(sessionId, selectedCountries);
+      await api.runAgent2(sessionId, selectedCountries, stage2Provider);
       refresh();
     } finally {
       setManualStarting(null);
@@ -585,6 +587,11 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
               Name mode filters to specific countries (e.g. India, USA, Japan) discovered in Stage 1
               before running city segmentation on them.
             </p>
+            <ProviderToggle
+              value={stage2Provider}
+              onChange={setStage2Provider}
+              disabled={!stage1Done || manualStarting !== null}
+            />
           </div>
 
           {/* Stage 3: Zones */}
@@ -641,31 +648,11 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
               onSelectedNamesChange={setSelectedZones}
               disabled={!stage3Done || manualStarting !== null}
             />
-            <div>
-              <label className="block font-mono text-[10px] uppercase tracking-widest text-ink-500 mb-1.5">
-                LLM Provider
-              </label>
-              <div className="flex items-center rounded-lg bg-ink-850 border border-ink-700 p-0.5 w-fit">
-                {(["groq", "gemini", "openai"] as LlmProvider[]).map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    disabled={!stage3Done || manualStarting !== null}
-                    onClick={() => setStage4Provider(p)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium capitalize transition-colors disabled:opacity-40 ${
-                      stage4Provider === p
-                        ? "bg-signal-500 text-ink-950"
-                        : "text-ink-400 hover:text-ink-200"
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-              <p className="text-[11px] text-ink-500 mt-1.5">
-                Requires the matching API key ({stage4Provider === "groq" ? "GROQ_API_KEY" : stage4Provider === "gemini" ? "GEMINI_API_KEY" : "OPENAI_API_KEY"}) set on the backend. Falls back to Groq if missing.
-              </p>
-            </div>
+            <ProviderToggle
+              value={stage4Provider}
+              onChange={setStage4Provider}
+              disabled={!stage3Done || manualStarting !== null}
+            />
           </div>
 
           {/* Stage 5: Scraper */}
