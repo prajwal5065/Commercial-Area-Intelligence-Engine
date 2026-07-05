@@ -4,6 +4,7 @@ import json
 import sys
 import requests
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime   
 from dotenv import load_dotenv
 
@@ -183,24 +184,44 @@ def gather_search_context(country: str) -> str:
         log.warning("  [Tavily] Skipping search — no API key.")
         return ""
 
+    # Run all 3 queries concurrently instead of sequentially - they're
+    # independent (no query depends on a previous result), and each can take
+    # 10-20s+ at search_depth="advanced", so sequential execution was adding
+    # their times together (~47s+ for one country). A rate-limit/quota error
+    # on any query still triggers the same LLM-only fallback as before;
+    # results are reassembled in query order for deterministic output.
     all_results = []
     tavily_failed = False
-    for q in queries:
+
+    def _run_query(q: str) -> list[dict]:
         log.info(f"  [Tavily] {q}")
-        try:
-            results = tavily_search(q)
-            all_results.extend(results)
-            log.info(f"           -> {len(results)} result(s)")
-        except Exception as e:
-            err_str = str(e).lower()
-            if any(kw in err_str for kw in ["432", "429", "rate limit", "rate_limit", "too many requests", "quota", "credits"]):
-                log.warning(f"           -> Tavily plan limit reached — switching to LLM-only mode.")
-                tavily_failed = True
-                break
-            log.error(f"           -> FAILED: {e}")
+        results = tavily_search(q)
+        log.info(f"           -> {len(results)} result(s)")
+        return results
+
+    with ThreadPoolExecutor(max_workers=len(queries)) as pool:
+        future_to_query = {pool.submit(_run_query, q): q for q in queries}
+        results_by_query = {}
+        for future in as_completed(future_to_query):
+            q = future_to_query[future]
+            try:
+                results_by_query[q] = future.result()
+            except Exception as e:
+                err_str = str(e).lower()
+                if any(kw in err_str for kw in ["432", "429", "rate limit", "rate_limit", "too many requests", "quota", "credits"]):
+                    log.warning("           -> Tavily plan limit reached — switching to LLM-only mode.")
+                    tavily_failed = True
+                else:
+                    log.error(f"           -> FAILED: {e}")
+                results_by_query[q] = []
 
     if tavily_failed:
         return ""
+
+    # Reassemble in original query order for deterministic context, even
+    # though queries completed concurrently in arbitrary order.
+    for q in queries:
+        all_results.extend(results_by_query.get(q, []))
 
     log.info(f"  [Tavily] Total results collected: {len(all_results)}")
 
