@@ -151,7 +151,7 @@ def phase_1_gdp_ranking(state, args):
 #  PHASE 2 — City Segmentation (Agent 2) — Massive Parallel
 # ═══════════════════════════════════════════════════════════════════
 
-def phase_2_city_segmentation(state, provider: str = "groq"):
+def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
     """
     Take N countries from Phase 1.
     CALCULATE: K2 = ceil(N / C_max) with C_max = 3 countries per instance.
@@ -197,6 +197,9 @@ def phase_2_city_segmentation(state, provider: str = "groq"):
         print(f"  [{instance_id}] Processing {len(country_batch)} countries: {country_batch}")
         results = {}
         for idx, country_name in enumerate(country_batch):
+            if stop_event is not None and stop_event.is_set():
+                print(f"  [{instance_id}] Stop requested — halting before next country.")
+                break
             if idx > 0:
                 time.sleep(5)  # Stagger sequential calls to avoid Groq 429
             max_retries = 3
@@ -396,7 +399,7 @@ def phase_3_zone_finding(state, stop_event=None):
 #  PHASE 4 — Sub-Area Mapper (Agent 5) — Hyper-Parallel
 # ═══════════════════════════════════════════════════════════════════
 
-def phase_4_subarea_mapper(state, provider: str = "groq"):
+def phase_4_subarea_mapper(state, provider: str = "groq", stop_event=None):
     """
     Flatten Master Zone Registry into Z zones.
     CALCULATE: K5 = ceil(Z / C_max) with C_max = 2 (hyper-parallel, leaf-level).
@@ -458,6 +461,9 @@ def phase_4_subarea_mapper(state, provider: str = "groq"):
         print(f"  [{instance_id}] Processing {len(zone_batch)} zones...")
         results = []
         for zone_info in zone_batch:
+            if stop_event is not None and stop_event.is_set():
+                print(f"  [{instance_id}] Stop requested — halting before next zone.")
+                break
             zone_name = zone_info["zone_name"]
             city = zone_info["city"]
             country = zone_info["country"]
@@ -663,7 +669,7 @@ def phase_5_5_supabase_insert_leads(state, skip_supabase):
 #  PHASE 5 — Playwright Scraper (Agent 6) — Hyper-Parallel
 # ═══════════════════════════════════════════════════════════════════
 
-def phase_5_lead_scraper(state, max_scrolls, max_scrapers):
+def phase_5_lead_scraper(state, max_scrolls, max_scrapers, stop_event=None):
     """
     Construct scraper payload from sub-areas.
     CALCULATE: K6 = ceil(S / C_max) with C_max = 2 subareas per instance.
@@ -724,6 +730,9 @@ def phase_5_lead_scraper(state, max_scrolls, max_scrapers):
         print(f"  [{instance_id}] Scraping {len(subarea_batch)} subareas...")
         all_companies = []
         for sa_info in subarea_batch:
+            if stop_event is not None and stop_event.is_set():
+                print(f"  [{instance_id}] Stop requested — halting before next subarea.")
+                break
             try:
                 results = scrape_subarea(
                     sa_info["subarea_name"], sa_info["zone_name"],

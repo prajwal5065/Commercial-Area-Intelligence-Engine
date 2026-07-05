@@ -424,9 +424,14 @@ def _run_agent_2(s: Session, selected_countries: list, provider: str = "groq") -
     s.agent_status["2"] = "Running"
     m = _manual_start(s, "2")
     try:
-        phase_2_city_segmentation(s.state, provider=provider)
-        s.agent_status["2"] = "Done"
-        _manual_finish(s, m, True, len(s.state.all_cities))
+        phase_2_city_segmentation(s.state, provider=provider, stop_event=s._manual_stop_event)
+        if s._manual_stop_event.is_set():
+            s.agent_status["2"] = "Error"
+            m.errors.append("Stopped by user request.")
+            _manual_finish(s, m, False, len(s.state.all_cities))
+        else:
+            s.agent_status["2"] = "Done"
+            _manual_finish(s, m, True, len(s.state.all_cities))
     except Exception as e:
         s.agent_status["2"] = "Error"
         s._agent_error = str(e)
@@ -474,9 +479,14 @@ def _run_agent_4(s: Session, selected_zones: list, provider: str = "groq") -> No
                 for (city, co), zones in orig.items()
                 if any(z in selected_zones for z in zones)
             }
-        phase_4_subarea_mapper(s.state, provider=provider)
-        s.agent_status["4"] = "Done"
-        _manual_finish(s, m, True, len(s.state.all_subarea_rows))
+        phase_4_subarea_mapper(s.state, provider=provider, stop_event=s._manual_stop_event)
+        if s._manual_stop_event.is_set():
+            s.agent_status["4"] = "Error"
+            m.errors.append("Stopped by user request.")
+            _manual_finish(s, m, False, len(s.state.all_subarea_rows))
+        else:
+            s.agent_status["4"] = "Done"
+            _manual_finish(s, m, True, len(s.state.all_subarea_rows))
     except Exception as e:
         s.agent_status["4"] = "Error"
         s._agent_error = str(e)
@@ -491,20 +501,25 @@ def _run_agent_5(s: Session) -> None:
     s.agent_status["5"] = "Running"
     m = _manual_start(s, "5")
     try:
-        phase_5_lead_scraper(s.state, 8, 3)
-        phase_4_5_supabase_insert(s.state, skip_supabase=False)
-        phase_5_5_supabase_insert_leads(s.state, skip_supabase=False)
-        s.state.finalize()
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        out_dir = os.path.join(PROJECT_ROOT, "outputs")
-        os.makedirs(out_dir, exist_ok=True)
-        out_file = os.path.join(out_dir, f"pipeline_lead_results_{ts}.json")
-        with open(out_file, "w", encoding="utf-8") as f:
-            json.dump(s.state.scraped_companies, f, indent=4, ensure_ascii=False)
-        s.output_file = out_file
-        print(f"[Agent 5] Saved {len(s.state.scraped_companies)} leads → {out_file}")
-        s.agent_status["5"] = "Done"
-        _manual_finish(s, m, True, len(s.state.scraped_companies))
+        phase_5_lead_scraper(s.state, 8, 3, stop_event=s._manual_stop_event)
+        if s._manual_stop_event.is_set():
+            s.agent_status["5"] = "Error"
+            m.errors.append("Stopped by user request.")
+            _manual_finish(s, m, False, len(s.state.scraped_companies))
+        else:
+            phase_4_5_supabase_insert(s.state, skip_supabase=False)
+            phase_5_5_supabase_insert_leads(s.state, skip_supabase=False)
+            s.state.finalize()
+            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+            out_dir = os.path.join(PROJECT_ROOT, "outputs")
+            os.makedirs(out_dir, exist_ok=True)
+            out_file = os.path.join(out_dir, f"pipeline_lead_results_{ts}.json")
+            with open(out_file, "w", encoding="utf-8") as f:
+                json.dump(s.state.scraped_companies, f, indent=4, ensure_ascii=False)
+            s.output_file = out_file
+            print(f"[Agent 5] Saved {len(s.state.scraped_companies)} leads → {out_file}")
+            s.agent_status["5"] = "Done"
+            _manual_finish(s, m, True, len(s.state.scraped_companies))
     except Exception as e:
         s.agent_status["5"] = "Error"
         s._agent_error = str(e)

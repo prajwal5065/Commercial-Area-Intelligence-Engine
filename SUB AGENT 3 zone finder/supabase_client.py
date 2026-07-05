@@ -88,11 +88,11 @@ def get_cities(country_name: str = None) -> list:
     """
     Return all cities from the cities table ordered by city_name.
     Optionally filter by country_name.
-    Expected columns: id, city_name, country_name
+    Expected columns: id, city_name, country
     """
     q = supabase.table("cities").select("*").order("city_name")
     if country_name:
-        q = q.eq("country_name", country_name)
+        q = q.eq("country", country_name)
     response = q.execute()
     return response.data
 

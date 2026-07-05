@@ -67,7 +67,7 @@ def city_exists(city_name, country_name):
                 .table("cities")
                 .select("id")
                 .eq("city_name", city_name)
-                .eq("country_name", country_name)
+                .eq("country", country_name)
                 .execute()
             )
             return len(response.data) > 0
@@ -99,7 +99,7 @@ def insert_city(city_name, country_name):
 
     city_data = {
         "city_name": city_name,
-        "country_name": country_name,
+        "country": country_name,
     }
 
     max_attempts = 3

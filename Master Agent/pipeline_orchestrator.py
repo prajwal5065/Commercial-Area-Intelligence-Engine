@@ -238,6 +238,40 @@ class LogBus:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+#  Logging Interceptor
+# ═══════════════════════════════════════════════════════════════════════════
+
+class LogBusHandler(logging.Handler):
+    def __init__(self, orchestrator):
+        super().__init__()
+        self.orchestrator = orchestrator
+        self._local = threading.local()
+
+    def emit(self, record):
+        if getattr(self._local, 'emitting', False):
+            return
+        self._local.emitting = True
+        try:
+            # Extract agent name from record.name or log category
+            agent = "SYSTEM"
+            name = record.name.lower()
+            if "zone_finder" in name or "zone_finders_code" in name or "swarm" in name:
+                agent = "Agent 3 — Commercial Zone Discovery"
+            elif "city_segment" in name:
+                agent = "Agent 2 — City Discovery"
+            elif "company_finder" in name or "main" in name:
+                agent = "Agent 4 — Sub-Area Mapping"
+            elif "execution" in name or "scraper" in name or "playwright" in name:
+                agent = "Agent 5 — Lead Scraping"
+                
+            level = record.levelname
+            msg = record.getMessage()
+            self.orchestrator._log(agent, level, msg)
+        finally:
+            self._local.emitting = False
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 #  Production Orchestrator
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -384,7 +418,15 @@ class PipelineOrchestrator:
             safe_msg = f"[{agent}] {message}"
             # Encode/decode to replace unmappable chars before handing to the handler
             safe_msg = safe_msg.encode('utf-8', errors='replace').decode('utf-8', errors='replace')
-            logging.log(py_level, safe_msg)
+            
+            # Temporarily disable LogBusHandler interception for our own mirrored logs
+            if hasattr(self, '_log_handler'):
+                self._log_handler._local.emitting = True
+            try:
+                logging.log(py_level, safe_msg)
+            finally:
+                if hasattr(self, '_log_handler'):
+                    self._log_handler._local.emitting = False
         except Exception:
             pass  # Never let a log mirroring error crash the pipeline
 
@@ -536,6 +578,9 @@ class PipelineOrchestrator:
 
         try:
             m.status = "running"
+            # Register LogBusHandler to intercept all python logging from agents
+            self._log_handler = LogBusHandler(self)
+            logging.getLogger().addHandler(self._log_handler)
 
             # ── System Init ───────────────────────────────────────────
             self._divider("SYSTEM", "═")
@@ -619,7 +664,7 @@ class PipelineOrchestrator:
             self._log("Agent 2 — City Discovery", "INFO",
                       f"  Processing {len(country_names)} countries: {', '.join(str(x) for x in country_names)}")
             try:
-                phase_2_city_segmentation(state)
+                phase_2_city_segmentation(state, stop_event=self._stop_event)
                 m.cities = len(state.all_cities)
                 am2.input_count = len(country_names)
                 am2.items_out = [c.get("city", "") for c in state.all_cities]
@@ -664,7 +709,7 @@ class PipelineOrchestrator:
             self._log("Agent 3 — Commercial Zone Discovery", "INFO",
                       f"  Discovering zones for {len(state.all_cities)} cities…")
             try:
-                phase_3_zone_finding(state)
+                phase_3_zone_finding(state, stop_event=self._stop_event)
                 total_zones = sum(len(z) for z in state.master_zone_registry.values())
                 m.zones = total_zones
                 am3.input_count = len(state.all_cities)
@@ -711,7 +756,7 @@ class PipelineOrchestrator:
             self._log("Agent 4 — Sub-Area Mapping", "INFO",
                       f"  Mapping sub-areas for {zone_count} zones…")
             try:
-                phase_4_subarea_mapper(state)
+                phase_4_subarea_mapper(state, stop_event=self._stop_event)
                 m.subareas = len(state.all_subarea_rows)
                 am4.input_count = zone_count
 
@@ -758,7 +803,7 @@ class PipelineOrchestrator:
             self._log("Execution Engine — Company Discovery", "INFO",
                       f"  Max scrolls: {max_scrolls} | Max scrapers: {max_scrapers}")
             try:
-                phase_5_lead_scraper(state, max_scrolls, max_scrapers)
+                phase_5_lead_scraper(state, max_scrolls, max_scrapers, stop_event=self._stop_event)
                 raw_count = len(state.scraped_companies)
                 m.companies_raw = raw_count
                 m.companies_deduped = raw_count   # already deduped inside phase_5
@@ -891,3 +936,6 @@ class PipelineOrchestrator:
 
             # Save checkpoint even on failure so user can resume
             self._save_checkpoint()
+        finally:
+            if hasattr(self, '_log_handler'):
+                logging.getLogger().removeHandler(self._log_handler)

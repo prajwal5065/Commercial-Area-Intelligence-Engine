@@ -3,8 +3,11 @@ import re
 import json
 import sys
 import requests
+import logging
 from datetime import datetime   
 from dotenv import load_dotenv
+
+log = logging.getLogger(__name__)
 
 # Reconfigure stdout/stderr to prevent UnicodeEncodeErrors on Windows CP1252/etc.
 if hasattr(sys.stdout, 'reconfigure'):
@@ -177,29 +180,29 @@ def gather_search_context(country: str) -> str:
     ]
 
     if not TAVILY_API_KEY:
-        print("  [Tavily] Skipping search — no API key.")
+        log.warning("  [Tavily] Skipping search — no API key.")
         return ""
 
     all_results = []
     tavily_failed = False
     for q in queries:
-        print(f"  [Tavily] {q}")
+        log.info(f"  [Tavily] {q}")
         try:
             results = tavily_search(q)
             all_results.extend(results)
-            print(f"           -> {len(results)} result(s)")
+            log.info(f"           -> {len(results)} result(s)")
         except Exception as e:
             err_str = str(e).lower()
             if any(kw in err_str for kw in ["432", "429", "rate limit", "rate_limit", "too many requests", "quota", "credits"]):
-                print(f"           -> Tavily plan limit reached — switching to LLM-only mode.")
+                log.warning(f"           -> Tavily plan limit reached — switching to LLM-only mode.")
                 tavily_failed = True
                 break
-            print(f"           -> FAILED: {e}")
+            log.error(f"           -> FAILED: {e}")
 
     if tavily_failed:
         return ""
 
-    print(f"  [Tavily] Total results collected: {len(all_results)}")
+    log.info(f"  [Tavily] Total results collected: {len(all_results)}")
 
     context_parts = []
     for i, r in enumerate(all_results[:12], 1):
@@ -223,10 +226,10 @@ def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PRO
     raising - a bad choice shouldn't crash a whole country's classification.
     """
     if provider not in PROVIDERS:
-        print(f"  [WARN] Unknown provider '{provider}', falling back to '{DEFAULT_PROVIDER}'.")
+        log.warning(f"  [WARN] Unknown provider '{provider}', falling back to '{DEFAULT_PROVIDER}'.")
         provider = DEFAULT_PROVIDER
     if not _provider_has_key(provider):
-        print(f"  [WARN] {PROVIDERS[provider]['api_key_env']} not set for provider '{provider}' — "
+        log.warning(f"  [WARN] {PROVIDERS[provider]['api_key_env']} not set for provider '{provider}' — "
               f"falling back to '{DEFAULT_PROVIDER}'.")
         provider = DEFAULT_PROVIDER
 
@@ -243,7 +246,7 @@ def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PRO
         )
     else:
         # LLM-only fallback: no search context available
-        print(f"  [{provider.upper()}] No Tavily context — using LLM training knowledge only.")
+        log.info(f"  [{provider.upper()}] No Tavily context — using LLM training knowledge only.")
         user_message = (
             f"Country: {country}\n\n"
             f"Web search is currently unavailable. Use your own comprehensive training knowledge "
@@ -531,26 +534,26 @@ def process_country(country: str, provider: str = DEFAULT_PROVIDER) -> dict:
             )
 
     if not TAVILY_API_KEY:
-        print("  [Tavily] No API key — running in LLM-only mode.")
+        log.warning("  [Tavily] No API key — running in LLM-only mode.")
 
-    print(f"\n[Agent] Country : {country}")
-    print(f"[Agent] LLM     : {PROVIDERS.get(provider, PROVIDERS[DEFAULT_PROVIDER])['model']} via {provider}")
+    log.info(f"[Agent] Country : {country}")
+    log.info(f"[Agent] LLM     : {PROVIDERS.get(provider, PROVIDERS[DEFAULT_PROVIDER])['model']} via {provider}")
 
     if TAVILY_API_KEY:
-        print("\n[Step 1/3] Searching official sources via Tavily...")
+        log.info("[Step 1/3] Searching official sources via Tavily...")
     else:
-        print("\n[Step 1/3] Tavily unavailable — skipping search, using LLM-only mode...")
+        log.info("[Step 1/3] Tavily unavailable — skipping search, using LLM-only mode...")
     search_context = gather_search_context(country)
 
     if search_context:
-        print(f"\n[Step 2/3] Classifying cities via {provider} (with search context)...")
+        log.info(f"[Step 2/3] Classifying cities via {provider} (with search context)...")
     else:
-        print(f"\n[Step 2/3] Classifying cities via {provider} (LLM-only, no search context)...")
+        log.info(f"[Step 2/3] Classifying cities via {provider} (LLM-only, no search context)...")
     raw_response = groq_classify(country, search_context, provider=provider)
 
-    print(f"  [{provider.upper()}] Response received ({len(raw_response)} chars)")
+    log.info(f"  [{provider.upper()}] Response received ({len(raw_response)} chars)")
 
-    print("\n[Step 3/3] Parsing JSON...")
+    log.info("[Step 3/3] Parsing JSON...")
     data = parse_json(raw_response)
 
     return data

@@ -1,0 +1,45 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Treptow Industrial Estate",
+    "city": "Berlin",
+    "country": "Germany"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Treptow-North",
+      "parent_zone": "Treptow Industrial Estate",
+      "business_volume": 800,
+      "city": "Berlin",
+      "source_url": "https://www.berlin.de/ba-treptow-kopenick/",
+      "retrieved_at": "2023-12-01T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Treptow-South",
+      "parent_zone": "Treptow Industrial Estate",
+      "business_volume": 600,
+      "city": "Berlin",
+      "source_url": "https://de.wikipedia.org/wiki/Treptow_(Berlin)",
+      "retrieved_at": "2023-12-01T12:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Berlin.de",
+      "url": "https://www.berlin.de/ba-treptow-kopenick/",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "Wikipedia",
+      "url": "https://de.wikipedia.org/wiki/Treptow_(Berlin)",
+      "category": "validation",
+      "priority": "medium"
+    }
+  ]
+}

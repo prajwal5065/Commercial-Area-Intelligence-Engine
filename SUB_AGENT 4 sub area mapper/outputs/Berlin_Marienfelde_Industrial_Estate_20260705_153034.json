@@ -1,0 +1,45 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Berlin Marienfelde Industrial Estate",
+    "city": "Berlin",
+    "country": "Germany"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Marienfelde",
+      "parent_zone": "Berlin Marienfelde Industrial Estate",
+      "business_volume": 1000,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Marienfelde",
+      "retrieved_at": "2024-09-16T14:30:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Lichtenrade",
+      "parent_zone": "Berlin Marienfelde Industrial Estate",
+      "business_volume": 800,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Lichtenrade",
+      "retrieved_at": "2024-09-16T14:30:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "Berlin City Government",
+      "url": "https://www.berlin.de/",
+      "category": "validation",
+      "priority": "high"
+    }
+  ]
+}

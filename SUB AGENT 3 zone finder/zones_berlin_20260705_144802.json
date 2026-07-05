@@ -1,0 +1,54 @@
+{
+  "status": "SUCCESS",
+  "city": "Berlin",
+  "country": "Germany",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-05T14:47:55",
+  "zones": [
+    {
+      "zone_name": "Industriepark Berlin-Stettin",
+      "business_count": 1800,
+      "count_source": "authority_page",
+      "source_url": "https://cpipg.com/storage/app/uploads/public/62a/9d1/f86/62a9d1f866570906741750.pdf",
+      "city": "Berlin",
+      "country": "Germany",
+      "rank": 1
+    },
+    {
+      "zone_name": "Adlershof",
+      "business_count": 1000,
+      "count_source": "authority_page",
+      "source_url": "https://www.berlin.de/sen/web/en/economics-and-technology/centres-of-technology-zukunftsorte-smart-city/zukunftsorte/adlershof/artikel.597193.en.php",
+      "city": "Berlin",
+      "country": "Germany",
+      "rank": 2
+    },
+    {
+      "zone_name": "Media City",
+      "business_count": 600,
+      "count_source": "authority_page",
+      "source_url": "https://www.adlershof.de/en/adlershof-in-numbers",
+      "city": "Berlin",
+      "country": "Germany",
+      "rank": 3
+    },
+    {
+      "zone_name": "Technologie-Park Berlin-Humboldthain",
+      "business_count": 150,
+      "count_source": "authority_page",
+      "source_url": "https://www.businesslocationcenter.de/en/zukunftsorte-en",
+      "city": "Berlin",
+      "country": "Germany",
+      "rank": 4
+    },
+    {
+      "zone_name": "Torgelower Straße East",
+      "business_count": 10,
+      "count_source": "directory_total",
+      "source_url": "https://www.renters-rising.org/social-housing-around-the-world/berlin",
+      "city": "Berlin",
+      "country": "Germany",
+      "rank": 5
+    }
+  ]
+}

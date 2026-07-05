@@ -1,0 +1,61 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Alexanderplatz",
+    "city": "Berlin",
+    "country": "Germany"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Mitte",
+      "parent_zone": "Alexanderplatz",
+      "business_volume": 1000,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Mitte",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Kreuzberg",
+      "parent_zone": "Alexanderplatz",
+      "business_volume": 800,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Kreuzberg",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Friedrichshain",
+      "parent_zone": "Alexanderplatz",
+      "business_volume": 600,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Friedrichshain",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "Berlin City Government",
+      "url": "https://www.berlin.de/",
+      "category": "validation",
+      "priority": "high"
+    },
+    {
+      "name": "OpenStreetMap",
+      "url": "https://www.openstreetmap.org/",
+      "category": "geography",
+      "priority": "medium"
+    }
+  ]
+}

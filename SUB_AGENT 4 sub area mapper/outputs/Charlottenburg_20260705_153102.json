@@ -1,0 +1,45 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Charlottenburg",
+    "city": "Berlin",
+    "country": "Germany"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Charlottenburg-Nord",
+      "parent_zone": "Charlottenburg",
+      "business_volume": 800,
+      "city": "Berlin",
+      "source_url": "https://de.wikipedia.org/wiki/Charlottenburg-Nord",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Charlottenburg-Süd",
+      "parent_zone": "Charlottenburg",
+      "business_volume": 600,
+      "city": "Berlin",
+      "source_url": "https://de.wikipedia.org/wiki/Charlottenburg-S%C3%BCd",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://de.wikipedia.org/",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "Berlin City Government",
+      "url": "https://www.berlin.de/",
+      "category": "validation",
+      "priority": "high"
+    }
+  ]
+}

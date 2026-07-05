@@ -33,16 +33,35 @@ before (raises after RETRY_ATTEMPTS on the single configured provider).
     OPENAI_API_KEY      (optional — enables automatic fallback from Groq/Gemini)
 """
 import os
+import sys
+
+# Bootstrapping paths to ensure local imports and global rate_limiter are found
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_PROJ = os.path.dirname(_HERE)  # project root
+
+# 1. Ensure local directory is searched first for supabase_client.py
+if _HERE in sys.path:
+    sys.path.remove(_HERE)
+sys.path.insert(0, _HERE)
+
+# 2. Ensure project root is in sys.path for rate_limiter.py
+if _PROJ not in sys.path:
+    sys.path.append(_PROJ)
+
+# 3. Prevent namespace collisions by removing cached supabase_client if from another directory
+if 'supabase_client' in sys.modules:
+    _cached_file = getattr(sys.modules['supabase_client'], '__file__', '')
+    if _cached_file and os.path.normpath(os.path.dirname(_cached_file)).lower() != os.path.normpath(_HERE).lower():
+        del sys.modules['supabase_client']
+
 import re
 import json
-import sys
 import time
 import logging
 import requests
 from datetime import datetime
 from dotenv import load_dotenv
 
-import time
 from rate_limiter import tavily_limiter, groq_limiter  # ADD THIS LINE
 
 from supabase_client import upsert_zone

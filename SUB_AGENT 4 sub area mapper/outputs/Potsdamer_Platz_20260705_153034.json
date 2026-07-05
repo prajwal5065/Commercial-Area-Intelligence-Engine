@@ -1,0 +1,55 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Potsdamer Platz",
+    "city": "Berlin",
+    "country": "Germany"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Potsdamer Platz Arkaden",
+      "parent_zone": "Potsdamer Platz",
+      "business_volume": 1000,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Potsdamer_Platz",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Sony Center",
+      "parent_zone": "Potsdamer Platz",
+      "business_volume": 800,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Sony_Center",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "DaimlerChrysler Gebäude",
+      "parent_zone": "Potsdamer Platz",
+      "business_volume": 600,
+      "city": "Berlin",
+      "source_url": "https://de.wikipedia.org/wiki/DaimlerChrysler_Gebäude",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Potsdamer_Platz",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "Berlin Tourism",
+      "url": "https://www.visitberlin.de/en/potsdamer-platz",
+      "category": "validation",
+      "priority": "medium"
+    }
+  ]
+}

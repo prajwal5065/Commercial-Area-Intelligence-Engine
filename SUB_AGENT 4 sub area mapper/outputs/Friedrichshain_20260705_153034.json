@@ -1,0 +1,71 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Friedrichshain",
+    "city": "Berlin",
+    "country": "Germany"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Kreuzberg",
+      "parent_zone": "Friedrichshain-Kreuzberg",
+      "business_volume": 1000,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Friedrichshain-Kreuzberg",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Friedrichshain",
+      "parent_zone": "Friedrichshain-Kreuzberg",
+      "business_volume": 800,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Friedrichshain",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Boxhagener Platz",
+      "parent_zone": "Friedrichshain",
+      "business_volume": 600,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Boxhagener_Platz",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 4,
+      "subarea_name": "Simon-Dach-Straße",
+      "parent_zone": "Friedrichshain",
+      "business_volume": 400,
+      "city": "Berlin",
+      "source_url": "https://en.wikipedia.org/wiki/Simon-Dach-Straße",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "Berlin City Government",
+      "url": "https://www.berlin.de/",
+      "category": "validation",
+      "priority": "high"
+    },
+    {
+      "name": "OpenStreetMap",
+      "url": "https://www.openstreetmap.org/",
+      "category": "geography",
+      "priority": "medium"
+    }
+  ]
+}

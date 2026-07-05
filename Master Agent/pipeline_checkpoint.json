@@ -1,6 +1,6 @@
 {
-  "pipeline_id": "20260704_201959",
-  "saved_at": "2026-07-04T20:20:08.117652",
+  "pipeline_id": "20260705_172910",
+  "saved_at": "2026-07-05T17:30:22.224680",
   "countries": [
     {
       "iso_code": "USA",
@@ -58,17 +58,17 @@
   "subarea_rows": [],
   "companies": [],
   "metrics": {
-    "pipeline_id": "20260704_201959",
-    "start_time": 1783176599.3333244,
-    "end_time": 1783176608.1176522,
-    "status": "failed",
+    "pipeline_id": "20260705_172910",
+    "start_time": 1783252750.6382542,
+    "end_time": null,
+    "status": "running",
     "agents": {
       "1": {
         "agent_id": "1",
         "agent_name": "Agent 1 — Country Discovery",
         "status": "done",
-        "start_time": 1783176599.8859973,
-        "end_time": 1783176599.8859973,
+        "start_time": 1783252751.5135005,
+        "end_time": 1783252751.5353522,
         "input_count": 1,
         "output_count": 5,
         "error_count": 0,
@@ -88,8 +88,8 @@
         "agent_id": "2",
         "agent_name": "Agent 2 — City Discovery",
         "status": "done",
-        "start_time": 1783176599.8975222,
-        "end_time": 1783176608.104604,
+        "start_time": 1783252751.5385451,
+        "end_time": 1783252822.2214935,
         "input_count": 5,
         "output_count": 0,
         "error_count": 0,
@@ -97,7 +97,7 @@
         "errors": [],
         "items_in": [],
         "items_out": [],
-        "elapsed": "8.2s"
+        "elapsed": "1m 10s"
       }
     },
     "countries": 5,
@@ -109,11 +109,11 @@
     "duplicates_removed": 0,
     "invalid_records": 0,
     "supabase_inserted": 0,
-    "peak_cpu": 24.0,
-    "peak_mem_mb": 75.15625,
+    "peak_cpu": 30.7,
+    "peak_mem_mb": 76.26953125,
     "output_file": null,
-    "error": "General execution error (Details: Agent 2 produced 0 cities — cannot continue.)",
+    "error": null,
     "failed_agent": null,
-    "elapsed": "8.8s"
+    "elapsed": "1m 11s"
   }
 }
