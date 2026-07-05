@@ -391,11 +391,16 @@ def phase_3_zone_finding(state, stop_event=None):
 #  PHASE 4 — Sub-Area Mapper (Agent 5) — Hyper-Parallel
 # ═══════════════════════════════════════════════════════════════════
 
-def phase_4_subarea_mapper(state):
+def phase_4_subarea_mapper(state, provider: str = "groq"):
     """
     Flatten Master Zone Registry into Z zones.
     CALCULATE: K5 = ceil(Z / C_max) with C_max = 2 (hyper-parallel, leaf-level).
     DISPATCH: K5 identical Agent 5 instances in parallel.
+
+    provider: which LLM to use for zone-to-subarea mapping calls
+    ("groq" | "gemini" | "openai"). Manual choice, passed through to
+    process_zone() in SUB_AGENT 4/main.py. Defaults to "groq", matching
+    behavior before provider choice existed.
     """
     # Globally flatten all zones into one list
     all_zone_items = []
@@ -452,7 +457,7 @@ def phase_4_subarea_mapper(state):
             city = zone_info["city"]
             country = zone_info["country"]
             try:
-                result_data = process_zone(zone_name, city, country)
+                result_data = process_zone(zone_name, city, country, provider=provider)
                 
                 # Handle dict return type from updated process_zone
                 output_path = result_data.get("path") if isinstance(result_data, dict) else result_data

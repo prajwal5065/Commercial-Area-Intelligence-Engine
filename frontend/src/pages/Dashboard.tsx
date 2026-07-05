@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { api, type SessionStatus, type LogEntry } from "../lib/api";
+import { api, type SessionStatus, type LogEntry, type LlmProvider } from "../lib/api";
 import { Download, Play, Square, RotateCcw, ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Clock, Activity, Wand2, SlidersHorizontal } from "lucide-react";
 import { StageConfigurator } from "../components/StageConfigurator";
 
@@ -198,6 +198,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   const [zoneOptions, setZoneOptions] = useState<string[]>([]);
   const [selectedZones, setSelectedZones] = useState<string[]>([]);
   const [manualSubareaTopN, setManualSubareaTopN] = useState("10");
+  const [stage4Provider, setStage4Provider] = useState<LlmProvider>("groq");
   const [manualStarting, setManualStarting] = useState<string | null>(null);
 
   const isRunning = status.running;
@@ -368,7 +369,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   async function handleManualRun4() {
     setManualStarting("4");
     try {
-      await api.runAgent4(sessionId, selectedZones);
+      await api.runAgent4(sessionId, selectedZones, stage4Provider);
       refresh();
     } finally {
       setManualStarting(null);
@@ -640,6 +641,31 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
               onSelectedNamesChange={setSelectedZones}
               disabled={!stage3Done || manualStarting !== null}
             />
+            <div>
+              <label className="block font-mono text-[10px] uppercase tracking-widest text-ink-500 mb-1.5">
+                LLM Provider
+              </label>
+              <div className="flex items-center rounded-lg bg-ink-850 border border-ink-700 p-0.5 w-fit">
+                {(["groq", "gemini", "openai"] as LlmProvider[]).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    disabled={!stage3Done || manualStarting !== null}
+                    onClick={() => setStage4Provider(p)}
+                    className={`px-3 py-1.5 rounded-md text-xs font-medium capitalize transition-colors disabled:opacity-40 ${
+                      stage4Provider === p
+                        ? "bg-signal-500 text-ink-950"
+                        : "text-ink-400 hover:text-ink-200"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-ink-500 mt-1.5">
+                Requires the matching API key ({stage4Provider === "groq" ? "GROQ_API_KEY" : stage4Provider === "gemini" ? "GEMINI_API_KEY" : "OPENAI_API_KEY"}) set on the backend. Falls back to Groq if missing.
+              </p>
+            </div>
           </div>
 
           {/* Stage 5: Scraper */}

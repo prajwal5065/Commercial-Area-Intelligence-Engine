@@ -55,24 +55,95 @@ else:
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.3-70b-versatile"
 
+# ── Provider registry ─────────────────────────────────────────────
+# Mirrors the pattern in SUB AGENT 3 zone finder/zone_finders_code.py, so
+# the same choose-a-model UI/API contract works across agents. Unlike Agent
+# 3, this is manual selection only (caller passes provider=...) - no
+# automatic rate-limit fallback here, since that wasn't in scope for Agent 4.
+PROVIDERS = {
+    "groq": {
+        "api_key_env": "GROQ_API_KEY",
+        "api_url":     "https://api.groq.com/openai/v1/chat/completions",
+        "model":       "llama-3.3-70b-versatile",
+        "request_fmt": "openai",
+    },
+    "gemini": {
+        "api_key_env": "GEMINI_API_KEY",
+        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "model":       "gemini-2.0-flash",
+        "request_fmt": "gemini",
+    },
+    "openai": {
+        "api_key_env": "OPENAI_API_KEY",
+        "api_url":     "https://api.openai.com/v1/chat/completions",
+        "model":       "gpt-4o-mini",
+        "request_fmt": "openai",
+    },
+}
 
-def call_groq(prompt: str) -> str:
-    """Call Groq API directly — same pattern as Agents 2 and 3."""
-    payload = {
-        "model": "llama-3.3-70b-versatile",
+DEFAULT_PROVIDER = "groq"
+
+
+def _gemini_payload(prompt: str) -> dict:
+    return {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {"temperature": 0.1, "maxOutputTokens": 8000},
+    }
+
+
+def _openai_payload(prompt: str, model: str) -> dict:
+    return {
+        "model": model,
         "temperature": 0.1,
         "max_tokens": 8000,
-        "messages": [
-            {"role": "user", "content": prompt}
-        ],
+        "messages": [{"role": "user", "content": prompt}],
     }
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-    }
-    resp = requests.post(GROQ_API_URL, headers=headers, json=payload, timeout=120)
+
+
+def call_groq(prompt: str, provider: str = DEFAULT_PROVIDER) -> str:
+    """Call the chosen LLM provider. Name kept as call_groq for backward
+    compatibility with any existing callers that don't pass a provider -
+    defaults to Groq, identical behavior to before this function supported
+    provider choice.
+
+    provider: one of PROVIDERS' keys ("groq" | "gemini" | "openai"). Falls
+    back to Groq with a warning if an unknown or unconfigured provider name
+    is given, rather than raising - a bad provider choice shouldn't crash a
+    whole zone's mapping when Groq would have worked.
+    """
+    if provider not in PROVIDERS:
+        log.warning(f"[main.py] Unknown provider '{provider}', falling back to '{DEFAULT_PROVIDER}'.")
+        provider = DEFAULT_PROVIDER
+
+    cfg = PROVIDERS[provider]
+    api_key = os.getenv(cfg["api_key_env"])
+    if not api_key:
+        log.warning(
+            f"[main.py] {cfg['api_key_env']} not set for provider '{provider}' — "
+            f"falling back to '{DEFAULT_PROVIDER}'."
+        )
+        provider = DEFAULT_PROVIDER
+        cfg = PROVIDERS[provider]
+        api_key = os.getenv(cfg["api_key_env"])
+
+    if cfg["request_fmt"] == "gemini":
+        payload = _gemini_payload(prompt)
+        headers = {"Content-Type": "application/json"}
+        url = f"{cfg['api_url']}?key={api_key}"
+    else:
+        payload = _openai_payload(prompt, cfg["model"])
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        }
+        url = cfg["api_url"]
+
+    resp = requests.post(url, headers=headers, json=payload, timeout=120)
     resp.raise_for_status()
-    return resp.json()["choices"][0]["message"]["content"]
+    rj = resp.json()
+    if cfg["request_fmt"] == "gemini":
+        return rj["candidates"][0]["content"]["parts"][0]["text"]
+    return rj["choices"][0]["message"]["content"]
 
 REQUIRED_KEYS = {"status", "agent", "input", "results", "supporting_sources"}
 
@@ -154,8 +225,14 @@ def insert_subareas_to_supabase(data: dict) -> Dict[str, int]:
     return {"inserted": inserted_count, "skipped": skipped_count, "failed": failed_count}
 
 
-def process_zone(zone_name: str, city: str, country: str) -> Dict[str, Any]:
-    """Execute the sub-area mapping pipeline for a single zone."""
+def process_zone(zone_name: str, city: str, country: str, provider: str = DEFAULT_PROVIDER) -> Dict[str, Any]:
+    """Execute the sub-area mapping pipeline for a single zone.
+
+    provider: which LLM to use for this call ("groq" | "gemini" | "openai").
+    Manual choice only - set by the caller (phase_4_subarea_mapper), not
+    auto-selected. Defaults to Groq, matching prior behavior exactly when
+    no provider is specified.
+    """
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompt.txt")
     output_dir = os.path.join(current_dir, "outputs")
@@ -181,7 +258,7 @@ def process_zone(zone_name: str, city: str, country: str) -> Dict[str, Any]:
     for attempt, wait_sec in enumerate(wait_times, start=1):
         try:
             log.info(f"Sending request for {zone_name} (attempt {attempt}/{len(wait_times)})")
-            raw_response = call_groq(final_prompt)
+            raw_response = call_groq(final_prompt, provider=provider)
             break
         except Exception as e:
             err_str = str(e).lower()

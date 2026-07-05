@@ -2,6 +2,10 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export type AgentStatus = "Pending" | "Running" | "Done" | "Error" | "pending" | "running" | "done" | "failed" | "skipped";
 
+// Manual model choice for agents that support it (currently Agent 4).
+// Matches SUB_AGENT 4 sub area mapper/main.py's PROVIDERS registry.
+export type LlmProvider = "groq" | "gemini" | "openai";
+
 export interface LogEntry {
   ts: string;
   level: "INFO" | "WARN" | "ERROR" | "SUCCESS" | "STAGE" | "METRIC" | "EOF";
@@ -132,10 +136,10 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ selected_cities: selectedCities }),
     }),
-  runAgent4: (sessionId: string, selectedZones: string[]) =>
+  runAgent4: (sessionId: string, selectedZones: string[], provider: LlmProvider = "groq") =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/4/run`, {
       method: "POST",
-      body: JSON.stringify({ selected_zones: selectedZones }),
+      body: JSON.stringify({ selected_zones: selectedZones, provider }),
     }),
   runAgent5: (sessionId: string) =>
     req<{ status: string }>(`/sessions/${sessionId}/agents/5/run`, { method: "POST" }),

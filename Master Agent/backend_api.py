@@ -145,6 +145,7 @@ class Agent3Request(BaseModel):
 
 class Agent4Request(BaseModel):
     selected_zones: list[str] = []
+    provider: str = "groq"  # "groq" | "gemini" | "openai" - manual LLM choice
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -461,7 +462,7 @@ def _run_agent_3(s: Session, selected_cities: list) -> None:
         s._agent_running = False
 
 
-def _run_agent_4(s: Session, selected_zones: list) -> None:
+def _run_agent_4(s: Session, selected_zones: list, provider: str = "groq") -> None:
     s.agent_status["4"] = "Running"
     m = _manual_start(s, "4")
     try:
@@ -472,7 +473,7 @@ def _run_agent_4(s: Session, selected_zones: list) -> None:
                 for (city, co), zones in orig.items()
                 if any(z in selected_zones for z in zones)
             }
-        phase_4_subarea_mapper(s.state)
+        phase_4_subarea_mapper(s.state, provider=provider)
         s.agent_status["4"] = "Done"
         _manual_finish(s, m, True, len(s.state.all_subarea_rows))
     except Exception as e:
@@ -538,7 +539,7 @@ def run_agent_3(session_id: str, body: Agent3Request):
 @app.post("/sessions/{session_id}/agents/4/run")
 def run_agent_4(session_id: str, body: Agent4Request):
     s = _get_session(session_id)
-    _start_agent_thread(s, _run_agent_4, body.selected_zones)
+    _start_agent_thread(s, _run_agent_4, body.selected_zones, body.provider)
     return {"status": "started"}
 
 
