@@ -250,6 +250,12 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
     }
   }, [isRunning, startStream]);
 
+  useEffect(() => {
+    if (runMode === "manual" && manualStarting !== null && !esRef.current) {
+      startStream();
+    }
+  }, [runMode, manualStarting, startStream]);
+
   // ── Handlers ──────────────────────────────────────────────────────────
   async function handleStart() {
     setStarting(true);
@@ -427,6 +433,15 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
             </button>
           )}
           {isRunning && (
+            <button
+              onClick={handleStop}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/30 font-medium text-sm hover:bg-red-500/20 transition-all"
+            >
+              <Square className="w-3.5 h-3.5" />
+              Stop
+            </button>
+          )}
+          {runMode === "manual" && manualStarting !== null && (
             <button
               onClick={handleStop}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/30 font-medium text-sm hover:bg-red-500/20 transition-all"
@@ -765,7 +780,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
             <div className="flex items-center gap-2">
               <Activity className="w-3.5 h-3.5 text-signal-400" />
               <h3 className="text-sm font-semibold text-ink-100">Live Execution Log</h3>
-              {isRunning && (
+              {(isRunning || (runMode === "manual" && manualStarting !== null)) && (
                 <span className="flex items-center gap-1 text-xs text-signal-400 font-mono">
                   <span className="w-1.5 h-1.5 rounded-full bg-signal-400 animate-pulse" />
                   LIVE

@@ -39,6 +39,26 @@ from supabase_client import upsert_zone
 load_dotenv()
 
 # --------------------------------------------------
+# Cooperative stop signal (optional)
+# --------------------------------------------------
+# A threading.Event can be registered via set_stop_event() so long retry
+# loops in call_llm()/tavily_search() can bail out between attempts when the
+# user hits Stop, instead of always exhausting all RETRY_ATTEMPTS. Not
+# required for normal operation - if never set, behaves exactly as before.
+_STOP_EVENT = None
+
+
+def set_stop_event(event) -> None:
+    """Register a threading.Event to check between retry attempts."""
+    global _STOP_EVENT
+    _STOP_EVENT = event
+
+
+def _stop_requested() -> bool:
+    return _STOP_EVENT is not None and _STOP_EVENT.is_set()
+
+
+# --------------------------------------------------
 # Logging
 # --------------------------------------------------
 
@@ -302,6 +322,9 @@ def call_llm(system: str, user: str) -> str:
     cur_user = user
 
     for attempt in range(1, RETRY_ATTEMPTS + 1):
+        if _stop_requested():
+            log.warning(f"[{ACTIVE_PROVIDER.upper()}] Stop requested — aborting retry loop.")
+            raise RuntimeError("Stopped by user request.")
         if ACTIVE_PROVIDER == "groq" and 'groq_limiter' in globals():
             groq_limiter.wait()
         if LLM_FMT == "openai":
@@ -374,7 +397,16 @@ def call_llm(system: str, user: str) -> str:
                 f"waiting {wait}s (attempt {attempt}/{RETRY_ATTEMPTS})"
             )
             if attempt < RETRY_ATTEMPTS:
-                time.sleep(wait)
+                # Sleep in short chunks so a stop request doesn't have to wait
+                # out the full 429 backoff (which can be 65s+) before taking effect.
+                remaining = wait
+                while remaining > 0:
+                    if _stop_requested():
+                        log.warning(f"[{ACTIVE_PROVIDER.upper()}] Stop requested during 429 backoff — aborting.")
+                        raise RuntimeError("Stopped by user request.")
+                    chunk = min(2, remaining)
+                    time.sleep(chunk)
+                    remaining -= chunk
                 continue
 
         if resp.status_code in (500, 502, 503):
@@ -755,7 +787,7 @@ def log_results(data: dict) -> None:
 #  MAIN PIPELINE — process one city
 # ═══════════════════════════════════════════════════════════════════
 
-def process_city(city: str, country: str) -> dict:
+def process_city(city: str, country: str, stop_event=None) -> dict:
     """
     Full pipeline for one city:
       1. Discover zones (Pass 1)
@@ -765,7 +797,13 @@ def process_city(city: str, country: str) -> dict:
       5. Save local JSON snapshot
 
     Never raises. Returns a status dict so swarm workers continue on failure.
+
+    stop_event: optional threading.Event, registered with this module so
+    call_llm()/tavily_search() retry loops can check it and bail out early
+    instead of exhausting all retry attempts when the user requests a stop.
     """
+    if stop_event is not None:
+        set_stop_event(stop_event)
     log.info(f"Processing: {city}, {country}")
 
     # Pass 1 — zone discovery
@@ -775,6 +813,10 @@ def process_city(city: str, country: str) -> dict:
         log.error(f"{city}: zone discovery failed — {e}")
         return {"status": "FAILED", "city": city, "country": country, "zones": []}
 
+    if stop_event is not None and stop_event.is_set():
+        log.warning(f"{city}: stop requested after zone discovery — skipping zone counting.")
+        return {"status": "STOPPED", "city": city, "country": country, "zones": []}
+
     if not zones:
         log.warning(f"{city}: no zones discovered, skipping")
         return {"status": "NO_ZONES", "city": city, "country": country, "zones": []}
@@ -782,6 +824,9 @@ def process_city(city: str, country: str) -> dict:
     # Pass 2 — count businesses per zone
     counts = []
     for zone in zones:
+        if stop_event is not None and stop_event.is_set():
+            log.warning(f"{city}: stop requested — halting zone counting early.")
+            break
         try:
             counts.append(fetch_zone_count(zone, city, country))
         except Exception as e:

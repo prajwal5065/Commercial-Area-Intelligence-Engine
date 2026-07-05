@@ -29,6 +29,7 @@ import json
 import os
 import sys
 import threading
+import time
 import traceback
 import uuid
 from argparse import Namespace
@@ -55,7 +56,7 @@ from run_pipeline import (
     phase_5_5_supabase_insert_leads,
 )
 from orchestrator_utils import PipelineState
-from pipeline_orchestrator import PipelineOrchestrator
+from pipeline_orchestrator import PipelineOrchestrator, AgentMetrics, LogBus, LogEntry
 
 PROJECT_ROOT = run_pipeline.project_root
 
@@ -92,6 +93,14 @@ class Session:
         self._agent_error: Optional[str] = None
         self._agent_tb: Optional[str] = None
         self.output_file: Optional[str] = None
+
+        # Timer + live-log support for manual (legacy) per-agent runs.
+        # Reuses the same AgentMetrics/LogBus shapes the orchestrator uses,
+        # so the frontend's agents_detail / SSE log handling works identically
+        # whether a run came from Auto (/pipeline/run) or Manual (/agents/N/run).
+        self.agent_metrics: dict[str, AgentMetrics] = {}
+        self.log_bus = LogBus()
+        self._manual_stop_event = threading.Event()
 
 
 SESSIONS: dict[str, Session] = {}
@@ -178,7 +187,7 @@ def get_status(session_id: str):
             "agents_detail": orch_status.get("agents", {}),
         }
 
-    # Fallback: legacy per-agent status
+    # Fallback: legacy per-agent status (Manual mode - /agents/N/run)
     return {
         "session_id": s.id,
         "running": s._agent_running,
@@ -187,10 +196,19 @@ def get_status(session_id: str):
         "output_file": s.output_file,
         "pipeline_status": "idle",
         "elapsed": None,
-        "counts": {},
+        "counts": {
+            "countries": len(s.state.gdp_ranked_countries),
+            "cities": len(s.state.all_cities),
+            "zones": sum(len(z) for z in s.state.master_zone_registry.values()),
+            "subareas": len(s.state.all_subarea_rows),
+            "companies": len(s.state.scraped_companies),
+        },
         "system": {},
         "failed_agent": None,
-        "agents_detail": {},
+        # Real per-agent timer/output data for Manual mode, same shape the
+        # orchestrator produces - AgentStageRow renders elapsed/output_count
+        # identically regardless of which mode ran the agent.
+        "agents_detail": {aid: am.to_dict() for aid, am in s.agent_metrics.items()},
     }
 
 
@@ -240,8 +258,13 @@ def run_full_pipeline(session_id: str, body: PipelineRunRequest):
 
 @app.post("/sessions/{session_id}/pipeline/stop")
 def stop_pipeline(session_id: str):
+    """Stops whichever mode is currently running: the orchestrator (Auto)
+    or the in-flight manual agent (Manual - sets _manual_stop_event, checked
+    inside Agent 3's retry loops so it can bail out between attempts instead
+    of only between whole agents)."""
     s = _get_session(session_id)
     s.orchestrator.stop()
+    s._manual_stop_event.set()
     return {"status": "stop_requested"}
 
 
@@ -254,9 +277,23 @@ async def stream_logs(session_id: str):
     """
     Server-Sent Events endpoint. Each event is a JSON log entry:
       data: {"ts":"08:12:34","level":"INFO","agent":"Agent 2","message":"✓ Mumbai"}
+
+    Picks whichever log bus is actually active for this session: the
+    orchestrator's (Auto / full-pipeline runs) if it has ever been used,
+    otherwise the session's own log_bus (Manual / per-agent runs). This is
+    decided once at connect time - a session normally sticks to one mode.
     """
     s = _get_session(session_id)
-    log_queue = s.orchestrator.log_bus.subscribe()
+    use_orchestrator = s.orchestrator.metrics is not None
+    bus = s.orchestrator.log_bus if use_orchestrator else s.log_bus
+    log_queue = bus.subscribe()
+
+    def _finished() -> bool:
+        if use_orchestrator:
+            return (not s.orchestrator.is_running()
+                    and s.orchestrator.metrics is not None
+                    and s.orchestrator.metrics.status in ("done", "failed", "stopped"))
+        return not s._agent_running
 
     async def _generator() -> AsyncGenerator[str, None]:
         try:
@@ -275,15 +312,12 @@ async def stream_logs(session_id: str):
 
                 await asyncio.sleep(0.3)
 
-                # End stream when pipeline finishes and queue is empty
-                if (not s.orchestrator.is_running()
-                        and len(log_queue) == 0
-                        and s.orchestrator.metrics is not None
-                        and s.orchestrator.metrics.status in ("done", "failed", "stopped")):
-                    yield "data: {\"ts\":\"\",\"level\":\"EOF\",\"agent\":\"SYSTEM\",\"message\":\"Pipeline finished\"}\n\n"
+                # End stream when the active run finishes and queue is empty
+                if _finished() and len(log_queue) == 0:
+                    yield "data: {\"ts\":\"\",\"level\":\"EOF\",\"agent\":\"SYSTEM\",\"message\":\"Run finished\"}\n\n"
                     break
         finally:
-            s.orchestrator.log_bus.unsubscribe(log_queue)
+            bus.unsubscribe(log_queue)
 
     return StreamingResponse(
         _generator(),
@@ -299,12 +333,53 @@ async def stream_logs(session_id: str):
 def get_logs(session_id: str):
     """Return all log entries accumulated so far as a JSON array."""
     s = _get_session(session_id)
-    return s.orchestrator.log_bus.history()
+    bus = s.orchestrator.log_bus if s.orchestrator.metrics is not None else s.log_bus
+    return bus.history()
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 #  Individual Agent endpoints (legacy manual mode)
 # ═══════════════════════════════════════════════════════════════════════════
+
+AGENT_NAMES = {
+    "1": "Agent 1 — Country Discovery",
+    "2": "Agent 2 — City Discovery",
+    "3": "Agent 3 — Commercial Zone Discovery",
+    "4": "Agent 4 — Sub-Area Mapping",
+    "5": "Execution Engine — Company Discovery",
+}
+
+
+def _manual_log(s: Session, agent_id: str, level: str, message: str) -> None:
+    """Emit a log entry to this session's log bus - same LogEntry shape the
+    orchestrator uses, so the existing SSE stream / log console work
+    unchanged for manual per-agent runs too."""
+    entry = LogEntry(
+        ts=datetime.now().strftime("%H:%M:%S"),
+        level=level,
+        agent=AGENT_NAMES.get(agent_id, f"Agent {agent_id}"),
+        message=message,
+    )
+    s.log_bus.emit(entry)
+
+
+def _manual_start(s: Session, agent_id: str) -> AgentMetrics:
+    m = AgentMetrics(agent_id=agent_id, agent_name=AGENT_NAMES.get(agent_id, f"Agent {agent_id}"),
+                      status="running", start_time=time.time())
+    s.agent_metrics[agent_id] = m
+    _manual_log(s, agent_id, "STAGE", f"{AGENT_NAMES.get(agent_id, agent_id)} started")
+    return m
+
+
+def _manual_finish(s: Session, m: AgentMetrics, success: bool, output_count: int = 0) -> None:
+    m.end_time = time.time()
+    m.status = "done" if success else "failed"
+    m.output_count = output_count
+    level = "SUCCESS" if success else "ERROR"
+    verb = "completed" if success else "failed"
+    _manual_log(s, m.agent_id, level, f"{m.agent_name} {verb} — {m.elapsed}"
+                + (f", {output_count} items" if success else ""))
+
 
 def _start_agent_thread(s: Session, target, *args) -> None:
     if s._agent_running:
@@ -312,11 +387,13 @@ def _start_agent_thread(s: Session, target, *args) -> None:
     s._agent_error = None
     s._agent_tb = None
     s._agent_running = True
+    s._manual_stop_event.clear()
     threading.Thread(target=target, args=(s, *args), daemon=True).start()
 
 
 def _run_agent_1(s: Session, top_n: Optional[int], countries: Optional[list] = None) -> None:
     s.agent_status["1"] = "Running"
+    m = _manual_start(s, "1")
     try:
         args = Namespace(
             countries=",".join(countries) if countries else None,
@@ -325,10 +402,13 @@ def _run_agent_1(s: Session, top_n: Optional[int], countries: Optional[list] = N
         )
         phase_1_gdp_ranking(s.state, args)
         s.agent_status["1"] = "Done"
+        _manual_finish(s, m, True, len(s.state.gdp_ranked_countries))
     except Exception as e:
         s.agent_status["1"] = "Error"
         s._agent_error = str(e)
         s._agent_tb = traceback.format_exc()
+        m.errors.append(str(e))
+        _manual_finish(s, m, False)
     finally:
         s._agent_running = False
 
@@ -340,13 +420,17 @@ def _run_agent_2(s: Session, selected_countries: list) -> None:
             if c.get("country_name") in selected_countries
         ]
     s.agent_status["2"] = "Running"
+    m = _manual_start(s, "2")
     try:
         phase_2_city_segmentation(s.state)
         s.agent_status["2"] = "Done"
+        _manual_finish(s, m, True, len(s.state.all_cities))
     except Exception as e:
         s.agent_status["2"] = "Error"
         s._agent_error = str(e)
         s._agent_tb = traceback.format_exc()
+        m.errors.append(str(e))
+        _manual_finish(s, m, False)
     finally:
         s._agent_running = False
 
@@ -356,19 +440,30 @@ def _run_agent_3(s: Session, selected_cities: list) -> None:
         s.state.all_cities = [c for c in s.state.all_cities
                               if c.get("city") in selected_cities]
     s.agent_status["3"] = "Running"
+    m = _manual_start(s, "3")
     try:
-        phase_3_zone_finding(s.state)
-        s.agent_status["3"] = "Done"
+        phase_3_zone_finding(s.state, stop_event=s._manual_stop_event)
+        total_zones = sum(len(z) for z in s.state.master_zone_registry.values())
+        if s._manual_stop_event.is_set():
+            s.agent_status["3"] = "Error"
+            m.errors.append("Stopped by user request.")
+            _manual_finish(s, m, False, total_zones)
+        else:
+            s.agent_status["3"] = "Done"
+            _manual_finish(s, m, True, total_zones)
     except Exception as e:
         s.agent_status["3"] = "Error"
         s._agent_error = str(e)
         s._agent_tb = traceback.format_exc()
+        m.errors.append(str(e))
+        _manual_finish(s, m, False)
     finally:
         s._agent_running = False
 
 
 def _run_agent_4(s: Session, selected_zones: list) -> None:
     s.agent_status["4"] = "Running"
+    m = _manual_start(s, "4")
     try:
         if selected_zones:
             orig = s.state.master_zone_registry
@@ -379,16 +474,20 @@ def _run_agent_4(s: Session, selected_zones: list) -> None:
             }
         phase_4_subarea_mapper(s.state)
         s.agent_status["4"] = "Done"
+        _manual_finish(s, m, True, len(s.state.all_subarea_rows))
     except Exception as e:
         s.agent_status["4"] = "Error"
         s._agent_error = str(e)
         s._agent_tb = traceback.format_exc()
+        m.errors.append(str(e))
+        _manual_finish(s, m, False)
     finally:
         s._agent_running = False
 
 
 def _run_agent_5(s: Session) -> None:
     s.agent_status["5"] = "Running"
+    m = _manual_start(s, "5")
     try:
         phase_5_lead_scraper(s.state, 8, 3)
         phase_4_5_supabase_insert(s.state, skip_supabase=False)
@@ -403,11 +502,14 @@ def _run_agent_5(s: Session) -> None:
         s.output_file = out_file
         print(f"[Agent 5] Saved {len(s.state.scraped_companies)} leads → {out_file}")
         s.agent_status["5"] = "Done"
+        _manual_finish(s, m, True, len(s.state.scraped_companies))
     except Exception as e:
         s.agent_status["5"] = "Error"
         s._agent_error = str(e)
         s._agent_tb = traceback.format_exc()
         print(f"[Agent 5] ERROR: {e}\n{s._agent_tb}")
+        m.errors.append(str(e))
+        _manual_finish(s, m, False)
     finally:
         s._agent_running = False
 

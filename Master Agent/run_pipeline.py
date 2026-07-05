@@ -273,11 +273,16 @@ def phase_2_city_segmentation(state):
 #  PHASE 3 — Zone Finding (Agent 3) — Massive Parallel
 # ═══════════════════════════════════════════════════════════════════
 
-def phase_3_zone_finding(state):
+def phase_3_zone_finding(state, stop_event=None):
     """
     Flatten Master City Registry into M cities.
     CALCULATE: K3 = ceil(M / C_max) with C_max = 4 cities per instance.
     DISPATCH: K3 identical Agent 3 instances in parallel.
+
+    stop_event: optional threading.Event. When set, in-progress city loops
+    bail out after the current city finishes rather than waiting for the
+    whole batch/phase to complete naturally. Checked between cities (not
+    mid-API-call) since interrupting an in-flight HTTP request isn't safe.
     """
     if not state.all_cities:
         print("  [Phase 3] No cities to process. Skipping.")
@@ -306,16 +311,6 @@ def phase_3_zone_finding(state):
         )
 
     # Worker function — processes a batch of city dicts
-    # def zone_finder_worker(city_batch, instance_id):
-    #     from zone_finders_code import process_city
-    #     print(f"  [{instance_id}] Processing {len(city_batch)} cities...")
-    #     results = []
-    #     for city_info in city_batch:
-    #         city_name = city_info["city"]
-    #         country = city_info["country"]
-    #         try:
-    #             data = process_city(city_name, country)
-        # Worker function — processes a batch of city dicts
     def zone_finder_worker(city_batch, instance_id):
         import time  # ADD THIS
         import traceback
@@ -323,11 +318,14 @@ def phase_3_zone_finding(state):
         print(f"  [{instance_id}] Processing {len(city_batch)} cities...")
         results = []
         for city_info in city_batch:
+            if stop_event is not None and stop_event.is_set():
+                print(f"  [{instance_id}] Stop requested — halting before next city.")
+                break
             time.sleep(1)  # ADD THIS: Waits 1 second between API calls to prevent 432 errors
             city_name = city_info["city"]
             country = city_info["country"]
             try:
-                data = process_city(city_name, country)
+                data = process_city(city_name, country, stop_event=stop_event)
                 if data and data.get("status") == "SUCCESS":
                     results.append(data)
                 else:
