@@ -211,6 +211,8 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
                 except Exception as e:
                     err_str = str(e).lower()
                     is_rate_limit = any(kw in err_str for kw in ["429", "rate limit", "rate_limit", "too many requests"])
+                    if is_rate_limit:
+                        city_segmenters_code._report_rate_limit(provider, f"country={country_name}, attempt={attempt}")
                     if is_rate_limit and attempt < max_retries:
                         wait_secs = 20 * attempt  # 20s, 40s backoff
                         print(f"  [{instance_id}] Groq rate limit for {country_name} (attempt {attempt}) — waiting {wait_secs}s before retry...")

@@ -19,13 +19,14 @@ const AGENT_LABELS: Record<string, string> = {
 };
 
 const LEVEL_STYLES: Record<string, string> = {
-  STAGE:   "text-signal-400 font-bold",
-  SUCCESS: "text-emerald-400",
-  ERROR:   "text-red-400",
-  WARN:    "text-amber-400",
-  METRIC:  "text-purple-400 font-semibold",
-  INFO:    "text-ink-300",
-  EOF:     "text-ink-500 italic",
+  STAGE:      "text-signal-400 font-bold",
+  SUCCESS:    "text-emerald-400",
+  ERROR:      "text-red-400",
+  WARN:       "text-amber-400",
+  RATE_LIMIT: "text-amber-400 font-bold",
+  METRIC:     "text-purple-400 font-semibold",
+  INFO:       "text-ink-300",
+  EOF:        "text-ink-500 italic",
 };
 
 function statusColor(s: string): string {
@@ -163,7 +164,8 @@ function LogConsole({ logs, autoScroll }: { logs: LogEntry[]; autoScroll: boolea
       {logs.map((entry, i) => (
         <div key={i} className="flex gap-2 items-start leading-relaxed hover:bg-ink-800/30 px-1 rounded">
           <span className="text-ink-600 shrink-0 tabular-nums w-16">{entry.ts}</span>
-          <span className={`shrink-0 w-16 truncate ${LEVEL_STYLES[entry.level] || "text-ink-400"}`}>
+          <span className={`shrink-0 w-16 truncate flex items-center gap-1 ${LEVEL_STYLES[entry.level] || "text-ink-400"}`}>
+            {entry.level === "RATE_LIMIT" && <AlertTriangle className="w-3 h-3 shrink-0" />}
             [{entry.level}]
           </span>
           <span className={LEVEL_STYLES[entry.level] || "text-ink-300"}>{entry.message}</span>
@@ -591,6 +593,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
               value={stage2Provider}
               onChange={setStage2Provider}
               disabled={!stage1Done || manualStarting !== null}
+              rateLimited={status.rate_limited_providers}
             />
           </div>
 
@@ -652,6 +655,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
               value={stage4Provider}
               onChange={setStage4Provider}
               disabled={!stage3Done || manualStarting !== null}
+              rateLimited={status.rate_limited_providers}
             />
           </div>
 

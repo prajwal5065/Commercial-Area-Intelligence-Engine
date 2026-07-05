@@ -10,6 +10,31 @@ from dotenv import load_dotenv
 
 log = logging.getLogger(__name__)
 
+# --------------------------------------------------
+# Rate-limit reporting callback (optional)
+# --------------------------------------------------
+# Mirrors the same pattern in SUB AGENT 3 zone finder/zone_finders_code.py.
+# The backend registers a callback so this module (and run_pipeline.py's
+# segmentation_worker, which also calls set_rate_limit_callback with the
+# same function) can report "provider X hit a rate limit" up to the
+# session for display in /status and the log console. No-op if never set.
+_RATE_LIMIT_CALLBACK = None
+
+
+def set_rate_limit_callback(fn) -> None:
+    """Register a callback: fn(provider: str, detail: str) -> None, called
+    whenever this module detects a 429/rate-limit on a provider."""
+    global _RATE_LIMIT_CALLBACK
+    _RATE_LIMIT_CALLBACK = fn
+
+
+def _report_rate_limit(provider: str, detail: str = "") -> None:
+    if _RATE_LIMIT_CALLBACK is not None:
+        try:
+            _RATE_LIMIT_CALLBACK(provider, detail)
+        except Exception:
+            pass  # never let a reporting hook break the actual pipeline run
+
 # Reconfigure stdout/stderr to prevent UnicodeEncodeErrors on Windows CP1252/etc.
 if hasattr(sys.stdout, 'reconfigure'):
     try:
@@ -210,6 +235,7 @@ def gather_search_context(country: str) -> str:
                 err_str = str(e).lower()
                 if any(kw in err_str for kw in ["432", "429", "rate limit", "rate_limit", "too many requests", "quota", "credits"]):
                     log.warning("           -> Tavily plan limit reached — switching to LLM-only mode.")
+                    _report_rate_limit("tavily", str(future_to_query[future]))
                     tavily_failed = True
                 else:
                     log.error(f"           -> FAILED: {e}")

@@ -102,6 +102,12 @@ class Session:
         self.log_bus = LogBus()
         self._manual_stop_event = threading.Event()
 
+        # Which LLM/search providers have hit a rate limit / quota error during
+        # this session. Surfaced in /status as rate_limited_providers so the
+        # frontend can show a warning indicator on the provider toggle, and
+        # logged as a distinct RATE_LIMIT log entry. Cleared on session reset.
+        self.rate_limited_providers: set[str] = set()
+
 
 SESSIONS: dict[str, Session] = {}
 
@@ -187,6 +193,7 @@ def get_status(session_id: str):
             "system": orch_status.get("system", {}),
             "failed_agent": orch_status.get("failed_agent"),
             "agents_detail": orch_status.get("agents", {}),
+            "rate_limited_providers": sorted(s.rate_limited_providers),
         }
 
     # Fallback: legacy per-agent status (Manual mode - /agents/N/run)
@@ -211,6 +218,9 @@ def get_status(session_id: str):
         # orchestrator produces - AgentStageRow renders elapsed/output_count
         # identically regardless of which mode ran the agent.
         "agents_detail": {aid: am.to_dict() for aid, am in s.agent_metrics.items()},
+        # Which providers have hit a rate limit this session, so the frontend
+        # can show a warning triangle on that provider's toggle button.
+        "rate_limited_providers": sorted(s.rate_limited_providers),
     }
 
 
@@ -365,6 +375,18 @@ def _manual_log(s: Session, agent_id: str, level: str, message: str) -> None:
     s.log_bus.emit(entry)
 
 
+def _mark_rate_limited(s: Session, agent_id: str, provider: str, detail: str = "") -> None:
+    """Record that `provider` (e.g. "groq", "gemini", "tavily") hit a rate
+    limit / quota error during this session, and log it as a distinct
+    RATE_LIMIT entry (not just WARN) so the frontend can style it and show
+    the warning triangle on that provider's toggle button. Call this from
+    each agent's own existing 429/quota detection - it doesn't do detection
+    itself, just records + surfaces what was already detected."""
+    s.rate_limited_providers.add(provider.lower())
+    msg = f"{provider.upper()} rate limit hit" + (f" — {detail}" if detail else "")
+    _manual_log(s, agent_id, "RATE_LIMIT", msg)
+
+
 def _manual_start(s: Session, agent_id: str) -> AgentMetrics:
     m = AgentMetrics(agent_id=agent_id, agent_name=AGENT_NAMES.get(agent_id, f"Agent {agent_id}"),
                       status="running", start_time=time.time())
@@ -424,6 +446,10 @@ def _run_agent_2(s: Session, selected_countries: list, provider: str = "groq") -
     s.agent_status["2"] = "Running"
     m = _manual_start(s, "2")
     try:
+        import city_segmenters_code
+        city_segmenters_code.set_rate_limit_callback(
+            lambda p, d: _mark_rate_limited(s, "2", p, d)
+        )
         phase_2_city_segmentation(s.state, provider=provider, stop_event=s._manual_stop_event)
         if s._manual_stop_event.is_set():
             s.agent_status["2"] = "Error"
@@ -449,6 +475,10 @@ def _run_agent_3(s: Session, selected_cities: list) -> None:
     s.agent_status["3"] = "Running"
     m = _manual_start(s, "3")
     try:
+        import zone_finders_code
+        zone_finders_code.set_rate_limit_callback(
+            lambda p, d: _mark_rate_limited(s, "3", p, d)
+        )
         phase_3_zone_finding(s.state, stop_event=s._manual_stop_event)
         total_zones = sum(len(z) for z in s.state.master_zone_registry.values())
         if s._manual_stop_event.is_set():
@@ -472,6 +502,10 @@ def _run_agent_4(s: Session, selected_zones: list, provider: str = "groq") -> No
     s.agent_status["4"] = "Running"
     m = _manual_start(s, "4")
     try:
+        import main as agent4_main
+        agent4_main.set_rate_limit_callback(
+            lambda p, d: _mark_rate_limited(s, "4", p, d)
+        )
         if selected_zones:
             orig = s.state.master_zone_registry
             s.state.master_zone_registry = {

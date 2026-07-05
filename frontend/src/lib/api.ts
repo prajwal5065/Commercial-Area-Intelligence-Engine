@@ -8,7 +8,7 @@ export type LlmProvider = "groq" | "gemini" | "openai";
 
 export interface LogEntry {
   ts: string;
-  level: "INFO" | "WARN" | "ERROR" | "SUCCESS" | "STAGE" | "METRIC" | "EOF";
+  level: "INFO" | "WARN" | "ERROR" | "SUCCESS" | "STAGE" | "METRIC" | "EOF" | "RATE_LIMIT";
   agent: string;
   message: string;
 }
@@ -53,6 +53,9 @@ export interface SessionStatus {
   };
   failed_agent: string | null;
   agents_detail: Record<string, AgentDetail>;
+  // Providers (groq/gemini/openai/tavily) that have hit a rate limit this
+  // session. Used to show a warning triangle on the provider toggle.
+  rate_limited_providers: string[];
 }
 
 export interface PipelineRunRequest {

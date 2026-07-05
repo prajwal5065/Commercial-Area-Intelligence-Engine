@@ -29,6 +29,28 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+# --------------------------------------------------
+# Rate-limit reporting callback (optional)
+# --------------------------------------------------
+# Same pattern as SUB AGENT 2/city_segmenters_code.py and
+# SUB AGENT 3 zone finder/zone_finders_code.py. No-op if never set.
+_RATE_LIMIT_CALLBACK = None
+
+
+def set_rate_limit_callback(fn) -> None:
+    """Register a callback: fn(provider: str, detail: str) -> None, called
+    whenever this module detects a 429/rate-limit on a provider."""
+    global _RATE_LIMIT_CALLBACK
+    _RATE_LIMIT_CALLBACK = fn
+
+
+def _report_rate_limit(provider: str, detail: str = "") -> None:
+    if _RATE_LIMIT_CALLBACK is not None:
+        try:
+            _RATE_LIMIT_CALLBACK(provider, detail)
+        except Exception:
+            pass  # never let a reporting hook break the actual pipeline run
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     log.warning("[main.py] GROQ_API_KEY not found in .env — process_zone calls will fail.")
@@ -263,6 +285,8 @@ def process_zone(zone_name: str, city: str, country: str, provider: str = DEFAUL
         except Exception as e:
             err_str = str(e).lower()
             if "429" in err_str or "rate_limit" in err_str or "timeout" in err_str or "network" in err_str:
+                if "429" in err_str or "rate_limit" in err_str:
+                    _report_rate_limit(provider, f"zone={zone_name}, attempt={attempt}")
                 log.warning(f"{zone_name}: Retryable error on attempt {attempt}. Waiting {wait_sec}s. Error: {e}")
                 if attempt < len(wait_times):
                     time.sleep(wait_sec)

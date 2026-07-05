@@ -89,6 +89,33 @@ def _stop_requested() -> bool:
 
 
 # --------------------------------------------------
+# Rate-limit reporting callback (optional)
+# --------------------------------------------------
+# Mirrors set_stop_event() above. The backend registers a callback via
+# set_rate_limit_callback() so this module can report "provider X just hit
+# a rate limit" up to the session (which surfaces it in /status and the log
+# console with a distinct RATE_LIMIT entry), without this module needing to
+# import anything from backend_api.py. Not required for normal/CLI use - if
+# never set, this is a no-op.
+_RATE_LIMIT_CALLBACK = None
+
+
+def set_rate_limit_callback(fn) -> None:
+    """Register a callback: fn(provider: str, detail: str) -> None, called
+    whenever this module detects a 429/rate-limit on a provider."""
+    global _RATE_LIMIT_CALLBACK
+    _RATE_LIMIT_CALLBACK = fn
+
+
+def _report_rate_limit(provider: str, detail: str = "") -> None:
+    if _RATE_LIMIT_CALLBACK is not None:
+        try:
+            _RATE_LIMIT_CALLBACK(provider, detail)
+        except Exception:
+            pass  # never let a reporting hook break the actual pipeline run
+
+
+# --------------------------------------------------
 # Logging
 # --------------------------------------------------
 
@@ -309,6 +336,7 @@ def tavily_search(query: str, max_results: int = 7) -> list:
             err_str = str(resp.status_code)
             if resp.status_code in (429, 432):
                 log.warning(f"Tavily plan/rate limit hit (HTTP {resp.status_code}) — disabling Tavily for this run.")
+                _report_rate_limit("tavily", f"HTTP {resp.status_code}")
                 TAVILY_AVAILABLE = False
                 return []
             resp.raise_for_status()
@@ -325,6 +353,7 @@ def tavily_search(query: str, max_results: int = 7) -> list:
             err_str = str(e).lower()
             if any(kw in err_str for kw in ["432", "429", "rate limit", "rate_limit", "quota", "credits", "too many requests"]):
                 log.warning(f"Tavily plan/rate limit error — disabling Tavily for this run: {e}")
+                _report_rate_limit("tavily", str(e)[:120])
                 TAVILY_AVAILABLE = False
                 return []
             if attempt < RETRY_ATTEMPTS:
@@ -487,6 +516,7 @@ def call_llm(system: str, user: str) -> str:
                 # This provider's retries are exhausted on a 429. Rather than
                 # failing the whole call (and silently producing zero zones -
                 # the original bug), try the next configured provider.
+                _report_rate_limit(ACTIVE_PROVIDER, f"after {RETRY_ATTEMPTS} attempts")
                 if _switch_provider():
                     return call_llm(system, user)
                 raise RuntimeError(
