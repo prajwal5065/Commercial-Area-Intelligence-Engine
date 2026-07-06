@@ -323,20 +323,20 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                 )}
                 {isDone && status.output_file && (
                   <a href={api.downloadUrl(sessionId)} download>
-                    <Button variant="secondary">
+                    <Button variant="outline-on-dark">
                       <Download className="w-3.5 h-3.5" />
                       Download Results
                     </Button>
                   </a>
                 )}
-                <Button variant="tertiary" onClick={handleReset}>
+                <Button variant="outline-on-dark" onClick={handleReset}>
                   <RotateCcw className="w-3.5 h-3.5" />
                   Reset
                 </Button>
               </>
             )}
             {runMode === "manual" && !isDone && !isFailed && stage1Done && (
-              <Button variant="tertiary" onClick={handleReset}>
+              <Button variant="outline-on-dark" onClick={handleReset}>
                 <RotateCcw className="w-3.5 h-3.5" />
                 Reset
               </Button>
@@ -512,7 +512,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                 </p>
                 {status.output_file && (
                   <a href={api.downloadUrl(sessionId)} download>
-                    <Button variant="secondary" className="!text-xs !px-3 !py-1.5">
+                    <Button variant="outline-on-dark" className="!text-xs !px-3 !py-1.5">
                       <Download className="w-3.5 h-3.5" />
                       Download
                     </Button>

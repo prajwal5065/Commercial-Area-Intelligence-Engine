@@ -1,0 +1,26 @@
+/*
+  Design tokens for the Pathfinder landing page hero, ported from
+  prajwal5065/lead-intelligence-platform (app/globals.css, light mode only -
+  this project has no dark mode toggle, so the light-mode values are used
+  as-is). Kept in a separate file/namespace from index.css's Zapier-derived
+  tokens (--color-canvas, --color-primary, etc.) so the two don't collide:
+  this page is visually a different product surface (Pathfinder brand) from
+  the CAI dashboard, by explicit design decision, not an oversight.
+
+  Values are the original repo's oklch() values, unconverted - Tailwind 4
+  and all modern evergreen browsers support oklch() natively, so there's no
+  reason to lossy-convert to hex and risk drifting from the source design.
+*/
+@theme {
+  --color-lp-background: oklch(0.98 0 0);
+  --color-lp-foreground: oklch(0.12 0 0);
+  --color-lp-primary: oklch(0.35 0.12 253);
+  --color-lp-primary-foreground: oklch(0.98 0 0);
+  --color-lp-secondary: oklch(0.48 0.15 200);
+  --color-lp-secondary-foreground: oklch(1 0 0);
+  --color-lp-muted: oklch(0.94 0 0);
+  --color-lp-muted-foreground: oklch(0.45 0 0);
+  --color-lp-accent: oklch(0.55 0.13 190);
+  --color-lp-accent-foreground: oklch(1 0 0);
+  --color-lp-border: oklch(0.92 0 0);
+}
