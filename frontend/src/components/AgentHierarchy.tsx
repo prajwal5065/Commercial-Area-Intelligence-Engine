@@ -43,7 +43,7 @@ export function AgentHierarchy({ agentStatus, agentsDetail, selectedAgent, onSel
         <span className="font-semibold text-ink">Master Agent</span>
         <span className="text-body-mid text-xs">(orchestrator)</span>
       </div>
-      <div className="pl-2 border-l-2 border-canvas-softer ml-2">
+      <div className="pl-2 border-l-2 border-hairline ml-2">
         {AGENT_ORDER.map((id, i) => {
           const status = agentStatus[id];
           const detail = agentsDetail[id];
@@ -53,13 +53,13 @@ export function AgentHierarchy({ agentStatus, agentsDetail, selectedAgent, onSel
 
           return (
             <div key={id} className="relative pl-5">
-              <span className="absolute left-0 top-4 w-4 h-px bg-canvas-softer" />
-              {!isLast && <span className="absolute left-0 top-4 bottom-0 w-px bg-canvas-softer" />}
+              <span className="absolute left-0 top-4 w-4 h-px bg-hairline" />
+              {!isLast && <span className="absolute left-0 top-4 bottom-0 w-px bg-hairline" />}
 
               <button
                 onClick={() => onSelectAgent(id)}
                 className={`w-full text-left flex items-center justify-between gap-3 py-2.5 px-3 rounded-md mb-1 transition-colors ${
-                  isSelected ? "bg-primary/10 border border-primary/30" : "hover:bg-canvas-softer border border-transparent"
+                  isSelected ? "bg-primary/10 border border-primary/30" : "hover:bg-canvas-soft border border-transparent"
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0">
@@ -76,9 +76,9 @@ export function AgentHierarchy({ agentStatus, agentsDetail, selectedAgent, onSel
 
               {/* Leaf: batches processed by this agent, when it has run */}
               {isSelected && detail && detail.output_count > 0 && (
-                <div className="pl-5 pb-2 border-l-2 border-canvas-softer ml-3 mb-2">
+                <div className="pl-5 pb-2 border-l-2 border-hairline ml-3 mb-2">
                   <div className="relative pl-5 py-1.5">
-                    <span className="absolute left-0 top-1/2 w-4 h-px bg-canvas-softer" />
+                    <span className="absolute left-0 top-1/2 w-4 h-px bg-hairline" />
                     <span className="text-xs text-body">
                       {detail.output_count} item{detail.output_count === 1 ? "" : "s"} produced
                       {detail.error_count > 0 && (

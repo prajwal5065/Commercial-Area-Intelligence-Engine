@@ -1,6 +1,6 @@
 {
-  "pipeline_id": "20260705_172910",
-  "saved_at": "2026-07-05T17:30:22.224680",
+  "pipeline_id": "20260705_174130",
+  "saved_at": "2026-07-05T17:42:56.594749",
   "countries": [
     {
       "iso_code": "USA",
@@ -58,8 +58,8 @@
   "subarea_rows": [],
   "companies": [],
   "metrics": {
-    "pipeline_id": "20260705_172910",
-    "start_time": 1783252750.6382542,
+    "pipeline_id": "20260705_174130",
+    "start_time": 1783253490.9122722,
     "end_time": null,
     "status": "running",
     "agents": {
@@ -67,8 +67,8 @@
         "agent_id": "1",
         "agent_name": "Agent 1 — Country Discovery",
         "status": "done",
-        "start_time": 1783252751.5135005,
-        "end_time": 1783252751.5353522,
+        "start_time": 1783253492.0178092,
+        "end_time": 1783253492.0840387,
         "input_count": 1,
         "output_count": 5,
         "error_count": 0,
@@ -82,14 +82,14 @@
           "Japan",
           "India"
         ],
-        "elapsed": "0.0s"
+        "elapsed": "0.1s"
       },
       "2": {
         "agent_id": "2",
         "agent_name": "Agent 2 — City Discovery",
         "status": "done",
-        "start_time": 1783252751.5385451,
-        "end_time": 1783252822.2214935,
+        "start_time": 1783253492.099523,
+        "end_time": 1783253576.5947497,
         "input_count": 5,
         "output_count": 0,
         "error_count": 0,
@@ -97,7 +97,7 @@
         "errors": [],
         "items_in": [],
         "items_out": [],
-        "elapsed": "1m 10s"
+        "elapsed": "1m 24s"
       }
     },
     "countries": 5,
@@ -109,11 +109,11 @@
     "duplicates_removed": 0,
     "invalid_records": 0,
     "supabase_inserted": 0,
-    "peak_cpu": 30.7,
-    "peak_mem_mb": 76.26953125,
+    "peak_cpu": 51.8,
+    "peak_mem_mb": 87.11328125,
     "output_file": null,
     "error": null,
     "failed_agent": null,
-    "elapsed": "1m 11s"
+    "elapsed": "1m 25s"
   }
 }

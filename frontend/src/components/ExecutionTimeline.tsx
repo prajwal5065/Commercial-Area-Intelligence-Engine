@@ -38,7 +38,7 @@ export function ExecutionTimeline({ logs }: { logs: LogEntry[] }) {
   return (
     <div className="flex flex-col scrollbar-thin overflow-y-auto max-h-[340px] pr-1">
       {notable.map((entry, i) => (
-        <div key={i} className="flex gap-3 items-start py-2 border-b border-canvas-softer last:border-0">
+        <div key={i} className="flex gap-3 items-start py-2 border-b border-hairline last:border-0">
           <div className="shrink-0 mt-0.5">{iconFor(entry.level)}</div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">

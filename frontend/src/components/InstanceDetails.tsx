@@ -63,7 +63,7 @@ export function InstanceDetails({
 
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs font-medium text-body-mid uppercase tracking-wide">Progress</span>
+          <span className="text-[11px] font-semibold tracking-[2.52px] uppercase text-body">Progress</span>
           <span className="text-xs font-semibold text-ink tabular-nums">{progress}%</span>
         </div>
         <ProgressBar value={progress} tone={statusTone(status) === "error" ? "error" : statusTone(status) === "done" ? "done" : "primary"} />
@@ -81,8 +81,8 @@ export function InstanceDetails({
       </div>
 
       {detail && detail.errors.length > 0 && (
-        <div className="bg-status-error-bg border border-status-error/20 rounded-md p-3">
-          <p className="text-xs font-semibold text-status-error uppercase tracking-wide mb-1.5">
+        <div className="bg-status-error-bg border border-status-error rounded-md p-3">
+          <p className="text-[11px] font-semibold tracking-[2.52px] uppercase text-status-error mb-1.5">
             Recent Errors
           </p>
           <ul className="text-sm text-status-error space-y-1">
@@ -109,7 +109,7 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[11px] uppercase tracking-wide text-body-mid font-medium">{label}</span>
+      <span className="text-[11px] font-semibold tracking-[2.52px] uppercase text-body">{label}</span>
       <span
         className={`font-semibold tabular-nums ${
           highlight ? (isError ? "text-status-error" : "text-status-warn") : "text-ink"

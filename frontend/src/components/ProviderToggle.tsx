@@ -33,10 +33,10 @@ export function ProviderToggle({ value, onChange, disabled, rateLimited = [] }: 
 
   return (
     <div>
-      <label className="block font-mono text-[10px] uppercase tracking-widest text-body-mid mb-1.5">
+      <label className="block font-mono text-[11px] font-semibold tracking-[2.52px] uppercase text-body mb-1.5">
         LLM Provider
       </label>
-      <div className="flex items-center rounded-lg bg-canvas border border-ink/20 p-0.5 w-fit">
+      <div className="flex items-center rounded-sm bg-canvas border border-hairline p-0.5 w-fit">
         {PROVIDERS.map((p) => (
           <button
             key={p}
@@ -44,10 +44,10 @@ export function ProviderToggle({ value, onChange, disabled, rateLimited = [] }: 
             disabled={disabled}
             onClick={() => onChange(p)}
             title={isLimited(p) ? `${p} hit a rate limit this session` : undefined}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium capitalize transition-colors disabled:opacity-40 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium capitalize transition-colors disabled:opacity-40 ${
               value === p
                 ? "bg-primary text-on-primary"
-                : "text-body-mid hover:text-ink-mid"
+                : "text-body-mid hover:text-ink"
             }`}
           >
             {isLimited(p) && (

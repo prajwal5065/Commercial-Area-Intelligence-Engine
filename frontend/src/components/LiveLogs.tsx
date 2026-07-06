@@ -50,13 +50,13 @@ export function LiveLogs({ logs }: { logs: LogEntry[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search log messages…"
-            className="w-full bg-canvas border border-ink/20 rounded-sm pl-8 pr-3 py-2 text-sm text-ink placeholder-body-mid focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="w-full bg-canvas-soft border border-hairline rounded-sm pl-8 pr-3 py-2 text-sm text-ink placeholder-body-mid focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
         <select
           value={agentFilter}
           onChange={(e) => setAgentFilter(e.target.value)}
-          className="bg-canvas border border-ink/20 rounded-sm px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
+          className="bg-canvas-soft border border-hairline rounded-sm px-3 py-2 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-primary"
         >
           <option value="">All agents</option>
           {agentOptions.map((a) => (
@@ -66,7 +66,7 @@ export function LiveLogs({ logs }: { logs: LogEntry[] }) {
         <select
           value={levelFilter}
           onChange={(e) => setLevelFilter(e.target.value)}
-          className="bg-canvas border border-ink/20 rounded-sm px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
+          className="bg-canvas-soft border border-hairline rounded-sm px-3 py-2 text-sm text-ink focus:outline-none focus:ring-1 focus:ring-primary"
         >
           <option value="">All levels</option>
           {LEVEL_OPTIONS.map((l) => (
@@ -82,13 +82,13 @@ export function LiveLogs({ logs }: { logs: LogEntry[] }) {
       ) : (
         <div className="font-mono text-xs space-y-0.5 overflow-y-auto max-h-[380px] pr-1 scrollbar-thin">
           {filtered.map((entry, i) => (
-            <div key={i} className="flex gap-2 items-start leading-relaxed hover:bg-canvas-softer px-1.5 py-0.5 rounded-sm">
+            <div key={i} className="flex gap-2 items-start leading-relaxed hover:bg-canvas-soft px-1.5 py-0.5 rounded-sm">
               <span className="text-body-mid shrink-0 tabular-nums w-16">{entry.ts}</span>
               <span className={`shrink-0 w-28 truncate flex items-center gap-1 ${LEVEL_STYLES[entry.level] || "text-body-mid"}`}>
                 {entry.level === "RATE_LIMIT" && <AlertTriangle className="w-3 h-3 shrink-0" />}
                 [{entry.level}]
               </span>
-              <span className="shrink-0 w-32 truncate text-ink-mid">{entry.agent}</span>
+              <span className="shrink-0 w-32 truncate text-body">{entry.agent}</span>
               <span className={LEVEL_STYLES[entry.level] || "text-body"}>{entry.message}</span>
             </div>
           ))}

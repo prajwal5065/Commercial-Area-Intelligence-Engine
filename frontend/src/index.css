@@ -3,54 +3,53 @@
 @import "@fontsource/inter/500.css";
 @import "@fontsource/inter/600.css";
 @import "@fontsource/inter/700.css";
-@import "@fontsource/mona-sans/500.css";
 @import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/500.css";
 @import "@fontsource/jetbrains-mono/700.css";
 
 /*
-  Design tokens derived from the Zapier brand style guide.
-  Degular Display is proprietary (not available to self-host), so per the
-  guide's own substitution note, "Mona Sans weight 500" is used for hero/
-  display-scale text, and Inter for everything else (body, buttons, nav,
-  data). Two-face system preserved: display face for the loud moments,
-  workhorse face for the rest.
+  Design tokens derived from the Voltagent brand style guide.
 */
 @theme {
-  --font-display: "Mona Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 
-  /* Surface - warm cream, not pure white. The temperature IS the brand. */
-  --color-canvas: #FFFEFB;
-  --color-canvas-soft: #F8F4F0;
-  --color-canvas-softer: #F1ECE5;
+  /* Surface - near-black canvas */
+  --color-canvas: #101010;
+  --color-canvas-soft: #1a1a1a;
+  --color-canvas-softer: #222222;
+  --color-hairline: #3d3a39;
+  --color-hairline-soft: #b8b3b0;
 
-  /* Text - deep coffee, not pure black. Warmth carries through text too. */
-  --color-ink: #201515;
-  --color-ink-soft: #2F2A26;
-  --color-ink-mid: #36342E;
-  --color-body: #605D52;
-  --color-body-mid: #939084;
-  --color-mute: #C5C0B1;
+  /* Text */
+  --color-ink: #f2f2f2;
+  --color-ink-strong: #ffffff;
+  --color-body: #bdbdbd;
+  --color-body-mid: #a0a0a0;
+  --color-mute: #8b949e;
+  --color-canvas-text-soft: #f5f6f7;
 
-  /* Brand accent - single saturated orange, the conversion signature */
-  --color-primary: #FF4F00;
-  --color-primary-hover: #E64700;
-  --color-on-primary: #FFFEFB;
+  /* Brand accent */
+  --color-primary: #00d992;
+  --color-primary-hover: #00bf80;
+  --color-on-primary: #101010;
+  --color-primary-soft: #2fd6a1;
+  --color-primary-deep: #10b981;
 
-  /* Status - kept legible against a light warm canvas, not neon */
-  --color-status-running: #FF4F00;
-  --color-status-done: #1F7A5C;
-  --color-status-done-bg: #EAF4EF;
-  --color-status-error: #C6402E;
-  --color-status-error-bg: #FBEBE8;
-  --color-status-pending: #C5C0B1;
-  --color-status-warn: #B4790C;
-  --color-status-warn-bg: #FBF1DF;
+  /* Status */
+  --color-status-running: #00d992;
+  --color-status-done: #00d992;
+  --color-status-done-bg: rgba(0, 217, 146, 0.1);
+  --color-status-error: #8b949e;
+  --color-status-error-bg: rgba(139, 148, 158, 0.1);
+  --color-status-pending: #8b949e;
+  --color-status-warn: #8b949e;
+  --color-status-warn-bg: rgba(139, 148, 158, 0.1);
 
-  --radius-md: 12px;
+  --radius-md: 8px;
   --radius-sm: 6px;
+  --radius-pill: 9999px;
 }
 
 html {
@@ -62,6 +61,7 @@ body {
   background: var(--color-canvas);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "calt", "rlig";
 }
 
 ::selection {
@@ -87,7 +87,7 @@ body {
   height: 6px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: var(--color-mute);
+  background: var(--color-hairline);
   border-radius: 3px;
 }
 .scrollbar-thin::-webkit-scrollbar-track {

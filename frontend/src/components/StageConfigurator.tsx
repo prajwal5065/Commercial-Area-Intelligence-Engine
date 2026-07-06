@@ -81,10 +81,10 @@ export function StageConfigurator({
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between">
-        <label className="font-mono text-[10px] uppercase tracking-widest text-body-mid">
+        <label className="font-mono text-[11px] font-semibold tracking-[2.52px] uppercase text-body">
           {label}
         </label>
-        <div className="flex items-center rounded-lg bg-canvas border border-ink/20 p-0.5">
+        <div className="flex items-center rounded-lg bg-canvas border border-hairline p-0.5">
           <button
             type="button"
             disabled={disabled}
@@ -92,7 +92,7 @@ export function StageConfigurator({
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors disabled:opacity-40 ${
               mode === "number"
                 ? "bg-primary text-on-primary"
-                : "text-body-mid hover:text-ink-mid"
+                : "text-body-mid hover:text-ink"
             }`}
           >
             <Hash className="w-3 h-3" />
@@ -105,7 +105,7 @@ export function StageConfigurator({
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors disabled:opacity-40 ${
               mode === "name"
                 ? "bg-primary text-on-primary"
-                : "text-body-mid hover:text-ink-mid"
+                : "text-body-mid hover:text-ink"
             }`}
           >
             <ListChecks className="w-3 h-3" />
@@ -120,12 +120,12 @@ export function StageConfigurator({
           onChange={(e) => onNumberChange(e.target.value)}
           disabled={disabled}
           placeholder={numberLabel}
-          className="w-full bg-canvas border border-ink/20 rounded-lg px-3 py-2.5 text-sm text-ink focus:border-primary focus:outline-none disabled:opacity-40"
+          className="w-full bg-canvas border border-hairline rounded-lg px-3 py-2.5 text-sm text-ink focus:border-primary focus:outline-none disabled:opacity-40"
         />
       ) : useFreeText ? (
         <div
           className={`w-full flex flex-wrap items-center gap-1.5 bg-canvas border rounded-lg px-2.5 py-2 focus-within:border-primary ${
-            disabled ? "border-canvas-softer opacity-40" : "border-ink/20"
+            disabled ? "border-hairline opacity-40" : "border-hairline"
           }`}
         >
           {selectedNames.map((n) => (
@@ -161,9 +161,9 @@ export function StageConfigurator({
             type="button"
             disabled={disabled || nameOptions.length === 0}
             onClick={() => setDropdownOpen((v) => !v)}
-            className="w-full flex items-center justify-between gap-2 bg-canvas border border-ink/20 rounded-lg px-3 py-2.5 text-sm text-left text-ink focus:border-primary focus:outline-none disabled:opacity-40"
+            className="w-full flex items-center justify-between gap-2 bg-canvas border border-hairline rounded-lg px-3 py-2.5 text-sm text-left text-ink focus:border-primary focus:outline-none disabled:opacity-40"
           >
-            <span className="truncate text-ink-mid">
+            <span className="truncate text-ink">
               {nameOptions.length === 0
                 ? "No options yet — run the previous stage first"
                 : selectedNames.length === 0
@@ -176,14 +176,14 @@ export function StageConfigurator({
           </button>
 
           {dropdownOpen && (
-            <div className="absolute z-20 mt-1.5 w-full bg-canvas border border-ink/20 rounded-lg shadow-xl shadow-black/40 overflow-hidden">
-              <div className="p-2 border-b border-ink/20">
+            <div className="absolute z-20 mt-1.5 w-full bg-canvas border border-hairline rounded-lg shadow-xl shadow-black/40 overflow-hidden">
+              <div className="p-2 border-b border-hairline">
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search…"
                   autoFocus
-                  className="w-full bg-canvas-soft border border-ink/20 rounded-md px-2.5 py-1.5 text-xs text-ink focus:border-primary focus:outline-none"
+                  className="w-full bg-canvas-soft border border-hairline rounded-md px-2.5 py-1.5 text-xs text-ink focus:border-primary focus:outline-none"
                 />
               </div>
               <div className="max-h-56 overflow-auto scrollbar-thin">
@@ -193,7 +193,7 @@ export function StageConfigurator({
                   filteredOptions.map((opt) => (
                     <label
                       key={opt}
-                      className="flex items-center gap-2.5 px-3 py-2 text-sm text-ink-mid hover:bg-canvas-softer cursor-pointer"
+                      className="flex items-center gap-2.5 px-3 py-2 text-sm text-ink hover:bg-canvas-soft cursor-pointer"
                     >
                       <input
                         type="checkbox"
@@ -206,7 +206,7 @@ export function StageConfigurator({
                   ))
                 )}
               </div>
-              <div className="flex items-center justify-between px-3 py-2 border-t border-ink/20">
+              <div className="flex items-center justify-between px-3 py-2 border-t border-hairline">
                 <button
                   type="button"
                   onClick={() => onSelectedNamesChange([])}

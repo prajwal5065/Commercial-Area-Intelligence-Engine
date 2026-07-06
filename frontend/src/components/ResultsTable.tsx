@@ -33,14 +33,14 @@ export function ResultsTable({ rows }: { rows: Record<string, unknown>[] }) {
   const cols = STANDARD_COLS.filter((c) => c in rows[0]);
 
   return (
-    <div className="overflow-auto scrollbar-thin max-h-[420px] rounded-lg border border-canvas-softer">
+    <div className="overflow-auto scrollbar-thin max-h-[420px] rounded-sm border border-hairline">
       <table className="w-full text-sm">
         <thead className="sticky top-0 bg-canvas">
           <tr>
             {cols.map((c) => (
               <th
                 key={c}
-                className="text-left px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-body-mid border-b border-canvas-softer"
+                className="text-left px-4 py-2.5 font-mono text-[11px] font-semibold tracking-[2.52px] uppercase text-body border-b border-hairline"
               >
                 {COL_LABELS[c] ?? c}
               </th>
@@ -49,9 +49,9 @@ export function ResultsTable({ rows }: { rows: Record<string, unknown>[] }) {
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="border-b border-canvas-softer/60 hover:bg-canvas/60">
+            <tr key={i} className="border-b border-hairline hover:bg-canvas-soft">
               {cols.map((c) => (
-                <td key={c} className="px-4 py-2.5 text-ink-mid whitespace-nowrap">
+                <td key={c} className="px-4 py-2.5 text-body whitespace-nowrap">
                   {String(row[c] ?? "—")}
                 </td>
               ))}

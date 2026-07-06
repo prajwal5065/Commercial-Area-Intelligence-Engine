@@ -31,13 +31,13 @@ function StatusIcon({ status }: { status: AgentStatus | undefined }) {
 function statusColor(status: AgentStatus | undefined) {
   switch (status) {
     case "Done":
-      return "text-status-done border-status-done bg-status-done/10";
+      return "text-status-done border-status-done bg-status-done-bg";
     case "Running":
-      return "text-status-running border-status-running bg-status-running/10";
+      return "text-primary border-primary bg-primary/10";
     case "Error":
-      return "text-status-error border-status-error bg-status-error/10";
+      return "text-status-error border-status-error bg-status-error-bg";
     default:
-      return "text-body-mid border-ink/20 bg-canvas-soft";
+      return "text-body-mid border-hairline bg-canvas";
   }
 }
 
@@ -64,8 +64,8 @@ export function PipelineRail({ agentStatus, activeAgent, onSelectAgent }: Pipeli
           <div key={agent.num} className="flex flex-col">
             <button
               onClick={() => onSelectAgent(agent.num)}
-              className={`group flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-colors ${
-                isActive ? "bg-canvas-softer" : "hover:bg-canvas-soft"
+              className={`group flex items-center gap-3 px-4 py-3 text-left rounded-sm transition-colors ${
+                isActive ? "bg-canvas-soft" : "hover:bg-canvas-soft"
               }`}
               aria-current={isActive ? "step" : undefined}
             >
@@ -78,15 +78,15 @@ export function PipelineRail({ agentStatus, activeAgent, onSelectAgent }: Pipeli
               </span>
               <span className="flex flex-col min-w-0">
                 <span
-                  className={`font-mono text-[10px] tracking-widest uppercase ${
+                  className={`font-mono text-xs uppercase tracking-widest ${
                     isActive ? "text-primary" : "text-body-mid"
                   }`}
                 >
                   Agent {agent.num} · {agent.short}
                 </span>
                 <span
-                  className={`text-sm font-medium truncate ${
-                    isActive ? "text-ink" : "text-body"
+                  className={`text-sm font-medium truncate font-sans ${
+                    isActive ? "text-ink-strong" : "text-body"
                   }`}
                 >
                   {agent.label}
@@ -94,7 +94,7 @@ export function PipelineRail({ agentStatus, activeAgent, onSelectAgent }: Pipeli
               </span>
             </button>
             {!isLast && (
-              <div className="ml-[1.9rem] w-px h-3 bg-canvas-softer" aria-hidden="true" />
+              <div className="ml-[1.9rem] w-px h-3 bg-hairline" aria-hidden="true" />
             )}
           </div>
         );
