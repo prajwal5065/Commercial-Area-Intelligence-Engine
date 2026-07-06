@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, type AgentStatus } from "../lib/api";
-import { Card, EmptyState } from "../components/ui";
+import { Card, EmptyState, Badge } from "../components/ui";
 
 const AGENT_NAMES: Record<string, string> = {
   "1": "GDP Ranker",
@@ -10,17 +10,12 @@ const AGENT_NAMES: Record<string, string> = {
   "5": "Lead Scraper",
 };
 
-function statusBadgeClass(status: AgentStatus | undefined) {
-  switch (status) {
-    case "Done":
-      return "bg-status-done/10 text-status-done border-status-done/30";
-    case "Running":
-      return "bg-status-running/10 text-status-running border-status-running/30";
-    case "Error":
-      return "bg-status-error/10 text-status-error border-status-error/30";
-    default:
-      return "bg-ink-800 text-ink-400 border-ink-700";
-  }
+function statusTone(status: AgentStatus | undefined): "default" | "running" | "done" | "error" | "pending" {
+  const s = (status ?? "").toLowerCase();
+  if (s === "done") return "done";
+  if (s === "running") return "running";
+  if (s === "error" || s === "failed") return "error";
+  return "pending";
 }
 
 async function fetchAgentData(
@@ -66,15 +61,7 @@ export function AgentDetail({
   return (
     <Card
       title={`Agent ${agentNum} — ${AGENT_NAMES[agentNum]}`}
-      action={
-        <span
-          className={`font-mono text-[10px] uppercase tracking-widest px-2.5 py-1 rounded border ${statusBadgeClass(
-            status
-          )}`}
-        >
-          {status ?? "Pending"}
-        </span>
-      }
+      action={<Badge tone={statusTone(status)}>{status ?? "Pending"}</Badge>}
     >
       {rows.length === 0 ? (
         <EmptyState
@@ -82,14 +69,14 @@ export function AgentDetail({
           hint="Execute the pipeline from the Dashboard to populate this."
         />
       ) : (
-        <div className="overflow-auto scrollbar-thin max-h-[520px] rounded-lg border border-ink-800">
+        <div className="overflow-auto scrollbar-thin max-h-[520px] rounded-md border border-canvas-softer">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-ink-850">
+            <thead className="sticky top-0 bg-canvas">
               <tr>
                 {cols.map((c) => (
                   <th
                     key={c}
-                    className="text-left px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-ink-500 border-b border-ink-800"
+                    className="text-left px-4 py-2.5 text-[11px] uppercase tracking-wide text-body-mid font-medium border-b border-canvas-softer"
                   >
                     {c}
                   </th>
@@ -98,9 +85,9 @@ export function AgentDetail({
             </thead>
             <tbody>
               {rows.map((row, i) => (
-                <tr key={i} className="border-b border-ink-800/60 hover:bg-ink-850/60">
+                <tr key={i} className="border-b border-canvas-softer/60 hover:bg-canvas-softer/60">
                   {cols.map((c) => (
-                    <td key={c} className="px-4 py-2.5 text-ink-200 whitespace-nowrap">
+                    <td key={c} className="px-4 py-2.5 text-ink-mid whitespace-nowrap">
                       {String(row[c] ?? "—")}
                     </td>
                   ))}

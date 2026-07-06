@@ -37,7 +37,7 @@ function statusColor(status: AgentStatus | undefined) {
     case "Error":
       return "text-status-error border-status-error bg-status-error/10";
     default:
-      return "text-ink-500 border-ink-700 bg-ink-900";
+      return "text-body-mid border-ink/20 bg-canvas-soft";
   }
 }
 
@@ -65,7 +65,7 @@ export function PipelineRail({ agentStatus, activeAgent, onSelectAgent }: Pipeli
             <button
               onClick={() => onSelectAgent(agent.num)}
               className={`group flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-colors ${
-                isActive ? "bg-ink-800" : "hover:bg-ink-900"
+                isActive ? "bg-canvas-softer" : "hover:bg-canvas-soft"
               }`}
               aria-current={isActive ? "step" : undefined}
             >
@@ -79,14 +79,14 @@ export function PipelineRail({ agentStatus, activeAgent, onSelectAgent }: Pipeli
               <span className="flex flex-col min-w-0">
                 <span
                   className={`font-mono text-[10px] tracking-widest uppercase ${
-                    isActive ? "text-signal-400" : "text-ink-500"
+                    isActive ? "text-primary" : "text-body-mid"
                   }`}
                 >
                   Agent {agent.num} · {agent.short}
                 </span>
                 <span
                   className={`text-sm font-medium truncate ${
-                    isActive ? "text-ink-100" : "text-ink-300"
+                    isActive ? "text-ink" : "text-body"
                   }`}
                 >
                   {agent.label}
@@ -94,7 +94,7 @@ export function PipelineRail({ agentStatus, activeAgent, onSelectAgent }: Pipeli
               </span>
             </button>
             {!isLast && (
-              <div className="ml-[1.9rem] w-px h-3 bg-ink-700" aria-hidden="true" />
+              <div className="ml-[1.9rem] w-px h-3 bg-canvas-softer" aria-hidden="true" />
             )}
           </div>
         );

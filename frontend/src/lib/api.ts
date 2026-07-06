@@ -18,6 +18,8 @@ export interface AgentDetail {
   agent_name: string;
   status: string;
   elapsed: string;
+  start_time: number | null;
+  end_time: number | null;
   input_count: number;
   output_count: number;
   error_count: number;

@@ -3,54 +3,74 @@
 @import "@fontsource/inter/500.css";
 @import "@fontsource/inter/600.css";
 @import "@fontsource/inter/700.css";
+@import "@fontsource/mona-sans/500.css";
 @import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/500.css";
 @import "@fontsource/jetbrains-mono/700.css";
 
+/*
+  Design tokens derived from the Zapier brand style guide.
+  Degular Display is proprietary (not available to self-host), so per the
+  guide's own substitution note, "Mona Sans weight 500" is used for hero/
+  display-scale text, and Inter for everything else (body, buttons, nav,
+  data). Two-face system preserved: display face for the loud moments,
+  workhorse face for the rest.
+*/
 @theme {
+  --font-display: "Mona Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 
-  --color-ink-950: #0B0F17;
-  --color-ink-900: #12161F;
-  --color-ink-850: #171C27;
-  --color-ink-800: #1E2430;
-  --color-ink-700: #2A3140;
-  --color-ink-600: #3A4356;
-  --color-ink-500: #566079;
-  --color-ink-400: #7C879E;
-  --color-ink-300: #A6AFC2;
-  --color-ink-200: #CDD3E0;
-  --color-ink-100: #E7EAF2;
+  /* Surface - warm cream, not pure white. The temperature IS the brand. */
+  --color-canvas: #FFFEFB;
+  --color-canvas-soft: #F8F4F0;
+  --color-canvas-softer: #F1ECE5;
 
-  --color-signal-500: #F5A623;
-  --color-signal-400: #FFC65C;
-  --color-signal-600: #D68A0F;
+  /* Text - deep coffee, not pure black. Warmth carries through text too. */
+  --color-ink: #201515;
+  --color-ink-soft: #2F2A26;
+  --color-ink-mid: #36342E;
+  --color-body: #605D52;
+  --color-body-mid: #939084;
+  --color-mute: #C5C0B1;
 
-  --color-status-running: #F5A623;
-  --color-status-done: #2DD4A7;
-  --color-status-error: #F0554C;
-  --color-status-pending: #566079;
+  /* Brand accent - single saturated orange, the conversion signature */
+  --color-primary: #FF4F00;
+  --color-primary-hover: #E64700;
+  --color-on-primary: #FFFEFB;
+
+  /* Status - kept legible against a light warm canvas, not neon */
+  --color-status-running: #FF4F00;
+  --color-status-done: #1F7A5C;
+  --color-status-done-bg: #EAF4EF;
+  --color-status-error: #C6402E;
+  --color-status-error-bg: #FBEBE8;
+  --color-status-pending: #C5C0B1;
+  --color-status-warn: #B4790C;
+  --color-status-warn-bg: #FBF1DF;
+
+  --radius-md: 12px;
+  --radius-sm: 6px;
 }
 
 html {
-  background: var(--color-ink-950);
+  background: var(--color-canvas);
 }
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-ink-950);
-  color: var(--color-ink-100);
+  background: var(--color-canvas);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: var(--color-signal-500);
-  color: var(--color-ink-950);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-signal-500);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -67,7 +87,7 @@ body {
   height: 6px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: var(--color-ink-700);
+  background: var(--color-mute);
   border-radius: 3px;
 }
 .scrollbar-thin::-webkit-scrollbar-track {

@@ -1,21 +1,38 @@
 import type { ReactNode } from "react";
 
+/**
+ * Shared UI primitives, restyled to the Zapier brand guide:
+ * warm cream canvas, deep coffee ink text, single orange accent,
+ * 12px "rounded-md" as the canonical radius for buttons + cards,
+ * 1px ink hairline border as the default card elevation (guide's
+ * "Level 1 — Hairline" treatment) rather than a shadow.
+ */
+
 export function Card({
   children,
   className = "",
   title,
   action,
+  variant = "cream",
 }: {
   children: ReactNode;
   className?: string;
   title?: string;
   action?: ReactNode;
+  variant?: "cream" | "dark" | "outline";
 }) {
+  const variants = {
+    cream: "bg-canvas-soft border border-canvas-softer",
+    dark: "bg-ink text-canvas-soft border border-ink",
+    outline: "bg-canvas border border-ink",
+  };
   return (
-    <div className={`bg-ink-900 border border-ink-800 rounded-xl ${className}`}>
+    <div className={`rounded-md ${variants[variant]} ${className}`}>
       {title && (
-        <div className="flex items-center justify-between px-5 py-4 border-b border-ink-800">
-          <h2 className="text-sm font-semibold text-ink-100">{title}</h2>
+        <div className={`flex items-center justify-between px-5 py-4 border-b ${variant === "dark" ? "border-ink-soft" : "border-canvas-softer"}`}>
+          <h2 className={`text-[15px] font-semibold tracking-tight ${variant === "dark" ? "text-canvas-soft" : "text-ink"}`}>
+            {title}
+          </h2>
           {action}
         </div>
       )}
@@ -35,17 +52,22 @@ export function Button({
   children: ReactNode;
   onClick?: () => void;
   disabled?: boolean;
-  variant?: "primary" | "secondary" | "ghost" | "danger";
+  variant?: "primary" | "secondary" | "tertiary" | "text" | "danger";
   type?: "button" | "submit";
   className?: string;
 }) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-lg font-medium text-sm px-4 py-2.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 rounded-md font-semibold text-sm px-4 py-2.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
   const variants = {
-    primary: "bg-signal-500 text-ink-950 hover:bg-signal-400 font-semibold",
-    secondary: "bg-ink-800 text-ink-100 border border-ink-700 hover:bg-ink-700",
-    ghost: "text-ink-300 hover:text-ink-100 hover:bg-ink-800",
-    danger: "bg-status-error/10 text-status-error border border-status-error/30 hover:bg-status-error/20",
+    // button-primary: orange fill, warm-white text
+    primary: "bg-primary text-on-primary hover:bg-primary-hover",
+    // button-secondary: dark coffee-ink fill
+    secondary: "bg-ink text-canvas-soft hover:bg-ink-soft",
+    // button-tertiary: outline, ink border on cream
+    tertiary: "bg-canvas text-ink border border-ink hover:bg-canvas-soft",
+    // button-text: text-only, used inside cards/nav
+    text: "bg-transparent text-ink hover:bg-canvas-softer font-medium",
+    danger: "bg-status-error-bg text-status-error border border-status-error/30 hover:bg-status-error/10",
   };
   return (
     <button
@@ -59,13 +81,27 @@ export function Button({
   );
 }
 
-export function StatChip({ label, value }: { label: string; value: number | string }) {
+export function StatChip({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: number | string;
+  tone?: "default" | "running" | "done" | "error";
+}) {
+  const toneClass = {
+    default: "text-ink",
+    running: "text-primary",
+    done: "text-status-done",
+    error: "text-status-error",
+  }[tone];
   return (
-    <div className="flex flex-col gap-1 px-4 py-3 bg-ink-850 border border-ink-800 rounded-lg min-w-[110px]">
-      <span className="font-mono text-[10px] uppercase tracking-widest text-ink-500">
+    <div className="flex flex-col gap-1 px-4 py-3 bg-canvas border border-canvas-softer rounded-md min-w-[120px]">
+      <span className="text-[11px] uppercase tracking-wide text-body-mid font-medium">
         {label}
       </span>
-      <span className="font-mono text-xl font-semibold text-ink-100 tabular-nums">
+      <span className={`text-2xl font-semibold tabular-nums ${toneClass}`} style={{ fontFamily: "var(--font-display)" }}>
         {value}
       </span>
     </div>
@@ -75,8 +111,8 @@ export function StatChip({ label, value }: { label: string; value: number | stri
 export function EmptyState({ message, hint }: { message: string; hint?: string }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-12 px-6">
-      <p className="text-sm text-ink-300">{message}</p>
-      {hint && <p className="text-xs text-ink-500 mt-1">{hint}</p>}
+      <p className="text-sm text-body">{message}</p>
+      {hint && <p className="text-xs text-body-mid mt-1">{hint}</p>}
     </div>
   );
 }
@@ -96,7 +132,7 @@ export function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full bg-ink-850 border border-ink-700 rounded-lg px-3 py-2.5 text-sm text-ink-100 focus:border-signal-500"
+      className="w-full bg-canvas border border-ink rounded-sm px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
     >
       <option value="">{placeholder ?? "-- select --"}</option>
       {options.map((o) => (
@@ -105,5 +141,39 @@ export function Select({
         </option>
       ))}
     </select>
+  );
+}
+
+export function Badge({
+  children,
+  tone = "default",
+}: {
+  children: ReactNode;
+  tone?: "default" | "running" | "done" | "error" | "pending" | "warn";
+}) {
+  const tones = {
+    default: "bg-canvas-softer text-ink",
+    running: "bg-primary/10 text-primary",
+    done: "bg-status-done-bg text-status-done",
+    error: "bg-status-error-bg text-status-error",
+    pending: "bg-canvas-softer text-body-mid",
+    warn: "bg-status-warn-bg text-status-warn",
+  };
+  return (
+    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wide ${tones[tone]}`}>
+      {children}
+    </span>
+  );
+}
+
+export function ProgressBar({ value, tone = "primary" }: { value: number; tone?: "primary" | "done" | "error" }) {
+  const barColor = { primary: "bg-primary", done: "bg-status-done", error: "bg-status-error" }[tone];
+  return (
+    <div className="w-full h-1.5 bg-canvas-softer rounded-full overflow-hidden">
+      <div
+        className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+        style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
+      />
+    </div>
   );
 }

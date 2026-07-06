@@ -33,10 +33,10 @@ export function ProviderToggle({ value, onChange, disabled, rateLimited = [] }: 
 
   return (
     <div>
-      <label className="block font-mono text-[10px] uppercase tracking-widest text-ink-500 mb-1.5">
+      <label className="block font-mono text-[10px] uppercase tracking-widest text-body-mid mb-1.5">
         LLM Provider
       </label>
-      <div className="flex items-center rounded-lg bg-ink-850 border border-ink-700 p-0.5 w-fit">
+      <div className="flex items-center rounded-lg bg-canvas border border-ink/20 p-0.5 w-fit">
         {PROVIDERS.map((p) => (
           <button
             key={p}
@@ -46,20 +46,20 @@ export function ProviderToggle({ value, onChange, disabled, rateLimited = [] }: 
             title={isLimited(p) ? `${p} hit a rate limit this session` : undefined}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium capitalize transition-colors disabled:opacity-40 ${
               value === p
-                ? "bg-signal-500 text-ink-950"
-                : "text-ink-400 hover:text-ink-200"
+                ? "bg-primary text-on-primary"
+                : "text-body-mid hover:text-ink-mid"
             }`}
           >
             {isLimited(p) && (
               <AlertTriangle
-                className={`w-3 h-3 shrink-0 ${value === p ? "text-ink-950" : "text-amber-400"}`}
+                className={`w-3 h-3 shrink-0 ${value === p ? "text-on-primary" : "text-amber-400"}`}
               />
             )}
             {p}
           </button>
         ))}
       </div>
-      <p className="text-[11px] text-ink-500 mt-1.5">
+      <p className="text-[11px] text-body-mid mt-1.5">
         Requires {API_KEY_HINT[value]} set on the backend. Falls back to Groq if missing.
         {isLimited(value) && (
           <span className="text-amber-400 font-medium"> This provider hit a rate limit this session.</span>
