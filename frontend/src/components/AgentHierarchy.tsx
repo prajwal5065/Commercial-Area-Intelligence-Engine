@@ -58,8 +58,8 @@ export function AgentHierarchy({ agentStatus, agentsDetail, selectedAgent, onSel
 
               <button
                 onClick={() => onSelectAgent(id)}
-                className={`w-full text-left flex items-center justify-between gap-3 py-2.5 px-3 rounded-md mb-1 transition-colors ${
-                  isSelected ? "bg-primary/10 border border-primary/30" : "hover:bg-canvas-soft border border-transparent"
+                className={`w-full text-left flex items-center justify-between gap-3 py-3 px-4 rounded-lg mb-2 transition-all duration-200 ${
+                  isSelected ? "bg-primary/10 border border-primary/30 shadow-sm" : "hover:bg-canvas-soft border border-transparent"
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0">

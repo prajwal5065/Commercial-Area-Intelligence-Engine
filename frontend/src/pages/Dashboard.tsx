@@ -245,7 +245,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       {/* ── Execution Summary ─────────────────────────────────────────── */}
       <ExecutionSummary
         agentStatus={status.agent_status}
@@ -270,9 +270,9 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
         )}
 
         {/* Run controls */}
-        <div className="flex items-center justify-between flex-wrap gap-3 mt-4 pt-4 border-t border-hairline">
+        <div className="flex items-center justify-between flex-wrap gap-4 mt-6 pt-6 border-t border-hairline">
           {!isRunning && !isDone && !isFailed && (
-            <div className="flex items-center rounded-md bg-canvas border border-hairline p-0.5">
+            <div className="flex items-center rounded-lg bg-canvas-soft border border-hairline p-1 shadow-sm">
               <button
                 onClick={() => setRunMode("auto")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-semibold transition-colors ${
@@ -371,9 +371,9 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
 
         {/* Manual mode config panels */}
         {!isRunning && runMode === "manual" && (
-          <div className="flex flex-col gap-4 mt-4 pt-4 border-t border-hairline">
+          <div className="flex flex-col gap-5 mt-6 pt-6 border-t border-hairline">
             {/* Stage 1 */}
-            <div className="bg-canvas border border-hairline rounded-md p-4 flex flex-col gap-3">
+            <div className="bg-canvas-soft border border-hairline rounded-xl p-5 flex flex-col gap-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-ink">
                   1 · Country Discovery
@@ -403,7 +403,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
             </div>
 
             {/* Stage 2 */}
-            <div className={`bg-canvas border rounded-md p-4 flex flex-col gap-3 ${stage1Done ? "border-hairline" : "border-hairline opacity-50"}`}>
+            <div className={`bg-canvas-soft border rounded-xl p-5 flex flex-col gap-4 shadow-sm transition-opacity ${stage1Done ? "border-hairline" : "border-hairline opacity-50"}`}>
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-ink">
                   2 · City Discovery
@@ -437,7 +437,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
             </div>
 
             {/* Stage 3 */}
-            <div className={`bg-canvas border rounded-md p-4 flex flex-col gap-3 ${stage2Done ? "border-hairline" : "border-hairline opacity-50"}`}>
+            <div className={`bg-canvas-soft border rounded-xl p-5 flex flex-col gap-4 shadow-sm transition-opacity ${stage2Done ? "border-hairline" : "border-hairline opacity-50"}`}>
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-ink">
                   3 · Zone Discovery
@@ -461,7 +461,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
             </div>
 
             {/* Stage 4 */}
-            <div className={`bg-canvas border rounded-md p-4 flex flex-col gap-3 ${stage3Done ? "border-hairline" : "border-hairline opacity-50"}`}>
+            <div className={`bg-canvas-soft border rounded-xl p-5 flex flex-col gap-4 shadow-sm transition-opacity ${stage3Done ? "border-hairline" : "border-hairline opacity-50"}`}>
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-ink">
                   4 · Sub-Area Mapping
@@ -491,7 +491,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
             </div>
 
             {/* Stage 5 */}
-            <div className={`bg-canvas border rounded-md p-4 flex items-center justify-between ${stage4Done ? "border-hairline" : "border-hairline opacity-50"}`}>
+            <div className={`bg-canvas-soft border rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm transition-opacity ${stage4Done ? "border-hairline" : "border-hairline opacity-50"}`}>
               <div>
                 <h3 className="text-sm font-semibold text-ink">5 · Execution Engine (Lead Scraper)</h3>
                 <p className="text-[11px] text-body-mid mt-0.5">
@@ -525,7 +525,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
       </Card>
 
       {/* ── Agent Hierarchy + Selected Agent Instance Details ──────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card title="Agent Hierarchy">
           <AgentHierarchy
             agentStatus={status.agent_status}

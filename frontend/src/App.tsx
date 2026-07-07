@@ -10,17 +10,17 @@ function App() {
   const [activePage, setActivePage] = useState<"dashboard" | string>("dashboard");
 
   return (
-    <div className="min-h-screen bg-canvas text-ink font-sans">
-      <header className="flex items-center justify-between px-6 py-4 border-b border-hairline bg-canvas">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-sm bg-primary flex items-center justify-center font-mono font-bold text-on-primary text-sm">
+    <div className="h-screen flex flex-col bg-canvas text-ink font-sans overflow-hidden selection:bg-primary/20 selection:text-primary">
+      <header className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-hairline bg-canvas/80 backdrop-blur-md z-10 sticky top-0 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center font-sans font-bold text-on-primary text-base shadow-sm">
             CI
           </div>
           <div>
-            <h1 className="text-xl font-normal tracking-[-0.6px] leading-none text-ink-strong">
+            <h1 className="text-xl font-semibold tracking-tight text-ink-strong">
               Commercial Area Intelligence Engine
             </h1>
-            <p className="text-sm text-body mt-1">
+            <p className="text-sm text-body mt-0.5">
               Automated B2B lead pipeline · country → city → zone → sub-area → leads
             </p>
           </div>
@@ -40,22 +40,24 @@ function App() {
         </div>
       </header>
 
-      <div className="flex">
-        <aside className="w-64 shrink-0 border-r border-hairline min-h-[calc(100vh-73px)] p-3 bg-canvas">
+      <div className="flex flex-1 overflow-hidden">
+        <aside className="w-64 shrink-0 border-r border-hairline p-4 bg-canvas-soft/30 overflow-y-auto hidden md:block">
           <button
             onClick={() => setActivePage("dashboard")}
-            className={`w-full text-left px-4 py-2.5 rounded-sm text-sm font-medium mb-2 transition-colors ${
+            className={`w-full text-left px-4 py-3 rounded-md text-sm font-medium mb-4 transition-all duration-200 ${
               activePage === "dashboard"
-                ? "bg-canvas-soft text-ink-strong"
-                : "text-body hover:bg-canvas-soft hover:text-ink"
+                ? "bg-canvas-soft text-ink-strong shadow-sm border border-hairline"
+                : "text-body hover:bg-canvas-soft hover:text-ink border border-transparent"
             }`}
           >
             Dashboard
           </button>
-          <div className="my-3 border-t border-hairline" />
-          <p className="px-4 text-sm font-semibold tracking-[2.52px] uppercase text-body mb-2">
-            Pipeline
-          </p>
+          
+          <div className="mb-2 px-2 flex items-center gap-2">
+            <h3 className="text-xs font-bold tracking-wider uppercase text-body-mid">
+              Pipeline Stages
+            </h3>
+          </div>
           {status && (
             <PipelineRail
               agentStatus={status.agent_status}
@@ -65,14 +67,16 @@ function App() {
           )}
         </aside>
 
-        <main className="flex-1 p-6 max-w-[1400px] mx-auto w-full">
-          {!sessionId || !status ? (
-            <p className="text-sm text-body-mid font-mono">Connecting to pipeline…</p>
-          ) : activePage === "dashboard" ? (
-            <Dashboard sessionId={sessionId} status={status} refresh={refresh} />
-          ) : (
-            <AgentDetail sessionId={sessionId} agentNum={activePage} agentStatus={status.agent_status} />
-          )}
+        <main className="flex-1 p-6 md:p-8 w-full overflow-y-auto bg-canvas">
+          <div className="max-w-[1400px] mx-auto w-full">
+            {!sessionId || !status ? (
+              <p className="text-sm text-body-mid font-mono">Connecting to pipeline…</p>
+            ) : activePage === "dashboard" ? (
+              <Dashboard sessionId={sessionId} status={status} refresh={refresh} />
+            ) : (
+              <AgentDetail sessionId={sessionId} agentNum={activePage} agentStatus={status.agent_status} />
+            )}
+          </div>
         </main>
       </div>
     </div>

@@ -20,15 +20,15 @@ export function Card({
   variant?: "default" | "emphasized" | "soft";
 }) {
   const variants = {
-    default: "bg-canvas border border-hairline",
-    emphasized: "bg-canvas border-[3px] border-hairline",
-    soft: "bg-canvas-soft border border-hairline",
+    default: "bg-canvas border border-hairline shadow-md",
+    emphasized: "bg-canvas border-[2px] border-hairline shadow-lg",
+    soft: "bg-canvas-soft border border-hairline shadow-sm",
   };
   return (
-    <div className={`rounded-md ${variants[variant]} ${className}`}>
+    <div className={`rounded-xl ${variants[variant]} ${className}`}>
       {title && (
-        <div className="flex items-center justify-between px-6 py-4 border-b border-hairline">
-          <h2 className="text-xl font-bold tracking-tight text-ink font-sans">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-hairline">
+          <h2 className="text-lg font-semibold tracking-tight text-ink font-sans">
             {title}
           </h2>
           {action}
@@ -55,13 +55,14 @@ export function Button({
   className?: string;
 }) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-sm font-semibold text-base px-4 py-[12px] transition-colors disabled:opacity-40 disabled:cursor-not-allowed font-sans leading-6";
+    "inline-flex items-center justify-center gap-2 rounded-md font-semibold text-sm px-4 py-2.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-sans leading-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
+  
   const variants = {
-    primary: "bg-primary text-on-primary hover:bg-primary-hover",
-    "outline-on-dark": "bg-canvas text-ink border border-hairline hover:bg-canvas-soft",
-    "ghost-green": "bg-transparent text-primary-soft hover:text-primary",
-    text: "bg-transparent text-ink hover:bg-canvas-soft font-medium",
-    danger: "bg-status-error-bg text-status-error border border-status-error/30 hover:bg-status-error/10",
+    primary: "bg-primary text-on-primary hover:bg-primary-hover shadow-sm hover:shadow-md",
+    "outline-on-dark": "bg-canvas text-ink border border-hairline hover:bg-canvas-soft shadow-sm",
+    "ghost-green": "bg-transparent text-primary-soft hover:text-primary hover:bg-primary-muted",
+    text: "bg-transparent text-body hover:text-ink hover:bg-canvas-soft font-medium",
+    danger: "bg-status-error-bg text-status-error border border-status-error/30 hover:bg-status-error/20",
   };
   return (
     <button
@@ -85,17 +86,17 @@ export function StatChip({
   tone?: "default" | "running" | "done" | "error";
 }) {
   const toneClass = {
-    default: "text-ink",
+    default: "text-ink-strong",
     running: "text-primary",
     done: "text-status-done",
     error: "text-status-error",
   }[tone];
   return (
-    <div className="flex flex-col gap-1 px-4 py-3 bg-canvas border border-hairline rounded-md min-w-[120px]">
-      <span className="text-sm tracking-[2.52px] text-body font-semibold font-sans uppercase">
+    <div className="flex flex-col gap-1.5 px-5 py-4 bg-canvas-soft border border-hairline rounded-lg min-w-[120px] shadow-sm">
+      <span className="text-xs tracking-wider text-body font-semibold font-sans uppercase">
         {label}
       </span>
-      <span className={`text-2xl font-normal tabular-nums font-mono ${toneClass}`}>
+      <span className={`text-3xl font-medium tabular-nums font-sans tracking-tight ${toneClass}`}>
         {value}
       </span>
     </div>
@@ -104,9 +105,12 @@ export function StatChip({
 
 export function EmptyState({ message, hint }: { message: string; hint?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-12 px-6">
-      <p className="text-base text-body font-sans">{message}</p>
-      {hint && <p className="text-sm text-body-mid mt-1 font-sans">{hint}</p>}
+    <div className="flex flex-col items-center justify-center text-center py-16 px-6 bg-canvas-soft rounded-lg border border-dashed border-hairline-soft">
+      <div className="w-12 h-12 bg-canvas border border-hairline rounded-full flex items-center justify-center mb-4 shadow-sm">
+        <span className="text-body-mid text-xl">ℹ</span>
+      </div>
+      <p className="text-base text-ink font-medium font-sans">{message}</p>
+      {hint && <p className="text-sm text-body mt-2 font-sans max-w-md">{hint}</p>}
     </div>
   );
 }
@@ -126,7 +130,7 @@ export function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full bg-canvas-soft border border-hairline rounded-sm px-3 py-2.5 text-sm text-ink font-sans focus:outline-none focus:ring-1 focus:ring-primary"
+      className="w-full bg-canvas-soft border border-hairline rounded-md px-4 py-2.5 text-sm text-ink font-sans focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors appearance-none"
     >
       <option value="">{placeholder ?? "-- select --"}</option>
       {options.map((o) => (
