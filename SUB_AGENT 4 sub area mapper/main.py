@@ -274,30 +274,42 @@ def process_zone(zone_name: str, city: str, country: str, provider: str = DEFAUL
         country=country
     )
 
+    providers_to_try = [provider]
+    if provider == "groq":
+        providers_to_try.extend(["gemini", "openai"])
+    elif provider == "gemini":
+        providers_to_try.extend(["groq", "openai"])
+    elif provider == "openai":
+        providers_to_try.extend(["groq", "gemini"])
+
     wait_times = [4, 8, 16, 32, 64]
     raw_response = None
 
-    for attempt, wait_sec in enumerate(wait_times, start=1):
-        try:
-            log.info(f"Sending request for {zone_name} (attempt {attempt}/{len(wait_times)})")
-            raw_response = call_groq(final_prompt, provider=provider)
-            break
-        except Exception as e:
-            err_str = str(e).lower()
-            if "429" in err_str or "rate_limit" in err_str or "timeout" in err_str or "network" in err_str:
-                if "429" in err_str or "rate_limit" in err_str:
-                    _report_rate_limit(provider, f"zone={zone_name}, attempt={attempt}")
-                log.warning(f"{zone_name}: Retryable error on attempt {attempt}. Waiting {wait_sec}s. Error: {e}")
-                if attempt < len(wait_times):
-                    time.sleep(wait_sec)
+    for current_provider in providers_to_try:
+        log.info(f"Trying provider: {current_provider} for {zone_name}")
+        for attempt, wait_sec in enumerate(wait_times, start=1):
+            try:
+                log.info(f"Sending request for {zone_name} via {current_provider} (attempt {attempt}/{len(wait_times)})")
+                raw_response = call_groq(final_prompt, provider=current_provider)
+                break
+            except Exception as e:
+                err_str = str(e).lower()
+                if "429" in err_str or "rate_limit" in err_str or "timeout" in err_str or "network" in err_str or "connection" in err_str or "resolve" in err_str:
+                    if "429" in err_str or "rate_limit" in err_str:
+                        _report_rate_limit(current_provider, f"zone={zone_name}, attempt={attempt}")
+                    log.warning(f"{zone_name} [{current_provider}]: Retryable error on attempt {attempt}. Waiting {wait_sec}s. Error: {e}")
+                    if attempt < len(wait_times):
+                        time.sleep(wait_sec)
+                    else:
+                        log.error(f"{zone_name} [{current_provider}]: All {len(wait_times)} attempts failed.")
                 else:
-                    log.error(f"{zone_name}: All {len(wait_times)} attempts failed.")
-                    return {"status": "ERROR", "zone": zone_name, "path": None}
-            else:
-                log.error(f"{zone_name}: Non-retryable error: {e}")
-                return {"status": "ERROR", "zone": zone_name, "path": None}
+                    log.error(f"{zone_name} [{current_provider}]: Non-retryable error: {e}")
+                    break  # try next provider
+        if raw_response:
+            break
 
     if not raw_response:
+        log.error(f"{zone_name}: All providers failed.")
         return {"status": "ERROR", "zone": zone_name, "path": None}
 
     parsed_data = None

@@ -1,0 +1,55 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Kalina Industrial Estate",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Kalina",
+      "parent_zone": "Kalina Industrial Estate",
+      "business_volume": 1000,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Kalina,_Mumbai",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Vidyanagari",
+      "parent_zone": "Kalina Industrial Estate",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Vidyanagari",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Santacruz",
+      "parent_zone": "Kalina Industrial Estate",
+      "business_volume": 600,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Santacruz,_Mumbai",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "MIDC",
+      "url": "https://www.midcindia.org/",
+      "category": "validation",
+      "priority": "high"
+    }
+  ]
+}

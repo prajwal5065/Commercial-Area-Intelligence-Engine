@@ -1,0 +1,2279 @@
+[
+    {
+        "subarea_name": "Worli Sea Face",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "GlaxoSmithKline PharmaceuticalGlaxoSmithKline Pharmaceutical 4.4",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Worli Sea Face",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Ceejay HouseCeejay House 4.3Business park ·  · Dr Annie Besant RdOpen · Closes 10 pmDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Worli Sea Face",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Worli New Sea FaceWorli New Sea Face 4.7Promenade ·  · 2R36+58ROpen 24 hoursDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Worli Sea Face",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Worli Sea Face GardenWorli Sea Face Garden 4.3Garden · 2R78+RPVOpen nowDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Worli Sea Face",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Allied Visa Services-USA-Canada Visa AgentsAllied Visa Services-USA-Canada Visa Agents 4.8Visa Agent · Krishnamai, 2A, Sir Pochkhanawala RdOpen · Closes 9 pm · 080809 21713WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Worli Sea Face",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Modern Fine ChemicalsModern Fine Chemicals 4.9",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Worli Sea Face",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Kaveri Gomati SharavatiKaveri Gomati Sharavati 4.9Condominium complex · 2, Khan Abdul Gaffar Khan RoadDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Pali Hill",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Manikarnika Films Pvt LtdManikarnika Films Pvt Ltd 4.6Film Production Company · Bungalow No. 5, Chetak Row Houses, No. 41, Poonam Palace Pali HillClosed · Opens 9 am WedDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Pali Hill",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "UnifyndUnifynd 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Pali Hill",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "The Gratitude CompanyThe Gratitude Company 5.0",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Pali Hill",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Varun BuildingVarun Building 4.1Home builder · 11, Sangeet Samrat Naushad Ali RdDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Pali Hill",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Hope ProductionsHope Productions 4.4Film Production Company · IMPPA house, Dr Ambedkar Rd, near Pali Naka, next to Moru MahalClosed · Opens 10 am Wed · 072085 34555WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Pali Hill",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Alvaraa Global Trading LLPAlvaraa Global Trading LLP 5.0Import export companyClosed · Opens 10 am Wed · 090999 99735WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Capgemini Technology Services India Limited (Airoli)Capgemini Technology Services India Limited (Airoli) 4.4",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "AccentureAccenture 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Kiya.ai (Infrasoft Technologies Limited)Kiya.ai (Infrasoft Technologies Limited) 4.6",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Gigaplex IT ParkGigaplex IT Park 4.2Business park ·  · MIDC, Airoli Knowledge Park RdOpen nowDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "HERE MumbaiHERE Mumbai 4.4",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Wipro AiroliWipro Airoli 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Neural IT Pvt. Ltd.Neural IT Pvt. Ltd. 4.2",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "eClerx AirolieClerx Airoli 4.1",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Lionbridge IndiaLionbridge India 4.0",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Worley EngineeringWorley Engineering 4.5",
+        "category": "engineering consultant",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 1",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Infosys LimitedInfosys Limited 4.5",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 2",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "UBS Business Solutions India Private LimitedUBS Business Solutions India Private Limited 4.4",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 2",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Atos IndiaAtos India 4.1",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 2",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Capgemini SEZ YosemiteCapgemini SEZ Yosemite 4.4",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 3",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "GEPGEP 4.4",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 3",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "NEC Software Solutions (India)- AiroliNEC Software Solutions (India)- Airoli 4.8",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Airoli Knowledge Park Sector 3",
+        "zone_name": "Airoli Knowledge Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "CitiusTech Healthcare Technology Private LimitedCitiusTech Healthcare Technology Private Limited 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Worli Village",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "EUCIT Systems Private LimitedEUCIT Systems Private Limited No reviews",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Worli Village",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Obaid Enterprises Cavil Engineering Pvt LtdObaid Enterprises Cavil Engineering Pvt Ltd 5.0Road Contractor · Room No 410, Sunny Raja Masjid, Koliwada Village RoadDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Worli Village",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Deep ConstructionDeep Construction 5.0",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Worli Village",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "mathuraaieximmathuraaiexim No reviewsImport export company · 1/4, Dhaklya Akhade Niwas, 339/42F, Shri Ram LnDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Worli Village",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Othim Food And ProductsOthim Food And Products 4.8Food",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Worli Village",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Swarajya InfotechSwarajya Infotech 1.0Website designer · Raj Mestry, Room No 36, Janata Colony, Behind 169 Bus Stop, Worli VillageClosed · Opens 10 am Wed · 097735 30677WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Worli Village",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Worli VillageWorli Village 4.2Bus stopDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Worli Village",
+        "zone_name": "Worli",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Worli FortWorli Fort 4.2Fortress ·  · 2RF8+FPM, Worli village, near worliClosed · Opens 5 am WedDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Oceanic Pharmachem Pvt. LTD.Oceanic Pharmachem Pvt. LTD. 4.1",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Anantco Enterprises Pvt LtdAnantco Enterprises Pvt Ltd 4.8",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "NSEIT LimitedNSEIT Limited 4.2",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "MAQ SoftwareMAQ Software 4.1",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Saba Software India Pvt. LtdSaba Software India Pvt. Ltd 4.4",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "WiantechWiantech 5.0",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "ARCONARCON 4.4",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Saraf Corporation India Pvt LtdSaraf Corporation India Pvt Ltd 4.3",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Health Prime Services (India) Pvt. Ltd.Health Prime Services (India) Pvt. Ltd. 4.1",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Elegant Business ParkElegant Business Park 4.2",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Accion Technologies Pvt LtdAccion Technologies Pvt Ltd 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri East",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "DIGITAL SOCH PVT. LTD.-(Google Partner Digital",
+        "category": "marketing agency",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Andheri West",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "p𝐀𝐀gal Companyp𝐀𝐀gal Company 5.0",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri West",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Dosch Pharmaceuticals Private LimitedDosch Pharmaceuticals Private Limited 4.7",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Andheri West",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "WEBROCK INNOVATIONS PRIVATE LIMITEDWEBROCK INNOVATIONS PRIVATE LIMITED 4.9",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri West",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Aristo Pharmaceuticals Private LimitedAristo Pharmaceuticals Private Limited 4.3",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Andheri West",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Excel Infoways LtdExcel Infoways Ltd 4.4",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri West",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "C Ahead Info Technologies India LimitedC Ahead Info Technologies India Limited 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Andheri West",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Frontmen Smart HomesFrontmen Smart Homes 4.9Home",
+        "category": "automation company",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Andheri West",
+        "zone_name": "Andheri Kurla Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Ketan PharmaKetan Pharma 4.2",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Powai Lake",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Schindler India Private LimitedSchindler India Private Limited 4.1Elevator",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Powai Lake",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Marsh & McLennan Global Services India Pvt LtdMarsh & McLennan Global Services India Pvt Ltd 4.5",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Powai Lake",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "AVEVA Information Technology India Pvt. Ltd.AVEVA Information Technology India Pvt. Ltd. 4.7",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Powai Lake",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Tech Data Technology SolutionsTech Data Technology Solutions 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Powai Lake",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "H-Energy Private LimitedH-Energy Private Limited 4.3",
+        "category": "business center",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Powai Lake",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Tata Consultancy ServicesTata Consultancy Services 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Powai Lake",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "TransoceanTransocean 4.3",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Powai Lake",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Jubilant Pharmova LimitedJubilant Pharmova Limited 4.4",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Powai Lake",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "LTMLTM 4.4",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Powai Lake",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "PwC Analytics AdvisoryPwC Analytics Advisory 4.4Business management",
+        "category": "consultant",
+        "priority": 9
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Portescap India Pvt. Ltd.Portescap India Pvt. Ltd. 4.8(20)",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "ANDHERI SEEPZANDHERI SEEPZ 4.2(506)",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "SEEPZ Special Economic Zone, Gate No. - 1SEEPZ Special Economic Zone, Gate No. - 1 4.3(56)Government economic program ·  · 4VGF+282, Krantiveer Lakhuji Salve MargOpen · Closes 9 pm · 022 2829 4700Directions \"It has a good government place for a business view\"",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Innovative ERP Solutions Limited (IESL)Innovative ERP Solutions Limited (IESL) 4.3(179)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Aczet Pvt. Ltd.Aczet Pvt. Ltd. 4.1(246)",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Sunjewels Pvt. Ltd.Sunjewels Pvt. Ltd. 4.6(27)Jewelry",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "SEEPZ Metro Station,LINE 3SEEPZ Metro Station,LINE 3 4.5(251)Metropolitan train company ·  · 1Open 24 hours · 0712 255 4217Directions \"This will definitely help commuters to reach the office on time and safely.\"",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "SEEPZ Gems & Jewellery",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "My Office- Fine Jewellery Manufacturing Ltd.My Office- Fine Jewellery Manufacturing Ltd. 4.3(26)",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Ease my ai PvtEase my ai Pvt 4.8(50)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Jewelex India Pvt LtdJewelex India Pvt Ltd 4.2(51)Jeweler · Plot no 56B, IIClosed · Opens 8 am Wed · 022 4244 1500WebsiteDirections Delivery",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "SEEPZ Phase 1",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Seepz ++Seepz ++ 5.0(1)Association / Organization · Unit 701 - 702, Tower, ++, 2, Jogeshwari - Vikhroli Link RdDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Hiranandani Gardens",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Hiranandani Group Of CompaniesHiranandani Group Of Companies 4.6",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Hiranandani Gardens",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Thoughtworks Technologies (India) Private Ltd.Thoughtworks Technologies (India) Private Ltd. 4.7",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hiranandani Gardens",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Wipro Limited foundationWipro Limited foundation 4.0",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hiranandani Gardens",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Emerson Process Management India Private LimitedEmerson Process Management India Private Limited 4.6",
+        "category": "automation company",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Hiranandani Gardens",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "General Mills India Pvt LtdGeneral Mills India Pvt Ltd 4.6Food",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Hiranandani Gardens",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Hiranandani Constructions Pvt.LtdHiranandani Constructions Pvt.Ltd 3.9",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Hiranandani Gardens",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Orion InnovationOrion Innovation 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "IIT Bombay",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Convocation Hall 4.7(2,239)Auditorium · Floor G",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "IIT Bombay",
+        "zone_name": "Powai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Victor Menezes Convention Centre 4.7(2,156)AuditoriumClosed · Opens 9 am Wed",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "SEEPZ Special Economic Zone, Gate No. - 1SEEPZ Special Economic Zone, Gate No. - 1 4.3Government economic program ·  · 4VGF+282, Krantiveer Lakhuji Salve MargOpen · Closes 9 pm · 022 2829 4700Directions",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "ANDHERI SEEPZANDHERI SEEPZ 4.2Business park ·  · Seepz Rd AOpen · Closes 10 pmDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Anlage Infotech (India) P LtdAnlage Infotech (India) P Ltd 3.8",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Innovative ERP Solutions Limited (IESL)Innovative ERP Solutions Limited (IESL) 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "NEST 2NEST 2 No reviews",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "SEEPZ SEZSEEPZ SEZ No reviews",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Seepz ++Seepz ++ 5.0Association / Organization · Unit 701 - 702, Tower, ++, 2, Jogeshwari - Vikhroli Link RdDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Aczet Pvt. Ltd.Aczet Pvt. Ltd. 4.1",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Jewelex India Pvt LtdJewelex India Pvt Ltd 4.2Jeweler · Plot no 56B, IIClosed · Opens 8 am Wed · 022 4244 1500WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "My Office- Fine Jewellery Manufacturing Ltd.My Office- Fine Jewellery Manufacturing Ltd. 4.3Jewelry",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "SEEPZ Phase 2",
+        "zone_name": "Seepz SEZ",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "AjackusAjackus 3.6",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Kalina",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Kalina Engineering Private LimitedKalina Engineering Private Limited 4.3",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Kalina",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Indoco HouseIndoco House 4.6",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Kalina",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Naveen Merico",
+        "category": "engineering company",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Kalina",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Microsoft Corporation India Private LimitedMicrosoft Corporation India Private Limited 4.6",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Kalina",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Allcargo GroupAllcargo Group 4.2",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Kalina",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Harman Finochem LtdHarman Finochem Ltd 4.6",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Kalina",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Crystal",
+        "category": "construction company",
+        "priority": 6
+    },
+    {
+        "subarea_name": "Kalina",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Netapp India LimitedNetapp India Limited 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Kalina",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Dani Corporate Park Nuwama officeDani Corporate Park Nuwama office 4.0",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Kalina",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "KALINA ENGINEERING PVT. LTD.KALINA ENGINEERING PVT. LTD. 4.6",
+        "category": "industrial equipment supplier",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Vidyanagari",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Kaanvi heavy equipment solutions pvt ltdKaanvi heavy equipment solutions pvt ltd 5.0Excavating contractorOpen 24 hoursWebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Vidyanagari",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "CloudRegex Infotech Pvt LtdCloudRegex Infotech Pvt Ltd 4.9",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Vidyanagari",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Xipra TechnologyXipra Technology 4.8",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Vidyanagari",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "AOTAOT No reviews",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Vidyanagari",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Retails AutomationRetails Automation 5.0",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Vidyanagari",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Vidyanagari Pencil ChowkVidyanagari Pencil Chowk 4.5Cake shop · 5JH5+F5FOpen · Closes 10 pmDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Santacruz",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "ASMACS Group MumbaiASMACS Group Mumbai 4.8Shipbuilding and repair company ·  · 4th Floor, Sai Chamber, 411, opp. Railway StationCloses soon · 8 pm · Opens 10 am Wed · 022 6909 0786WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Santacruz",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Hive Carbon-Zero Developers Pvt. Ltd.Hive Carbon-Zero Developers Pvt. Ltd. 3.6",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Santacruz",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "NWDCo Software Solutions LLPNWDCo Software Solutions LLP 4.4",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Santacruz",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "AHA! Smart Homes - Santacruz WestAHA! Smart Homes - Santacruz West 5.0Home",
+        "category": "automation company",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Santacruz",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Raibo infotech private limitedRaibo infotech private limited 5.0",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Santacruz",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Chemkart India LimitedChemkart India Limited 4.6Chemical",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Santacruz",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Mind TechnologiesMind Technologies 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Santacruz",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Saif Enterprises – Himalayan Mineral Water | Evian | Perrier | Imported Water | Bisleri Glass water Bottles MumbaiSaif Enterprises – Himalayan Mineral Water | Evian | Perrier | Imported Water | Bisleri Glass water Bottles Mumbai 5.0Mineral water company · Retiwala premises, 44, Swami Vivekanand Rd, opp. Khira nagarOpen 24 hours · 098215 75152WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Santacruz",
+        "zone_name": "Kalina Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Accent Techno Solutions Private LimitedAccent Techno Solutions Private Limited 4.6",
+        "category": "engineering consultant",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Saama Technologies (India) Pvt LtdSaama Technologies (India) Pvt Ltd 4.2",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "InfoStretch Corporation (India) Pvt. LtdInfoStretch Corporation (India) Pvt. Ltd 3.8",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Ansys Software Pvt. Ltd.Ansys Software Pvt. Ltd. 4.6",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Websym TechnologiesWebsym Technologies 4.2",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Leometric Technology Private Limited - Website, Web Application and Mobile Application Development Partner in Pune India.Leometric Technology Private Limited - Website, Web Application and Mobile Application Development Partner in Pune India. 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Tata Technologies Ltd.Tata Technologies Ltd. 4.4",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "e-Zest, An Accion Labs Companye-Zest, An Accion Labs Company 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Birlasoft LimitedBirlasoft Limited 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Persistent SystemsPersistent Systems 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Qubix SEZ, Blue RidgeQubix SEZ, Blue Ridge 4.4",
+        "category": "technology park",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Infosys Phase 1 Building 1Infosys Phase 1 Building 1 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 1",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Cordiso TechnologiesCordiso Technologies 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Wipro Technologies LtdWipro Technologies Ltd 4.4(3,059)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "IBMIBM 4.5(1,484)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Nitor Infotech, an Ascendion companyNitor Infotech, an Ascendion company 4.2(228)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "NiCENiCE 4.5(677)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Döehler India Private LimitedDöehler India Private Limited 3.5(82)Food Processing Company ·  · 3/285 Raisoni Industrial Park, Hinjawadi Phase 2 Rd, Hinjawadi Phase II, Hinjawadi Rajiv Gandhi Infotech Park, HinjewadiClosed · Opens 8:30 am Wed · 61513063061WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Vebsigns TechnologiesVebsigns Technologies 5.0(36)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "KPIT Technologies LtdKPIT Technologies Ltd 4.5(1,074)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "MJ Biotech Private LimitedMJ Biotech Private Limited 4.4(61)",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "FlexFlex 4.5(128)Electronics",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Synechron Technologies Pvt. Ltd.Synechron Technologies Pvt. Ltd. 4.5(1,536)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Tectigon IT Solutions Pvt LtdTectigon IT Solutions Pvt Ltd 4.6(41)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 2",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "ConnectWiseConnectWise 4.6(51)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 3",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Synechron Technologies Pvt. Ltd.Synechron Technologies Pvt. Ltd. 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 3",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "मनारा टेक्नोलॉजी प्राइवेट. लि.मनारा टेक्नोलॉजी प्राइवेट. लि. 3.9",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 3",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "KPIT Technologies LtdKPIT Technologies Ltd 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 3",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Rajiv Gandhi Infotech Park, Maan Phase-3Rajiv Gandhi Infotech Park, Maan Phase-3 4.3",
+        "category": "technology park",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 3",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Capgemini IndiaCapgemini India 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 3",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Tech Mahindra LimitedTech Mahindra Limited 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hinjewadi Phase 3",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Fulcrum WorldwideFulcrum Worldwide 4.0",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Maan",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Maan Trading Private LimitedMaan Trading Private Limited 4.3WholesalerClosed · Opens 9 am Wed · 090112 70000Directions",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Maan",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "MAN Technology CentreMAN Technology Centre 4.3",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Maan",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Shri Mann Dairy FarmShri Mann Dairy Farm 4.2Dairy farm · Shop No.2 & 3, Shiv Sagar Bldg., Nr. Cosmos Bank, Jhamtani Chowk, PimpriOpen · Closes 10 pm · 098229 98995Directions",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Maan",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "MAN Truck & Bus India Pvt. LtdMAN Truck & Bus India Pvt. Ltd 4.3",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Maan",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Manman Manufacturing Company Pvt LtdManman Manufacturing Company Pvt Ltd 5.0",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Maan",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Maan road,chande phataMaan road,chande phata 4.0Wholesaler · HPF2+FX2Open · Closes 9 pmDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Maan",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Maan Freight Cargo Packers And Movers PuneMaan Freight Cargo Packers And Movers Pune 5.0",
+        "category": "transportation service",
+        "priority": 3
+    },
+    {
+        "subarea_name": "Marunji",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Motherson Sumi Wiring India Ltd.Motherson Sumi Wiring India Ltd. 4.2",
+        "category": "electronics company",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Marunji",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Porter Packers and Movers MarunjiPorter Packers and Movers Marunji 4.9Packaging company · Shop No. 5, Shinde Wasti, Marunji, Taluka MulshiClosed · Opens 10 am Wed · 022 6960 4445WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Marunji",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Ecozen Solutions Pvt Ltd . ( Marunji Factory)Ecozen Solutions Pvt Ltd . ( Marunji Factory) 4.9",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Marunji",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Paras Express Packers And Movers Marunji PuneParas Express Packers And Movers Marunji Pune 5.0",
+        "category": "transportation service",
+        "priority": 3
+    },
+    {
+        "subarea_name": "Marunji",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Wipro Technologies LtdWipro Technologies Ltd 4.4",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Marunji",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Motherson company Marunji HinjawadiMotherson company Marunji Hinjawadi 1.0",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Marunji",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "KNORR-BREMSE Technology Center India Private LimitedKNORR-BREMSE Technology Center India Private Limited 4.4",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Marunji",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "SP RMC MarunjiSP RMC Marunji 4.2Ready mix concrete supplier · Servey No 30, Buchade Wasti Marunji, Tal-MulshiOpen 24 hours · 070305 29971Directions",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Marunji",
+        "zone_name": "Navi Mumbai IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Vishwas Packers and Movers PuneVishwas Packers and Movers Pune 5.0",
+        "category": "transportation service",
+        "priority": 3
+    },
+    {
+        "subarea_name": "Bandra Kurla Complex",
+        "zone_name": "BKC IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Oracle IndiaOracle India 4.7",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Bandra Kurla Complex",
+        "zone_name": "BKC IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Miracuves Solutions Pvt. Ltd.Miracuves Solutions Pvt. Ltd. 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Bandra Kurla Complex",
+        "zone_name": "BKC IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Cubosquare Technology Pvt. Ltd.Cubosquare Technology Pvt. Ltd. 4.8",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Bandra Kurla Complex",
+        "zone_name": "BKC IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "SAP India Private LimitedSAP India Private Limited 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Bandra Kurla Complex",
+        "zone_name": "BKC IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Hyperlink InfoSystem - Top App Development CompanyHyperlink InfoSystem - Top App Development Company 4.8",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Bandra Kurla Complex",
+        "zone_name": "BKC IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Montage Global Pvt LtdMontage Global Pvt Ltd 4.7",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Bandra Kurla Complex",
+        "zone_name": "BKC IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "The CapitalThe Capital 4.4",
+        "category": "business center",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Bandra Kurla Complex",
+        "zone_name": "BKC IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "FinMechanicsFinMechanics 4.9",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Bandra Kurla Complex",
+        "zone_name": "BKC IT Park",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Cardiff Services - CS in Bandra Kurla Complex Mumbai - Company LLP Incorporation CompliancesCardiff Services - CS in Bandra Kurla Complex Mumbai - Company LLP Incorporation Compliances 5.0",
+        "category": "consultant",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Hiranandani Estate Powai",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Petrofac Engineering India Pvt LtdPetrofac Engineering India Pvt Ltd 4.4",
+        "category": "oil & natural gas company",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Hiranandani Estate Powai",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Wipro Limited foundationWipro Limited foundation 4.0BPO Company ·  · Spectra Building, High St022 3092 4747Directions",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Hiranandani Estate Powai",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Scorpio Marine Management India Pvt. LtdScorpio Marine Management India Pvt. Ltd 4.5",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Hiranandani Estate Thane",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "GoApptiv private limitedGoApptiv private limited 4.9",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hiranandani Estate Thane",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "MRCCMRCC 3.9",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hiranandani Estate Thane",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Bayer HouseBayer House 4.5",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Hiranandani Estate Thane",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "TCS Security BlockTCS Security Block 4.6",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hiranandani Estate Thane",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "PASSIONBYTES PRIVATE LIMITEDPASSIONBYTES PRIVATE LIMITED 5.0",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Hiranandani Estate Thane",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Bayer Cross SquareBayer Cross Square 4.6",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Hiranandani Estate Thane",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "S INFINITY TECH AND TOOLSS INFINITY TECH AND TOOLS 4.9FMCG",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Hiranandani Estate Thane",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Forcepoint Software India Pvt LtdForcepoint Software India Pvt Ltd 3.9",
+        "category": "corporate office",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Hiranandani Estate Thane",
+        "zone_name": "Hiranandani Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Liftronic India Pvt. Ltd.Liftronic India Pvt. Ltd. 5.0Elevator",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Jogeshwari East",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "High Tech Industrial EstateHigh Tech Industrial Estate 4.3(35)",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Jogeshwari East",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Acetech Technologies Pvt. Ltd.Acetech Technologies Pvt. Ltd. 4.6(42)Home",
+        "category": "automation company",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Jogeshwari East",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Chemtronics Technologies (INDIA) Private LimitedChemtronics Technologies (INDIA) Private Limited 4.8(196)Environmental organization · 28, Satyam Industrial Estate,, Subhash Road, Jogeswari (East)Open · Closes 9:30 pm · 022 4006 9933WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Jogeshwari East",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Baksa Global Private LimitedBaksa Global Private Limited 4.8(4)Import export company · 6th Floor, Shiv Solitaire Hub, Unit No. 612, opp. Jess Turf Ground, near Jogeshwari Station RoadOpen 24 hours · 085917 20814WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Jogeshwari East",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Glow Pharma Private LimitedGlow Pharma Private Limited 3.6(9)",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Jogeshwari East",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Sun Pharmaceutical Industries Ltd.Sun Pharmaceutical Industries Ltd. 4.5(214)",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Jogeshwari East",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Lotus Corporate ParkLotus Corporate Park 4.4(1,173)Business park · Open 24 hoursDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Jogeshwari East",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Tools Marcom Pvt. Ltd. / Advertising & Event Management Company in Mumbai,Tools Marcom Pvt. Ltd. / Advertising & Event Management Company in Mumbai, 4.8(28)",
+        "category": "marketing agency",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Jogeshwari East",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Krivi Energy Pvt LtdKrivi Energy Pvt Ltd 5.0(8)Solar Energy Company · Dipti Square, 112, Subhash RdClosed · Opens 9:30 am Wed · 022 3185 6336WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Jogeshwari East",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Gas Agency Software SystemGas Agency Software System 5.0(18)",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Jogeshwari West",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Anju",
+        "category": "engineering company",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Jogeshwari West",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Subaash Electrical Private LimitedSubaash Electrical Private Limited 4.5Home builder · Unit No 110, IVY Centre, Patel Estate RdClosed · Opens 9 am WedDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Jogeshwari West",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Farsoft Infotech Pvt LtdFarsoft Infotech Pvt Ltd 4.8",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Jogeshwari West",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "KGN Pharmaceuticals Pvt. Ltd.KGN Pharmaceuticals Pvt. Ltd. 3.8",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Jogeshwari West",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Good luck steelGood luck steel 5.0Steel",
+        "category": "construction company",
+        "priority": 6
+    },
+    {
+        "subarea_name": "Jogeshwari West",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "The EPIC CompanyThe EPIC Company 4.2Media company ·  · First Floor, Tech Web Center, New Link RdClosed · Opens 9:30 am Wed · 022 6130 6800WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Jogeshwari West",
+        "zone_name": "Jogeshwari Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Edinms TechnologiesEdinms Technologies 4.9",
+        "category": "computer hardware company",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Solverix Technologies Private LimitedSolverix Technologies Private Limited 4.8",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Raiaskaran Tech ParkRaiaskaran Tech Park 4.2",
+        "category": "technology park",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "IMTS Enterprise Solutions Pvt LtdIMTS Enterprise Solutions Pvt Ltd 4.2",
+        "category": "automation company",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Mypcot Infotech Pvt LtdMypcot Infotech Pvt Ltd 4.6",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Aristo Pharmaceuticals Pvt. Ltd.Aristo Pharmaceuticals Pvt. Ltd. 3.9",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Crescent Business SquareCrescent Business Square 4.1",
+        "category": "business center",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Maraekat InfoTech Ltd.Maraekat InfoTech Ltd. 4.5",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Loylty Rewardz Management Private LimitedLoylty Rewardz Management Private Limited 4.2",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Aldenaire Softsol - India's Best Software SellerAldenaire Softsol - India's Best Software Seller 4.9",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "JMT STEEL (A Company of DOSHI GROUP)JMT STEEL (A Company of DOSHI GROUP) 3.5Steel industry · 7, Luthra Industrial Estate, Safed Pul, SakinakaClosed · Opens 10 am Wed · 080 4896 9592WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Saki Naka",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Mirchandani Business ParkMirchandani Business Park 4.0Business park · 4V3Q+Q47, Sakinaka090048 77445Directions",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Chandivali",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Tech Mahindra LimitedTech Mahindra Limited 3.9",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Chandivali",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Neebal TechnologiesNeebal Technologies 4.0",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Chandivali",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "AVA Chemicals Private LimitedAVA Chemicals Private Limited 4.7",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Chandivali",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "BioBaxy Technologies India LLPBioBaxy Technologies India LLP 5.0",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Chandivali",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Netmagic SolutionsNetmagic Solutions 4.5Web hosting company ·  · Lighthall, C Wing, Hiranandani Business Park, Saki Vihar RdOpen 24 hours · 1800 103 3130Directions",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Chandivali",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "ConcentrixConcentrix 4.0BPO Company ·  · Symphony It Park, Raheja Vihar Rd, opp. SOUTH-WINGCloses soon · 8 pm · Opens 10 am Wed · 1800 747 0583WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Chandivali",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Micro Labs LimitedMicro Labs Limited 4.2",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Chandivali",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Minecodes Technology Pvt. Ltd.Minecodes Technology Pvt. Ltd. 4.3",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Chandivali",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Think Analytics India Private LimitedThink Analytics India Private Limited 4.1Business management",
+        "category": "consultant",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Powai",
+        "zone_name": "Saki Naka Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Larsen & ToubroLarsen & Toubro 4.4",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Turbhe Industrial ParkTurbhe Industrial Park 4.1Business park ·  · 1, C 56, Plot No. C-56, S Central Rd, near Galaxy Research CentreClosed · Opens 9 am Wed · 098196 67548Directions",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Seema FineChem Industry LLPSeema FineChem Industry LLP 4.9",
+        "category": "pharmaceutical company",
+        "priority": 5
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Plutonium Business ParkPlutonium Business Park 4.1Corporate campus ·  · C Zone, Plot No. 7 & 7A, Thane - Belapur Rd, near TurbheCloses soon · 8 pm · Opens 10 am Wed · 084484 47739WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Expanded Polymer Systems Pvt. Ltd.Expanded Polymer Systems Pvt. Ltd. 3.9Chemical plant · C44, 1, TTC Midc RdClosed · Opens 9:30 am Wed · 022 3091 4300WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Techflow Engineers India Private LimitedTechflow Engineers India Private Limited 4.7Civil engineer · Unit 415, Sector – 1, Building 2, A-3, MBP RdClosed · Opens 9 am Wed · 022 2778 2401WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "New Rampgreen Technologies Pvt. Ltd.New Rampgreen Technologies Pvt. Ltd. 3.8",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "One Point One Solutions Ltd.One Point One Solutions Ltd. 4.0Business to business service ·  · C/42, Pawane Village RdClosed · Opens 9:30 am Wed · 022 6165 6363WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Swift Technoplast Pvt Ltd – Premium Plastic Pallets",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Everest Nivara Infotech ParkEverest Nivara Infotech Park 3.8Corporate campus ·  · D3, MIDC Main Rd, near TurbheOpen · Closes 9 pmDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "TotalEnergies Marketing India Private LimitedTotalEnergies Marketing India Private Limited 4.3",
+        "category": "oil & natural gas company",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 1",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Intelegain TechnologiesIntelegain Technologies 4.2",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 2",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "AVI Worldwide Pvt Ltd Unit 2AVI Worldwide Pvt Ltd Unit 2 4.8",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 2",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Punit Industrial PremisesPunit Industrial Premises 4.1",
+        "category": "business center",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 2",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Galaxy Surfactants LtdGalaxy Surfactants Ltd 4.1",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 2",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "PACKTECH MATERIALS PRIVATE LIMITEDPACKTECH MATERIALS PRIVATE LIMITED 2.3Packaging company · T.TTemporarily closed · 080 4896 0020WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 2",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Sara Chem (India) Pvt LtdSara Chem (India) Pvt Ltd 4.9Industrial",
+        "category": "consultant",
+        "priority": 9
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 2",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Sage Software Solutions Pvt Ltd | ERP & CRM Provider in MumbaiSage Software Solutions Pvt Ltd | ERP & CRM Provider in Mumbai 4.7",
+        "category": "software company",
+        "priority": 10
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 2",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Shreenath Packaging IndustriesShreenath Packaging Industries 5.0Packaging company · Plot no-A-157/A-158/A159/A-824/3, Thane - Belapur RdClosed · Opens 8:30 am Wed · 098210 79981Directions",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 3",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Turbhe Polycans Private LimitedTurbhe Polycans Private Limited 4.3",
+        "category": "manufacturer",
+        "priority": 7
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 3",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Malkar IndustriesMalkar Industries 4.7",
+        "category": "industrial equipment supplier",
+        "priority": 8
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 3",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Turbhe Iron & Steel Trading Pvt. Ltd.Turbhe Iron & Steel Trading Pvt. Ltd. 4.1Steel industry · Plot No 102A, Turbhe Service Industrial Area, Sector, 23, Turbhe Village RdCloses soon · 8 pm · Opens 9 am Wed · 084336 13949WebsiteDirections",
+        "category": "",
+        "priority": 1
+    },
+    {
+        "subarea_name": "Turbhe Industrial Estate Sector 3",
+        "zone_name": "Turbhe Industrial Estate",
+        "city_name": "Mumbai",
+        "country_name": "India",
+        "company_name": "Metrohm India Private LimitedMetrohm India Private Limited 4.3",
+        "category": "industrial equipment supplier",
+        "priority": 8
+    }
+]

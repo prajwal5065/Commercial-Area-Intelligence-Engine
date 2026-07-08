@@ -1,0 +1,162 @@
+{
+  "status": "SUCCESS",
+  "city": "Mumbai",
+  "country": "India",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-07T18:42:24",
+  "zones": [
+    {
+      "zone_name": "Bandra Kurla Complex",
+      "business_count": 4500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 1
+    },
+    {
+      "zone_name": "Nariman Point",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 2
+    },
+    {
+      "zone_name": "Lower Parel",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 3
+    },
+    {
+      "zone_name": "Worli",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 4
+    },
+    {
+      "zone_name": "Andheri Kurla Industrial Estate",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 5
+    },
+    {
+      "zone_name": "Hiranandani Estate",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 6
+    },
+    {
+      "zone_name": "Seepz SEZ",
+      "business_count": 1500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 7
+    },
+    {
+      "zone_name": "Mahape Industrial Estate",
+      "business_count": 1200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 8
+    },
+    {
+      "zone_name": "Vashi Industrial Estate",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 9
+    },
+    {
+      "zone_name": "Turbhe Industrial Estate",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 10
+    },
+    {
+      "zone_name": "Thane Belapur Industrial Estate",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 11
+    },
+    {
+      "zone_name": "Sakinaka Industrial Estate",
+      "business_count": 540,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 12
+    },
+    {
+      "zone_name": "Jogeshwari Vikhroli Link Road Industrial Estate",
+      "business_count": 540,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 13
+    },
+    {
+      "zone_name": "Navi Mumbai IT Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 14
+    },
+    {
+      "zone_name": "Kanjurmarg Industrial Estate",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 15
+    },
+    {
+      "zone_name": "Powai IT Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 16
+    },
+    {
+      "zone_name": "Airoli Knowledge Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Mumbai",
+      "country": "India",
+      "rank": 17
+    }
+  ]
+}

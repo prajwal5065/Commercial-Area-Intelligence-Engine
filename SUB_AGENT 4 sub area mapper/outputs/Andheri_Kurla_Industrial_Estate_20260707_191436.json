@@ -1,0 +1,45 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Andheri Kurla Industrial Estate",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Andheri East",
+      "parent_zone": "Andheri Kurla Industrial Estate",
+      "business_volume": 1000,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Andheri",
+      "retrieved_at": "2023-12-01T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Andheri West",
+      "parent_zone": "Andheri Kurla Industrial Estate",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Andheri",
+      "retrieved_at": "2023-12-01T12:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Andheri",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "MIDC",
+      "url": "https://www.midcindia.org/",
+      "category": "validation",
+      "priority": "high"
+    }
+  ]
+}

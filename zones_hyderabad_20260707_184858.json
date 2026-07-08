@@ -1,0 +1,234 @@
+{
+  "status": "SUCCESS",
+  "city": "Hyderabad",
+  "country": "India",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-07T18:48:52",
+  "zones": [
+    {
+      "zone_name": "Secunderabad Cantonment",
+      "business_count": 8500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 1
+    },
+    {
+      "zone_name": "Hitech City",
+      "business_count": 5000,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 2
+    },
+    {
+      "zone_name": "Financial District",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 3
+    },
+    {
+      "zone_name": "Madhapur",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 4
+    },
+    {
+      "zone_name": "Kondapur",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 5
+    },
+    {
+      "zone_name": "Gachibowli",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 6
+    },
+    {
+      "zone_name": "Manikonda",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 7
+    },
+    {
+      "zone_name": "Uppal",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 8
+    },
+    {
+      "zone_name": "Hyderabad IT Park",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 9
+    },
+    {
+      "zone_name": "Raheja Mindspace",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 10
+    },
+    {
+      "zone_name": "Laad Bazaar",
+      "business_count": 1500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 11
+    },
+    {
+      "zone_name": "Jeedimetla Industrial Estate",
+      "business_count": 1200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 12
+    },
+    {
+      "zone_name": "Abids Market",
+      "business_count": 1200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 13
+    },
+    {
+      "zone_name": "Sultan Bazaar",
+      "business_count": 1200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 14
+    },
+    {
+      "zone_name": "Tarnaka",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 15
+    },
+    {
+      "zone_name": "Begumpet",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 16
+    },
+    {
+      "zone_name": "Patancheru Industrial Estate",
+      "business_count": 550,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 17
+    },
+    {
+      "zone_name": "Genome Valley",
+      "business_count": 500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 18
+    },
+    {
+      "zone_name": "Nanakramguda",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 19
+    },
+    {
+      "zone_name": "Shamshabad",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 20
+    },
+    {
+      "zone_name": "Balapur Industrial Estate",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 21
+    },
+    {
+      "zone_name": "Rajiv Gandhi Tech Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 22
+    },
+    {
+      "zone_name": "DLF IT SEZ",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 23
+    },
+    {
+      "zone_name": "InOrbit Mall District",
+      "business_count": 200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 24
+    },
+    {
+      "zone_name": "Pharmacity",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Hyderabad",
+      "country": "India",
+      "rank": 25
+    }
+  ]
+}

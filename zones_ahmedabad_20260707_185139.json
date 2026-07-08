@@ -1,0 +1,189 @@
+{
+  "status": "SUCCESS",
+  "city": "Ahmedabad",
+  "country": "India",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-07T18:51:32",
+  "zones": [
+    {
+      "zone_name": "Ahmedabad Textile Market",
+      "business_count": 5000,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 1
+    },
+    {
+      "zone_name": "Ashram Road",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 2
+    },
+    {
+      "zone_name": "C.G. Road",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 3
+    },
+    {
+      "zone_name": "Vatva Industrial Estate",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 4
+    },
+    {
+      "zone_name": "Naroda Industrial Estate",
+      "business_count": 1200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 5
+    },
+    {
+      "zone_name": "Lal Darwaza Market",
+      "business_count": 1200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 6
+    },
+    {
+      "zone_name": "Navrangpura",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 7
+    },
+    {
+      "zone_name": "Prahlad Nagar",
+      "business_count": 540,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 8
+    },
+    {
+      "zone_name": "SG Road",
+      "business_count": 540,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 9
+    },
+    {
+      "zone_name": "Gujarat International Finance Tec-City",
+      "business_count": 500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 10
+    },
+    {
+      "zone_name": "Sanand Industrial Estate",
+      "business_count": 427,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 11
+    },
+    {
+      "zone_name": "Odhav Industrial Estate",
+      "business_count": 421,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 12
+    },
+    {
+      "zone_name": "Changodar Industrial Estate",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 13
+    },
+    {
+      "zone_name": "Sarkhej Gandhinagar Highway IT Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 14
+    },
+    {
+      "zone_name": "Infocity IT Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 15
+    },
+    {
+      "zone_name": "Pandurang Shastri Athavale Industrial Estate",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 16
+    },
+    {
+      "zone_name": "Kathwada Industrial Estate",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 17
+    },
+    {
+      "zone_name": "Ahmedabad Special Economic Zone",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 18
+    },
+    {
+      "zone_name": "Reliance IT Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 19
+    },
+    {
+      "zone_name": "Naroda Export Processing Zone",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Ahmedabad",
+      "country": "India",
+      "rank": 20
+    }
+  ]
+}

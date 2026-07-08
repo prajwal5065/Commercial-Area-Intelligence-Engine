@@ -1,0 +1,216 @@
+{
+  "status": "SUCCESS",
+  "city": "Bengaluru",
+  "country": "India",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-07T18:47:26",
+  "zones": [
+    {
+      "zone_name": "Koramangala",
+      "business_count": 4200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 1
+    },
+    {
+      "zone_name": "Electronics City",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 2
+    },
+    {
+      "zone_name": "Whitefield",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 3
+    },
+    {
+      "zone_name": "HSR Layout",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 4
+    },
+    {
+      "zone_name": "Bellandur",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 5
+    },
+    {
+      "zone_name": "Sarjapur Road",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 6
+    },
+    {
+      "zone_name": "Outer Ring Road",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 7
+    },
+    {
+      "zone_name": "Hebbal",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 8
+    },
+    {
+      "zone_name": "Peenya Industrial Area",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 9
+    },
+    {
+      "zone_name": "Electronic City Phase I",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 10
+    },
+    {
+      "zone_name": "Electronic City Phase II",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 11
+    },
+    {
+      "zone_name": "Mahadevapura",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 12
+    },
+    {
+      "zone_name": "Yeshwantpur Industrial Suburb",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 13
+    },
+    {
+      "zone_name": "Commercial Street",
+      "business_count": 540,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 14
+    },
+    {
+      "zone_name": "MG Road",
+      "business_count": 427,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 15
+    },
+    {
+      "zone_name": "Brigade Road",
+      "business_count": 427,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 16
+    },
+    {
+      "zone_name": "Jigani Industrial Area",
+      "business_count": 427,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 17
+    },
+    {
+      "zone_name": "ITPL",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 18
+    },
+    {
+      "zone_name": "Bagmane Tech Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 19
+    },
+    {
+      "zone_name": "Embassy Golf Links",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 20
+    },
+    {
+      "zone_name": "Attibele Industrial Area",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 21
+    },
+    {
+      "zone_name": "Kadubeesanahalli",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 22
+    },
+    {
+      "zone_name": "Manyata Tech Park",
+      "business_count": 200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Bengaluru",
+      "country": "India",
+      "rank": 23
+    }
+  ]
+}

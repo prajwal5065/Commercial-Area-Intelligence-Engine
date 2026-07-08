@@ -1,0 +1,198 @@
+{
+  "status": "SUCCESS",
+  "city": "Delhi",
+  "country": "India",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-07T18:43:09",
+  "zones": [
+    {
+      "zone_name": "Dwarka",
+      "business_count": 12000,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 1
+    },
+    {
+      "zone_name": "Karol Bagh",
+      "business_count": 12000,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 2
+    },
+    {
+      "zone_name": "Connaught Place",
+      "business_count": 5000,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 3
+    },
+    {
+      "zone_name": "Okhla Industrial Estate",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 4
+    },
+    {
+      "zone_name": "Naraina Industrial Area",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 5
+    },
+    {
+      "zone_name": "Rajouri Garden",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 6
+    },
+    {
+      "zone_name": "Hauz Khas",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 7
+    },
+    {
+      "zone_name": "Bawana Industrial Area",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 8
+    },
+    {
+      "zone_name": "Udyog Vihar",
+      "business_count": 1500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 9
+    },
+    {
+      "zone_name": "Nehru Place",
+      "business_count": 1500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 10
+    },
+    {
+      "zone_name": "Manesar Industrial Area",
+      "business_count": 1200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 11
+    },
+    {
+      "zone_name": "Pitampura Commercial Complex",
+      "business_count": 540,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 12
+    },
+    {
+      "zone_name": "Jasola District Centre",
+      "business_count": 427,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 13
+    },
+    {
+      "zone_name": "Netaji Subhash Place",
+      "business_count": 427,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 14
+    },
+    {
+      "zone_name": "Defence Colony",
+      "business_count": 427,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 15
+    },
+    {
+      "zone_name": "Cyber City",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 16
+    },
+    {
+      "zone_name": "Noida SEZ",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 17
+    },
+    {
+      "zone_name": "Panchsheel Park Commercial Area",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 18
+    },
+    {
+      "zone_name": "Saket District Centre",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 19
+    },
+    {
+      "zone_name": "Green Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 20
+    },
+    {
+      "zone_name": "Mohali IT Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Delhi",
+      "country": "India",
+      "rank": 21
+    }
+  ]
+}

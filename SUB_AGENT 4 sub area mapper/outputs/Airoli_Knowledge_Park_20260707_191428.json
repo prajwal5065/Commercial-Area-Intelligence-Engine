@@ -1,0 +1,61 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Airoli Knowledge Park",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Airoli Knowledge Park Sector 1",
+      "parent_zone": "Airoli Knowledge Park",
+      "business_volume": 1000,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Airoli",
+      "retrieved_at": "2024-09-16T14:30:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Airoli Knowledge Park Sector 2",
+      "parent_zone": "Airoli Knowledge Park",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://www.midcindia.org/",
+      "retrieved_at": "2024-09-16T14:30:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Airoli Knowledge Park Sector 3",
+      "parent_zone": "Airoli Knowledge Park",
+      "business_volume": 600,
+      "city": "Mumbai",
+      "source_url": "https://maharashtragov.azurewebsites.net/",
+      "retrieved_at": "2024-09-16T14:30:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Airoli",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "MIDC",
+      "url": "https://www.midcindia.org/",
+      "category": "validation",
+      "priority": "high"
+    },
+    {
+      "name": "Maharashtra Government Portal",
+      "url": "https://maharashtragov.azurewebsites.net/",
+      "category": "business",
+      "priority": "medium"
+    }
+  ]
+}

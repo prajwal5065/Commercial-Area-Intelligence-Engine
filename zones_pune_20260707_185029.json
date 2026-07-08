@@ -1,0 +1,261 @@
+{
+  "status": "SUCCESS",
+  "city": "Pune",
+  "country": "India",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-07T18:50:23",
+  "zones": [
+    {
+      "zone_name": "Kothrud",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 1
+    },
+    {
+      "zone_name": "Pimpri-Chinchwad Industrial Area",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 2
+    },
+    {
+      "zone_name": "Rajiv Gandhi Infotech Park",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 3
+    },
+    {
+      "zone_name": "Baner",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 4
+    },
+    {
+      "zone_name": "Wagholi",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 5
+    },
+    {
+      "zone_name": "Chakan Industrial Area",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 6
+    },
+    {
+      "zone_name": "Hinjewadi Phase 1",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 7
+    },
+    {
+      "zone_name": "Hinjewadi Phase 2",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 8
+    },
+    {
+      "zone_name": "Hinjewadi Phase 3",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 9
+    },
+    {
+      "zone_name": "Magarpatta City",
+      "business_count": 1200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 10
+    },
+    {
+      "zone_name": "Pune Camp",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 11
+    },
+    {
+      "zone_name": "Shivaji Nagar",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 12
+    },
+    {
+      "zone_name": "Hadapsar Industrial Estate",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 13
+    },
+    {
+      "zone_name": "Aundh",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 14
+    },
+    {
+      "zone_name": "Pashan",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 15
+    },
+    {
+      "zone_name": "Nagar Road",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 16
+    },
+    {
+      "zone_name": "Swargate",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 17
+    },
+    {
+      "zone_name": "Yerawada",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 18
+    },
+    {
+      "zone_name": "Deccan Gymkhana",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 19
+    },
+    {
+      "zone_name": "Viman Nagar",
+      "business_count": 540,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 20
+    },
+    {
+      "zone_name": "Koregaon Park",
+      "business_count": 427,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 21
+    },
+    {
+      "zone_name": "Kalyani Nagar",
+      "business_count": 420,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 22
+    },
+    {
+      "zone_name": "Hinjewadi IT Park",
+      "business_count": 400,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 23
+    },
+    {
+      "zone_name": "Bavdhan",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 24
+    },
+    {
+      "zone_name": "Bund Garden",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 25
+    },
+    {
+      "zone_name": "Dhanori",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 26
+    },
+    {
+      "zone_name": "Talawade IT Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 27
+    },
+    {
+      "zone_name": "Phursungi IT Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Pune",
+      "country": "India",
+      "rank": 28
+    }
+  ]
+}

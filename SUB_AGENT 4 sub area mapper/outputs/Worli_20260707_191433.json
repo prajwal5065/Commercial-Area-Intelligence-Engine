@@ -1,0 +1,55 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Worli",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Worli Village",
+      "parent_zone": "Worli",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Worli",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Worli Sea Face",
+      "parent_zone": "Worli",
+      "business_volume": 600,
+      "city": "Mumbai",
+      "source_url": "https://www.google.com/maps/place/Worli+Sea+Face",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Pali Hill",
+      "parent_zone": "Worli",
+      "business_volume": 400,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Pali_Hill",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Worli",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "Google Maps",
+      "url": "https://www.google.com/maps/place/Worli+Sea+Face",
+      "category": "geography",
+      "priority": "medium"
+    }
+  ]
+}

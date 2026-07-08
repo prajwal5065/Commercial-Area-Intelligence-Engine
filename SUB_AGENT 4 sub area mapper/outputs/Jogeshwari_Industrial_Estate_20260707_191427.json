@@ -1,0 +1,45 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Jogeshwari Industrial Estate",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Jogeshwari East",
+      "parent_zone": "Jogeshwari Industrial Estate",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Jogeshwari",
+      "retrieved_at": "2023-12-01T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Jogeshwari West",
+      "parent_zone": "Jogeshwari Industrial Estate",
+      "business_volume": 600,
+      "city": "Mumbai",
+      "source_url": "https://www.midcindia.org/",
+      "retrieved_at": "2023-12-01T12:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Jogeshwari",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "MIDC",
+      "url": "https://www.midcindia.org/",
+      "category": "validation",
+      "priority": "high"
+    }
+  ]
+}

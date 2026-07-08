@@ -1,28 +1,44 @@
-# SUB AREA MAPPER
+<div align="center">
+  
+  <a href="https://git.io/typing-svg">
+    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=40&pause=1000&color=00FF99&center=true&vCenter=true&width=800&height=80&lines=OxiAI+-+Sub+Area+Mapper;AI-Powered+Discovery;Multi-Agent+Swarm+System" alt="Typing SVG" />
+  </a>
 
-An AI-powered multi-agent system that automatically discovers commercial zones, business districts, industrial areas, and companies across countries and cities using Large Language Models (LLMs), Tavily Search, and Supabase.
+  <p align="center">
+    <strong>An AI-powered multi-agent system that automatically discovers commercial zones, business districts, industrial areas, and companies across countries and cities using Large Language Models (LLMs), Tavily Search, and Supabase.</strong>
+  </p>
+  
+  <p align="center">
+    The system is designed as a distributed swarm of specialized AI agents that collaboratively build a structured business location database.
+  </p>
 
-The system is designed as a distributed swarm of specialized AI agents that collaboratively build a structured business location database.
+  <p align="center">
+    <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+    <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+    <img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Streamlit" />
+    <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" />
+  </p>
+</div>
 
 ---
 
-# Overview
+## 🌟 Overview
 
 SUB AREA MAPPER is a scalable multi-agent data collection pipeline that:
 
-- Reads countries from Supabase
-- Discovers major cities
-- Classifies city importance
-- Finds commercial zones
-- Estimates business density
-- Extracts companies
-- Stores structured data in Supabase
+- 🌍 Reads countries from Supabase
+- 🏙️ Discovers major cities
+- 📊 Classifies city importance
+- 🏭 Finds commercial zones
+- 📈 Estimates business density
+- 🏢 Extracts companies
+- 💾 Stores structured data in Supabase
 
 The project follows a modular architecture where each sub-agent performs one specialized task.
 
 ---
 
-# Architecture
+## 🏗️ Architecture
 
 ```
                  Countries
@@ -52,32 +68,28 @@ The project follows a modular architecture where each sub-agent performs one spe
             └────────────────┘
                      │
                      ▼
-                Supabase
+                 Supabase
 ```
 
 ---
 
-# Features
+## ✨ Features
 
-## Agent 1
-
+### 🥇 Agent 1
 - Reads countries from database
 - Creates work batches
 - Launches swarm workers
 
 ---
 
-## Agent 2
-
-Discovers cities using
-
+### 🥈 Agent 2
+Discovers cities using:
 - Tavily Search
 - Groq LLM
 - Gemini
 - OpenAI
 
-Classifies cities into
-
+Classifies cities into:
 - Metro
 - Tier 1
 - Tier 2
@@ -87,10 +99,8 @@ Stores results in Supabase.
 
 ---
 
-## Agent 3
-
-Discovers
-
+### 🥉 Agent 3
+Discovers:
 - CBDs
 - Industrial Estates
 - SEZs
@@ -98,18 +108,11 @@ Discovers
 - Business Districts
 - Commercial Clusters
 
-Uses a two-pass architecture
+Uses a two-pass architecture:
+- **Pass 1:** Zone discovery
+- **Pass 2:** Business count estimation
 
-### Pass 1
-
-Zone discovery
-
-### Pass 2
-
-Business count estimation
-
-Business count is obtained through
-
+Business count is obtained through:
 - Regex extraction
 - LLM extraction
 - LLM estimation
@@ -118,12 +121,10 @@ Zones are ranked by business density.
 
 ---
 
-## Agent 4
-
+### 🏅 Agent 4
 Finds companies operating inside discovered zones.
 
-Stores
-
+Stores:
 - Company Name
 - Category
 - Priority
@@ -131,27 +132,24 @@ Stores
 
 ---
 
-# Tech Stack
+## 🛠️ Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| Python | Backend |
-| Supabase | Database |
-| Tavily | Web Search |
-| Groq | LLM |
-| Gemini | LLM |
-| OpenAI | LLM |
-| Requests | API Communication |
-| dotenv | Environment Variables |
-| JSON | Structured Data |
+| Technology | Purpose | Badge |
+|------------|---------|-------|
+| **Python** | Backend | <img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white" alt="Python" /> |
+| **Supabase** | Database | <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white" alt="Supabase" /> |
+| **Tavily** | Web Search | <img src="https://img.shields.io/badge/Tavily-FF6F00?style=flat&logo=searxng&logoColor=white" alt="Tavily" /> |
+| **Groq / Gemini / OpenAI** | LLMs | <img src="https://img.shields.io/badge/OpenAI-412991?style=flat&logo=openai&logoColor=white" alt="OpenAI" /> |
+| **Requests** | API Communication | <img src="https://img.shields.io/badge/Requests-339933?style=flat&logo=node.js&logoColor=white" alt="Requests" /> |
+| **dotenv** | Environment Variables | <img src="https://img.shields.io/badge/dotenv-E34F26?style=flat&logo=html5&logoColor=white" alt="Dotenv" /> |
+| **JSON** | Structured Data | <img src="https://img.shields.io/badge/JSON-000000?style=flat&logo=json&logoColor=white" alt="JSON" /> |
 
 ---
 
-# Project Structure
+## 📁 Project Structure
 
 ```
 SUB_AREA_MAPPER/
-
 │
 ├── SUB AGENT 1
 │
@@ -174,21 +172,17 @@ SUB_AREA_MAPPER/
 
 ---
 
-# Database
+## 🗄️ Database
 
-## Countries
-
-```
+### 🗺️ Countries
+```sql
 id
 country_name
 iso3
 ```
 
----
-
-## Cities
-
-```
+### 🏙️ Cities
+```sql
 id
 city_name
 country_name
@@ -196,11 +190,8 @@ city_type
 priority
 ```
 
----
-
-## Zones
-
-```
+### 🏭 Zones
+```sql
 id
 zone_name
 city_name
@@ -211,11 +202,8 @@ rank
 source_url
 ```
 
----
-
-## Companies
-
-```
+### 🏢 Companies
+```sql
 id
 company_name
 category
@@ -228,77 +216,70 @@ source_url
 
 ---
 
-# Environment Variables
+## 🔐 Environment Variables
 
-```
+```env
 SUPABASE_URL=
-
 SUPABASE_KEY=
-
 TAVILY_API_KEY=
-
 GROQ_API_KEY=
-
 GEMINI_API_KEY=
-
 OPENAI_API_KEY=
 ```
 
 ---
 
-# Installation
+## 🚀 Installation
 
-Clone the repository
-
-```
+**1. Clone the repository**
+```bash
 git clone <repository_url>
 ```
 
-Create virtual environment
-
-```
+**2. Create virtual environment**
+```bash
 python -m venv venv
 ```
 
-Activate
+**3. Activate environment**
+- **Windows:**
+  ```bash
+  venv\Scripts\activate
+  ```
+- **Linux / Mac:**
+  ```bash
+  source venv/bin/activate
+  ```
 
-Windows
-
-```
-venv\Scripts\activate
-```
-
-Linux
-
-```
-source venv/bin/activate
-```
-
-Install dependencies
-
-```
+**4. Install dependencies**
+```bash
 pip install -r requirements.txt
 ```
 
 ---
 
-# Running
+## 🏃 Running the Code
 
-Agent 2
-
+**Master Dashboard:**
+Navigate to `SUB_AREA_MAPPER/Master Agent` and run:
+```bash
+streamlit run Exp_Full_Dash.py
 ```
+*(Note: `run_pipeline.py` is the main Master agent code!)*
+
+**Agent 2:**
+```bash
 python swarm.py
 ```
 
-Agent 3
-
-```
+**Agent 3:**
+```bash
 python swarm_zone_finder.py
 ```
 
 ---
 
-# Workflow
+## 🔄 Workflow
 
 ```
 Countries
@@ -324,10 +305,9 @@ Supabase Storage
 
 ---
 
-# Output
+## 📊 Output
 
-The system produces
-
+The system produces:
 - Structured city database
 - Commercial zones
 - Ranked business districts
@@ -337,10 +317,9 @@ The system produces
 
 ---
 
-# Error Handling
+## 🛡️ Error Handling
 
-The project includes
-
+The project includes:
 - Retry mechanisms
 - Duplicate detection
 - API failure recovery
@@ -350,17 +329,22 @@ The project includes
 
 ---
 
-# Future Improvements
+## 🔮 Future Improvements
 
-- Google Maps integration
-- Live business verification
-- Incremental database updates
-- Business trend analysis
-- AI confidence scoring
-- Dashboard visualization
+- [ ] Google Maps integration
+- [ ] Live business verification
+- [ ] Incremental database updates
+- [ ] Business trend analysis
+- [ ] AI confidence scoring
+- [ ] Dashboard visualization
 
 ---
 
-# Contributors
+## 👥 Contributors
 
 Developed as part of an AI Engineering Internship Project.
+
+<br/>
+<div align="center">
+  <i>Built with ❤️ for intelligent data discovery.</i>
+</div>

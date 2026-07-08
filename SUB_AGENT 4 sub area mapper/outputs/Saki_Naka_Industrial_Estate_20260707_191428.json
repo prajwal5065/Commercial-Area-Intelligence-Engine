@@ -1,0 +1,61 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Saki Naka Industrial Estate",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Saki Naka",
+      "parent_zone": "Saki Naka Industrial Estate",
+      "business_volume": 1000,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Saki_Naka",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Chandivali",
+      "parent_zone": "Saki Naka Industrial Estate",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://www.midcindia.org/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Powai",
+      "parent_zone": "Saki Naka Industrial Estate",
+      "business_volume": 600,
+      "city": "Mumbai",
+      "source_url": "https://maharashtratourism.gov.in/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Saki_Naka",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "MIDC",
+      "url": "https://www.midcindia.org/",
+      "category": "validation",
+      "priority": "high"
+    },
+    {
+      "name": "Maharashtra Tourism",
+      "url": "https://maharashtratourism.gov.in/",
+      "category": "business",
+      "priority": "medium"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Navi Mumbai IT Park",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Hinjewadi Phase 1",
+      "parent_zone": "Navi Mumbai IT Park",
+      "business_volume": 1000,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Hinjewadi",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Hinjewadi Phase 2",
+      "parent_zone": "Navi Mumbai IT Park",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://www.midcindia.org/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Hinjewadi Phase 3",
+      "parent_zone": "Navi Mumbai IT Park",
+      "business_volume": 600,
+      "city": "Mumbai",
+      "source_url": "https://pmrda.gov.in/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 4,
+      "subarea_name": "Maan",
+      "parent_zone": "Navi Mumbai IT Park",
+      "business_volume": 400,
+      "city": "Mumbai",
+      "source_url": "https://www.openstreetmap.org/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 5,
+      "subarea_name": "Marunji",
+      "parent_zone": "Navi Mumbai IT Park",
+      "business_volume": 300,
+      "city": "Mumbai",
+      "source_url": "https://www.google.com/maps",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Hinjewadi",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "MIDC",
+      "url": "https://www.midcindia.org/",
+      "category": "validation",
+      "priority": "high"
+    },
+    {
+      "name": "Pune Metropolitan Region Development Authority",
+      "url": "https://pmrda.gov.in/",
+      "category": "business",
+      "priority": "medium"
+    },
+    {
+      "name": "OpenStreetMap",
+      "url": "https://www.openstreetmap.org/",
+      "category": "geography",
+      "priority": "medium"
+    },
+    {
+      "name": "Google Maps",
+      "url": "https://www.google.com/maps",
+      "category": "geography",
+      "priority": "medium"
+    }
+  ]
+}

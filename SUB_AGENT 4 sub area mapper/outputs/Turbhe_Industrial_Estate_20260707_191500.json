@@ -1,0 +1,61 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Turbhe Industrial Estate",
+    "city": "Mumbai",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Turbhe Industrial Estate Sector 1",
+      "parent_zone": "Turbhe Industrial Estate",
+      "business_volume": 1000,
+      "city": "Mumbai",
+      "source_url": "https://en.wikipedia.org/wiki/Turbhe",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Turbhe Industrial Estate Sector 2",
+      "parent_zone": "Turbhe Industrial Estate",
+      "business_volume": 800,
+      "city": "Mumbai",
+      "source_url": "https://midcindia.org/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Turbhe Industrial Estate Sector 3",
+      "parent_zone": "Turbhe Industrial Estate",
+      "business_volume": 600,
+      "city": "Mumbai",
+      "source_url": "https://www.maharashtra.gov.in/",
+      "retrieved_at": "2024-09-16T10:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Turbhe",
+      "category": "geography",
+      "priority": "high"
+    },
+    {
+      "name": "MIDC",
+      "url": "https://midcindia.org/",
+      "category": "validation",
+      "priority": "high"
+    },
+    {
+      "name": "Maharashtra Government Portal",
+      "url": "https://www.maharashtra.gov.in/",
+      "category": "business",
+      "priority": "medium"
+    }
+  ]
+}
