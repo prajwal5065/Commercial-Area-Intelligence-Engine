@@ -340,11 +340,4 @@ The project includes:
 
 ---
 
-## 👥 Contributors
-
-Developed as part of an AI Engineering Internship Project.
-
-<br/>
-<div align="center">
-  <i>Built with ❤️ for intelligent data discovery.</i>
-</div>
+Till My Mind Works Fine....
