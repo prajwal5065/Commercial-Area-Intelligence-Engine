@@ -1,0 +1,144 @@
+{
+  "status": "SUCCESS",
+  "city": "Saitama",
+  "country": "1",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-08T20:43:30",
+  "zones": [
+    {
+      "zone_name": "Omiya Ward",
+      "business_count": 8500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 1
+    },
+    {
+      "zone_name": "Sakura Ward",
+      "business_count": 8500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 2
+    },
+    {
+      "zone_name": "Urawa District",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 3
+    },
+    {
+      "zone_name": "Koshigaya Laketown",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 4
+    },
+    {
+      "zone_name": "Saitama Shintoshin",
+      "business_count": 420,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 5
+    },
+    {
+      "zone_name": "Minuma Industrial Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 6
+    },
+    {
+      "zone_name": "Fujimi Industrial Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 7
+    },
+    {
+      "zone_name": "Okegawa Industrial Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 8
+    },
+    {
+      "zone_name": "Saitama Super Arena Area",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 9
+    },
+    {
+      "zone_name": "Kawajima Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 10
+    },
+    {
+      "zone_name": "Hasuda Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 11
+    },
+    {
+      "zone_name": "Shiki Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 12
+    },
+    {
+      "zone_name": "Yashio Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 13
+    },
+    {
+      "zone_name": "Misato Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 14
+    },
+    {
+      "zone_name": "Ageo Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Saitama",
+      "country": "1",
+      "rank": 15
+    }
+  ]
+}

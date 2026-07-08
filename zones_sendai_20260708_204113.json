@@ -1,0 +1,144 @@
+{
+  "status": "SUCCESS",
+  "city": "Sendai",
+  "country": "1",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-08T20:41:08",
+  "zones": [
+    {
+      "zone_name": "Sendai CBD",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 1
+    },
+    {
+      "zone_name": "Tohoku Special Zone",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 2
+    },
+    {
+      "zone_name": "Aoba-dori",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 3
+    },
+    {
+      "zone_name": "Kokubuncho",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 4
+    },
+    {
+      "zone_name": "Izumi-cho",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 5
+    },
+    {
+      "zone_name": "Tohoku Industrial Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 6
+    },
+    {
+      "zone_name": "Sendai Industrial Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 7
+    },
+    {
+      "zone_name": "Sendai Station Building",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 8
+    },
+    {
+      "zone_name": "Tagajo Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 9
+    },
+    {
+      "zone_name": "Iwanuma Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 10
+    },
+    {
+      "zone_name": "Tohoku Techno Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 11
+    },
+    {
+      "zone_name": "Sendai Hi-Land",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 12
+    },
+    {
+      "zone_name": "Natori Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 13
+    },
+    {
+      "zone_name": "Miyagi Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 14
+    },
+    {
+      "zone_name": "Sendai Port Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "1",
+      "rank": 15
+    }
+  ]
+}

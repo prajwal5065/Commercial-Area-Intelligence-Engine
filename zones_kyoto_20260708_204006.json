@@ -1,0 +1,144 @@
+{
+  "status": "SUCCESS",
+  "city": "Kyoto",
+  "country": "1",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-08T20:40:01",
+  "zones": [
+    {
+      "zone_name": "Shijo Kawaramachi",
+      "business_count": 550,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 1
+    },
+    {
+      "zone_name": "Gion District",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 2
+    },
+    {
+      "zone_name": "Kawaramachi",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 3
+    },
+    {
+      "zone_name": "Karawamachi Sanjo",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 4
+    },
+    {
+      "zone_name": "Ukyo-ku Industrial Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 5
+    },
+    {
+      "zone_name": "Fushimi Ward Industrial Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 6
+    },
+    {
+      "zone_name": "Kiyamachi Street",
+      "business_count": 200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 7
+    },
+    {
+      "zone_name": "Teramachi Street",
+      "business_count": 200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 8
+    },
+    {
+      "zone_name": "Kyoto Station Building",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 9
+    },
+    {
+      "zone_name": "Kyoto Research Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 10
+    },
+    {
+      "zone_name": "Nishiki Market",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 11
+    },
+    {
+      "zone_name": "Ganko Takasegawa Nishi",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 12
+    },
+    {
+      "zone_name": "Kita-shirakawa Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 13
+    },
+    {
+      "zone_name": "Pontocho Alley",
+      "business_count": 100,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 14
+    },
+    {
+      "zone_name": "Miyako Messe",
+      "business_count": 50,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Kyoto",
+      "country": "1",
+      "rank": 15
+    }
+  ]
+}

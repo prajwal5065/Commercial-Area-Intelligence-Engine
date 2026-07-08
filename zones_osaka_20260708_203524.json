@@ -1,0 +1,207 @@
+{
+  "status": "SUCCESS",
+  "city": "Osaka",
+  "country": "1",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-08T20:35:19",
+  "zones": [
+    {
+      "zone_name": "Chuo-ku",
+      "business_count": 25000,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 1
+    },
+    {
+      "zone_name": "Kita-ku",
+      "business_count": 15000,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 2
+    },
+    {
+      "zone_name": "Umeda",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 3
+    },
+    {
+      "zone_name": "Shinsaibashi",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 4
+    },
+    {
+      "zone_name": "Honmachi",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 5
+    },
+    {
+      "zone_name": "Yodoyabashi",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 6
+    },
+    {
+      "zone_name": "Osaka Bay Area",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 7
+    },
+    {
+      "zone_name": "Kyobashi",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 8
+    },
+    {
+      "zone_name": "Tsuruhashi",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 9
+    },
+    {
+      "zone_name": "Juso",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 10
+    },
+    {
+      "zone_name": "Kobe-Osaka Industrial Zone",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 11
+    },
+    {
+      "zone_name": "Dotonbori",
+      "business_count": 550,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 12
+    },
+    {
+      "zone_name": "Morinomiya",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 13
+    },
+    {
+      "zone_name": "Higashi-Osaka Industrial Park",
+      "business_count": 540,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 14
+    },
+    {
+      "zone_name": "Osaka Business Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 15
+    },
+    {
+      "zone_name": "Kansai International Airport Area",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 16
+    },
+    {
+      "zone_name": "Osaka IT Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 17
+    },
+    {
+      "zone_name": "Osaka Nanko Cosmo Square",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 18
+    },
+    {
+      "zone_name": "Senshu Industrial Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 19
+    },
+    {
+      "zone_name": "Kashiwara Industrial Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 20
+    },
+    {
+      "zone_name": "Sakishima Island",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 21
+    },
+    {
+      "zone_name": "Cosmo Square",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "1",
+      "rank": 22
+    }
+  ]
+}

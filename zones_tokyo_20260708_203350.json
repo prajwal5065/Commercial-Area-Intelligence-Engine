@@ -1,0 +1,207 @@
+{
+  "status": "SUCCESS",
+  "city": "Tokyo",
+  "country": "1",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-08T20:33:39",
+  "zones": [
+    {
+      "zone_name": "Tokyo Bay Area",
+      "business_count": 15000,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 1
+    },
+    {
+      "zone_name": "Ikebukuro District",
+      "business_count": 8500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 2
+    },
+    {
+      "zone_name": "Ginza District",
+      "business_count": 5500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 3
+    },
+    {
+      "zone_name": "Akihabara",
+      "business_count": 5000,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 4
+    },
+    {
+      "zone_name": "Shibuya District",
+      "business_count": 4200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 5
+    },
+    {
+      "zone_name": "Shinjuku Business District",
+      "business_count": 4200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 6
+    },
+    {
+      "zone_name": "Marunouchi",
+      "business_count": 3500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 7
+    },
+    {
+      "zone_name": "Otemachi",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 8
+    },
+    {
+      "zone_name": "Tokyo Station Area",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 9
+    },
+    {
+      "zone_name": "Shimokitazawa",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 10
+    },
+    {
+      "zone_name": "Yurakucho",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 11
+    },
+    {
+      "zone_name": "Kasumigaseki",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 12
+    },
+    {
+      "zone_name": "Azabu",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 13
+    },
+    {
+      "zone_name": "Hamamatsucho",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 14
+    },
+    {
+      "zone_name": "Shiodome",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 15
+    },
+    {
+      "zone_name": "Tokyo Waterfront",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 16
+    },
+    {
+      "zone_name": "Harajuku",
+      "business_count": 1500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 17
+    },
+    {
+      "zone_name": "Kawasaki Industrial Zone",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 18
+    },
+    {
+      "zone_name": "Omotesando",
+      "business_count": 540,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 19
+    },
+    {
+      "zone_name": "Odaiba",
+      "business_count": 538,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 20
+    },
+    {
+      "zone_name": "Tsukiji Outer Market",
+      "business_count": 400,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 21
+    },
+    {
+      "zone_name": "Roppongi Hills",
+      "business_count": 200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "1",
+      "rank": 22
+    }
+  ]
+}

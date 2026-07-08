@@ -1,0 +1,144 @@
+{
+  "status": "SUCCESS",
+  "city": "Sapporo",
+  "country": "1",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-08T20:36:44",
+  "zones": [
+    {
+      "zone_name": "Sapporo Station Area",
+      "business_count": 850,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 1
+    },
+    {
+      "zone_name": "Susukino District",
+      "business_count": 550,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 2
+    },
+    {
+      "zone_name": "Odori District",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 3
+    },
+    {
+      "zone_name": "Shiroishi Ward Commercial District",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 4
+    },
+    {
+      "zone_name": "Kotoni Commercial District",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 5
+    },
+    {
+      "zone_name": "Teine Commercial District",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 6
+    },
+    {
+      "zone_name": "Dotonbori Area",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 7
+    },
+    {
+      "zone_name": "Sosei River District",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 8
+    },
+    {
+      "zone_name": "Higashi Ward Industrial Park",
+      "business_count": 250,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 9
+    },
+    {
+      "zone_name": "Sapporo Central Wholesale Market",
+      "business_count": 200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 10
+    },
+    {
+      "zone_name": "Kita 3-jo Wholesale Market",
+      "business_count": 200,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 11
+    },
+    {
+      "zone_name": "Atsubetsu Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 12
+    },
+    {
+      "zone_name": "Fujino Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 13
+    },
+    {
+      "zone_name": "Toyohira Ward Industrial Park",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 14
+    },
+    {
+      "zone_name": "Sapporo Factory",
+      "business_count": 50,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sapporo",
+      "country": "1",
+      "rank": 15
+    }
+  ]
+}
