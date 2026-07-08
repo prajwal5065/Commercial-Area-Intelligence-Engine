@@ -4,6 +4,7 @@ import sys
 import json
 import math
 import argparse
+import threading
 from datetime import datetime
 
 # Locate directories
@@ -56,6 +57,14 @@ from orchestrator_utils import (
     fault_tolerant_dispatch,
     PipelineState,
 )
+
+# Adaptive concurrency — soft import so the pipeline still works
+# if adaptive_concurrency.py is absent (falls back to a safe default).
+try:
+    from adaptive_concurrency import dynamic_max_workers as _dynamic_workers
+except ImportError:
+    def _dynamic_workers(provider: str, n_inputs: int) -> int:
+        return min(n_inputs, int(os.getenv("MAX_INSTANCES", "12")))
 
 
 def parse_args():
@@ -170,7 +179,7 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
         return
 
     N = len(countries)
-    C_MAX = 3  # 2-4 countries per instance per spec
+    C_MAX = 1  # 1-to-1 thread isolation (0 extra LLM cost, perfectly load-balanced)
 
     batches = calculate_batches(countries, c_max=C_MAX, agent_name="Agent2")
     K = len(batches)
@@ -190,90 +199,120 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
             expected_output_desc='{ "country": { "tier_1": [...], "tier_2": [...], "tier_3": [...] } }'
         )
 
+    _registry_lock = threading.Lock()
+    global_seen_cities = {(c.get("city"), c.get("country")) for c in state.all_cities if c.get("city")}
+
     # Worker function for fault-tolerant dispatch
     def segmentation_worker(country_batch, instance_id):
         import time
         import traceback
+        import requests
+        
+        # Soft import for adaptive concurrency health tracking
+        try:
+            from adaptive_concurrency import record_outcome as _record_outcome
+        except ImportError as e:
+            def _record_outcome(*a, **kw): pass
+            print(f"  [{instance_id}] WARNING: record_outcome unavailable — health scoring disabled for Agent 2 ({e})")
+
         print(f"  [{instance_id}] Processing {len(country_batch)} countries: {country_batch}")
         results = {}
         for idx, country_name in enumerate(country_batch):
             if stop_event is not None and stop_event.is_set():
                 print(f"  [{instance_id}] Stop requested — halting before next country.")
                 break
-            if idx > 0:
-                time.sleep(5)  # Stagger sequential calls to avoid Groq 429
             max_retries = 3
             for attempt in range(1, max_retries + 1):
+                start_ts = time.monotonic()
                 try:
                     data = city_segmenters_code.process_country(country_name, provider=provider)
+                    latency = time.monotonic() - start_ts
+                    _record_outcome(provider, True, False, False, latency)
+                    
                     results[country_name] = data
+                    
+                    # Real-time state merge for "No data yet" bug & dashboard live count
+                    new_city_names = []
+                    with _registry_lock:
+                        print(f"MERGING: {country_name}, cities so far: {len(state.all_cities)}")
+                        state.master_city_registry[country_name] = data
+                        for tier_idx, tier_key in enumerate(["tier_1_cities", "tier_2_cities", "tier_3_cities"]):
+                            for item in data.get(tier_key, []):
+                                city_name = item.get("city_name")
+                                if city_name:
+                                    # Global cross-country deduplication
+                                    pair = (city_name, country_name)
+                                    if pair not in global_seen_cities:
+                                        global_seen_cities.add(pair)
+                                        new_city_names.append(city_name)
+                                        state.all_cities.append({
+                                            "city": city_name, "country": country_name, "tier": tier_idx + 1
+                                        })
+                        
+                        if hasattr(state, "orchestrator") and state.orchestrator.metrics:
+                            state.orchestrator.metrics.agents["agent2"].record_output(new_city_names)
+                                
                     break
+                except ValueError as ve:
+                    # Validation/Parsing error (LLM returned bad shape) - Retryable
+                    _record_outcome(provider, False, False, False, time.monotonic() - start_ts)
+                    if attempt < max_retries:
+                        wait_secs = 10 * attempt
+                        print(f"  [{instance_id}] Validation Error for {country_name} (attempt {attempt}): {ve} — retrying in {wait_secs}s...")
+                        time.sleep(wait_secs)
+                    else:
+                        print(f"  [{instance_id}] ERROR for {country_name}: {ve}")
+                        results[country_name] = {"status": "FAILED", "error": str(ve)}
+                        break
                 except Exception as e:
                     err_str = str(e).lower()
                     is_rate_limit = any(kw in err_str for kw in ["429", "rate limit", "rate_limit", "too many requests"])
-                    if is_rate_limit:
-                        city_segmenters_code._report_rate_limit(provider, f"country={country_name}, attempt={attempt}")
-                    if is_rate_limit and attempt < max_retries:
-                        wait_secs = 20 * attempt  # 20s, 40s backoff
-                        print(f"  [{instance_id}] Groq rate limit for {country_name} (attempt {attempt}) — waiting {wait_secs}s before retry...")
-                        time.sleep(wait_secs)
+                    
+                    # Type-aware transient check
+                    is_network_err = isinstance(e, (requests.exceptions.RequestException, TimeoutError, ConnectionError))
+                    is_transient = is_rate_limit or is_network_err or any(kw in err_str for kw in ["timeout", "connection", "read error"])
+                    
+                    if is_transient:
+                        _record_outcome(provider, False, is_rate_limit, "timeout" in err_str or isinstance(e, TimeoutError), time.monotonic() - start_ts)
+                        if is_rate_limit:
+                            city_segmenters_code._report_rate_limit(provider, f"country={country_name}, attempt={attempt}")
+                        if attempt < max_retries:
+                            wait_secs = 20 * attempt  # 20s, 40s backoff
+                            print(f"  [{instance_id}] Transient/Rate limit for {country_name} (attempt {attempt}) — waiting {wait_secs}s before retry...")
+                            time.sleep(wait_secs)
+                        else:
+                            tb = traceback.format_exc()
+                            print(f"  [{instance_id}] ERROR for {country_name}: {e}")
+                            results[country_name] = {"status": "FAILED", "error": str(e), "traceback": tb}
+                            break
                     else:
+                        # Genuine code bug / non-transient exception -> Fail fast, NO retry
                         tb = traceback.format_exc()
-                        print(f"  [{instance_id}] ERROR for {country_name}: {e}")
-                        results[country_name] = {"status": "FAILED", "error": str(e), "traceback": tb}
+                        print(f"  [{instance_id}] UNEXPECTED_ERROR: {type(e).__name__} for {country_name} — {e}")
+                        results[country_name] = {"status": "FAILED", "error": f"UNEXPECTED_ERROR: {e}", "traceback": tb}
                         break
         return results
 
     # Execute with fault tolerance
+    # Agent 2's concurrency is driven by the adaptive manager:
+    effective_workers = _dynamic_workers(provider, K)
+    
+    def _on_active_change(delta: int):
+        if hasattr(state, "orchestrator") and state.orchestrator.metrics:
+            state.orchestrator.metrics.agents["agent2"].change_active_instances(delta)
+
     all_results, failures = fault_tolerant_dispatch(
         worker_fn=segmentation_worker,
         batches=batches,
         agent_name="Agent 2 — City Segmentor",
-        max_workers=1,    # Sequential to avoid hammering Groq free-tier limits
+        max_workers=effective_workers,
+        on_active_change=_on_active_change,
     )
 
-    # Log failures
     for f in failures:
         state.log_failure("Phase 2 — City Segmentation", f)
 
-    # Merge into Master City Registry
-    for result_dict in all_results:
-        if isinstance(result_dict, dict):
-            for country, data in result_dict.items():
-                if isinstance(data, dict) and data.get("status") != "FAILED":
-                    state.master_city_registry[country] = data
 
-                    # Flatten into all_cities list
-                    for item in data.get("tier_1_cities", []):
-                        city_name = item.get("city_name")
-                        if city_name and not any(c["city"] == city_name for c in state.all_cities):
-                            state.all_cities.append({
-                                "city": city_name, "country": country, "tier": 1
-                            })
-
-                    for item in data.get("tier_2_cities", []):
-                        city_name = item.get("city_name")
-                        if city_name and not any(c["city"] == city_name for c in state.all_cities):
-                            state.all_cities.append({
-                                "city": city_name, "country": country, "tier": 2
-                            })
-
-                    for container in data.get("tier_3_cities", []):
-                        for item in container.get("cities", []):
-                            city_name = item.get("city_name")
-                            if city_name and not any(c["city"] == city_name for c in state.all_cities):
-                                state.all_cities.append({
-                                    "city": city_name, "country": country, "tier": 3
-                                })
-                else:
-                    err_msg = data.get("error", "unknown")
-                    tb = data.get("traceback", "")
-                    state.log_failure("Agent 2 — City Discovery", {
-                        "instance_id": f"Agent2-{country}",
-                        "error": f"City segmentation failed for {country}: {err_msg}",
-                        "traceback": tb,
-                    })
-                    print(f"  [WARNING] City segmentation failed for {country}: {err_msg}")
 
     print(f"\n  [Phase 2] Master City Registry built. {len(state.all_cities)} cities across "
           f"{len(state.master_city_registry)} countries.")
@@ -302,7 +341,7 @@ def phase_3_zone_finding(state, stop_event=None):
     _EXHAUSTED_PROVIDERS.clear()  # fresh fallback chain for this run (module state is shared across sessions)
 
     M = len(state.all_cities)
-    C_MAX = 4  # 3-5 cities per instance per spec
+    C_MAX = 1  # 1-to-1 thread isolation
 
     batches = calculate_batches(state.all_cities, c_max=C_MAX, agent_name="Agent3")
     K = len(batches)
@@ -323,10 +362,13 @@ def phase_3_zone_finding(state, stop_event=None):
             expected_output_desc='{ "city": { "zones": [...] } }'
         )
 
+    _registry_lock = threading.Lock()
+
     # Worker function — processes a batch of city dicts
     def zone_finder_worker(city_batch, instance_id):
-        import time  # ADD THIS
+        import time
         import traceback
+        import requests
         from zone_finders_code import process_city
         print(f"  [{instance_id}] Processing {len(city_batch)} cities...")
         results = []
@@ -334,61 +376,78 @@ def phase_3_zone_finding(state, stop_event=None):
             if stop_event is not None and stop_event.is_set():
                 print(f"  [{instance_id}] Stop requested — halting before next city.")
                 break
-            time.sleep(1)  # ADD THIS: Waits 1 second between API calls to prevent 432 errors
             city_name = city_info["city"]
             country = city_info["country"]
-            try:
-                data = process_city(city_name, country, stop_event=stop_event)
-                if data and data.get("status") == "SUCCESS":
-                    results.append(data)
-                else:
-                    err_msg = data.get("error", "Unknown error") if data else "No data returned"
-                    print(f"  [{instance_id}] Zone finding returned non-SUCCESS for {city_name}")
-                    state.log_failure("Agent 3 — Zone Discovery", {
-                        "instance_id": f"Agent3-{city_name}",
-                        "error": f"Zone finding failed for {city_name}: {err_msg}",
-                        "traceback": ""
-                    })
-            except Exception as e:
-                tb = traceback.format_exc()
-                print(f"  [{instance_id}] ERROR for {city_name}: {e}")
-                state.log_failure("Agent 3 — Zone Discovery", {
-                    "instance_id": f"Agent3-{city_name}",
-                    "error": f"Zone finding failed for {city_name}: {e}",
-                    "traceback": tb
-                })
+            
+            time.sleep(1)  # Waits 1 second between API calls to prevent 432 errors on initial burst
+            
+            max_retries = 3
+            for attempt in range(1, max_retries + 1):
+                try:
+                    data = process_city(city_name, country, stop_event=stop_event)
+                    if data and data.get("status") in ("SUCCESS", "NO_ZONES", "STOPPED"):
+                        results.append(data)
+                        
+                        # Real-time lock-protected merge (handles 0 zones correctly)
+                        zones = [z["zone_name"] for z in data.get("zones", []) if z.get("zone_name")]
+                        with _registry_lock:
+                            if city_name:
+                                state.master_zone_registry[(city_name, country)] = zones
+                            if hasattr(state, "orchestrator") and state.orchestrator.metrics:
+                                state.orchestrator.metrics.agents["agent3"].record_output(zones)
+                        
+                        break
+                    else:
+                        # FAILED status triggered by bubbled-up timeouts/errors inside process_city
+                        raise ValueError(f"Zone finding failed: {data.get('error', 'unknown')}")
+                        
+                except Exception as e:
+                    err_str = str(e).lower()
+                    is_transient = (
+                        isinstance(e, (requests.exceptions.RequestException, TimeoutError, ConnectionError, ValueError)) 
+                        or any(kw in err_str for kw in ["429", "timeout", "connection", "read error", "rate limit"])
+                    )
+                    if is_transient:
+                        if attempt < max_retries:
+                            wait_secs = 20 * attempt
+                            print(f"  [{instance_id}] Transient error for {city_name} (attempt {attempt}) — waiting {wait_secs}s before retry...")
+                            time.sleep(wait_secs)
+                        else:
+                            tb = traceback.format_exc()
+                            print(f"  [{instance_id}] ERROR for {city_name}: {e}")
+                            state.log_failure("Agent 3 — Zone Discovery", {"instance_id": f"Agent3-{city_name}", "error": str(e), "traceback": tb})
+                            break
+                    else:
+                        # Genuine code bug -> Fail fast
+                        tb = traceback.format_exc()
+                        print(f"  [{instance_id}] UNEXPECTED_ERROR: {type(e).__name__} for {city_name} — {e}")
+                        state.log_failure("Agent 3 — Zone Discovery", {"instance_id": f"Agent3-{city_name}", "error": str(e), "traceback": tb})
+                        break
+                        
         return results
 
-    # Execute with fault tolerance
-    # all_results, failures = fault_tolerant_dispatch(
-    #     worker_fn=zone_finder_worker,
-    #     batches=batches,
-    #     agent_name="Agent 3 — Zone Finder",
-    #     max_workers=K,
-    # )
-        # Execute with fault tolerance
+    # Execute with fault tolerance.
+    # Agent 3's concurrency is driven by the adaptive manager against the
+    # "tavily" provider key (Tavily is the bottleneck here, not the LLM).
+    # Starts at MAX_INSTANCES (default 12), steps down automatically when
+    # Tavily 429/432 errors cause the health score to drop below 0.70.
+    effective_workers = _dynamic_workers("tavily", K)
+    
+    def _on_active_change(delta: int):
+        if hasattr(state, "orchestrator") and state.orchestrator.metrics:
+            state.orchestrator.metrics.agents["agent3"].change_active_instances(delta)
+            
     all_results, failures = fault_tolerant_dispatch(
         worker_fn=zone_finder_worker,
         batches=batches,
         agent_name="Agent 3 — Zone Finder",
-        max_workers=1,  # CHANGED: Limits to 2 threads at a time to prevent Tavily 432 crashes
+        max_workers=effective_workers,
+        on_active_change=_on_active_change,
     )
 
     # Log failures
     for f in failures:
         state.log_failure("Phase 3 — Zone Finding", f)
-
-    # Merge into Master Zone Registry
-    for batch_result in all_results:
-        # Worker returns a LIST of city result dicts — handle both shapes
-        items = batch_result if isinstance(batch_result, list) else [batch_result]
-        for result in items:
-            if isinstance(result, dict):
-                city_name = result.get("city")
-                country = result.get("country", "")
-                zones = [z["zone_name"] for z in result.get("zones", []) if z.get("zone_name")]
-                if city_name and zones:
-                    state.master_zone_registry[(city_name, country)] = zones
 
     print(f"\n  [Phase 3] Master Zone Registry built.")
     total_zones = sum(len(z) for z in state.master_zone_registry.values())
@@ -503,12 +562,19 @@ def phase_4_subarea_mapper(state, provider: str = "groq", stop_event=None):
                 })
         return results
 
+    def _on_active_change(delta: int):
+        # The guard allows agents to run standalone without an orchestrator wrapper.
+        # Fails silently instead of crashing when 'run_pipeline.py' is executed directly.
+        if hasattr(state, "orchestrator") and state.orchestrator.metrics:
+            state.orchestrator.metrics.agents["agent4"].change_active_instances(delta)
+
     # Execute with fault tolerance
     all_results, failures = fault_tolerant_dispatch(
         worker_fn=subarea_worker,
         batches=batches,
-        agent_name="Agent 5 — Sub-Area Mapper",
+        agent_name="Agent 4 — Sub-Area Mapper",
         max_workers=K,
+        on_active_change=_on_active_change,
     )
 
     # Log failures
@@ -751,13 +817,20 @@ def phase_5_lead_scraper(state, max_scrolls, max_scrapers, stop_event=None):
                 })
         return all_companies
 
+    def _on_active_change(delta: int):
+        # The guard allows agents to run standalone without an orchestrator wrapper.
+        # Fails silently instead of crashing when 'run_pipeline.py' is executed directly.
+        if hasattr(state, "orchestrator") and state.orchestrator.metrics:
+            state.orchestrator.metrics.agents["agent5"].change_active_instances(delta)
+
     # Cap concurrent browser instances for resource safety
     effective_workers = min(K, max_scrapers)
     all_results, failures = fault_tolerant_dispatch(
         worker_fn=scraper_worker,
         batches=batches,
-        agent_name="Agent 6 — Playwright Scraper",
+        agent_name="Agent 5 — Playwright Scraper",
         max_workers=effective_workers,
+        on_active_change=_on_active_change,
     )
 
     # Log failures

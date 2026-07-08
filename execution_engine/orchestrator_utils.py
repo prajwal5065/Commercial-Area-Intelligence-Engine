@@ -11,7 +11,7 @@ Provides shared utilities for the unified concurrent pipeline:
 import math
 import json
 import traceback as _traceback
-from typing import List, Dict, Any, Callable, Tuple
+from typing import List, Dict, Any, Callable, Tuple, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 import sys
@@ -123,7 +123,7 @@ def print_dispatch_block(agent_name: str, instance_id: str, input_data: List[Any
 
 def fault_tolerant_dispatch(worker_fn: Callable, batches: List[Dict],
                             agent_name: str = "Agent", max_workers: int = 5,
-                            max_retries: int = 1) -> Tuple[List, List]:
+                            max_retries: int = 1, on_active_change: Optional[Callable[[int], None]] = None) -> Tuple[List, List]:
     """
     Execute worker function across batches with fault tolerance.
     
@@ -152,7 +152,13 @@ def fault_tolerant_dispatch(worker_fn: Callable, batches: List[Dict],
         
         for attempt in range(max_retries + 1):
             try:
-                result = worker_fn(items, instance_id)
+                if on_active_change:
+                    on_active_change(1)
+                try:
+                    result = worker_fn(items, instance_id)
+                finally:
+                    if on_active_change:
+                        on_active_change(-1)
                 return result, None  # Success
             except Exception as e:
                 if attempt < max_retries:

@@ -2,9 +2,20 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export type AgentStatus = "Pending" | "Running" | "Done" | "Error" | "pending" | "running" | "done" | "failed" | "skipped";
 
-// Manual model choice for agents that support it (currently Agent 4).
-// Matches SUB_AGENT 4 sub area mapper/main.py's PROVIDERS registry.
-export type LlmProvider = "groq" | "gemini" | "openai";
+// Manual model choice for agents that support it.
+// Matches the PROVIDERS registry in the backend agents.
+export type LlmProvider =
+  | "groq"
+  | "gemini"
+  | "openai"
+  | "groq-llama-70b"
+  | "groq-llama-8b"
+  | "groq-mixtral"
+  | "gemini-pro"
+  | "gpt-4o"
+  | "claude"
+  | "mistral";
+
 
 export interface LogEntry {
   ts: string;

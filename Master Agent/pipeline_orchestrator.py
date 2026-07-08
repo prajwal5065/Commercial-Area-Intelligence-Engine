@@ -24,7 +24,7 @@ import logging
 from collections import deque
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Callable
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, fields
 from pathlib import Path
 from argparse import Namespace
 
@@ -132,11 +132,27 @@ class AgentMetrics:
     end_time: Optional[float] = None
     input_count: int = 0
     output_count: int = 0
+    active_instances: int = 0
     error_count: int = 0
     retry_count: int = 0
     errors: List[str] = field(default_factory=list)
     items_in: List[str] = field(default_factory=list)
     items_out: List[str] = field(default_factory=list)
+    # Not serialized
+    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False, init=False)
+
+    def change_active_instances(self, delta: int) -> None:
+        with self._lock:
+            self.active_instances = max(0, self.active_instances + delta)
+
+    def reset_active_instances(self) -> None:
+        with self._lock:
+            self.active_instances = 0
+
+    def record_output(self, new_items: List[str]) -> None:
+        with self._lock:
+            self.items_out.extend(new_items)
+            self.output_count = len(self.items_out)
 
     @property
     def elapsed(self) -> str:
@@ -149,7 +165,12 @@ class AgentMetrics:
         return f"{int(secs//60)}m {int(secs%60)}s"
 
     def to_dict(self) -> Dict:
-        d = asdict(self)
+        # Build dict manually without deepcopy to avoid TypeError on threading.Lock
+        d = {
+            f.name: getattr(self, f.name)
+            for f in fields(self)
+            if f.name != "_lock"
+        }
         d["elapsed"] = self.elapsed
         return d
 
@@ -319,6 +340,7 @@ class PipelineOrchestrator:
             self.metrics = PipelineMetrics(pipeline_id=pipeline_id)
             self._state = PipelineState()
             self._state.on_failure_callback = self._on_state_failure
+            self._state.orchestrator = self  # Link orchestrator for active instance reporting
             self._thread = threading.Thread(
                 target=self._run,
                 args=(top_n, selected_countries or [], selected_cities or [],
@@ -331,6 +353,11 @@ class PipelineOrchestrator:
     def stop(self) -> None:
         self._stop_event.set()
         self._log("SYSTEM", "INFO", "Stop signal received — shutting down gracefully…")
+        # Explicitly and safely reset all live instance counters to prevent "phantom" workers
+        # from lingering on the UI if threads don't reach their finally block in time.
+        if self.metrics:
+            for agent in self.metrics.agents.values():
+                agent.reset_active_instances()
 
     def get_status(self) -> Dict:
         m = self.metrics

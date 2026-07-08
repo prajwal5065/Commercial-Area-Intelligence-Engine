@@ -45,6 +45,11 @@ from pydantic import BaseModel
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
+# Also expose the project root for adaptive_concurrency
+PROJECT_PARENT = os.path.dirname(BASE_DIR)
+if PROJECT_PARENT not in sys.path:
+    sys.path.insert(0, PROJECT_PARENT)
+
 import run_pipeline
 from run_pipeline import (
     phase_1_gdp_ranking,
@@ -57,6 +62,30 @@ from run_pipeline import (
 )
 from orchestrator_utils import PipelineState
 from pipeline_orchestrator import PipelineOrchestrator, AgentMetrics, LogBus, LogEntry
+
+# Adaptive concurrency health tracking (may not exist yet — soft import)
+try:
+    from adaptive_concurrency import all_health_snapshots as _all_health_snapshots
+    _ADAPTIVE_AVAILABLE = True
+except ImportError:
+    _ADAPTIVE_AVAILABLE = False
+    def _all_health_snapshots():
+        return []
+
+# Agent 3 live metrics (may not exist yet — soft import)
+try:
+    import sys as _sys
+    _sub3_path = os.path.join(os.path.dirname(BASE_DIR), "SUB AGENT 3 zone finder")
+    if _sub3_path not in _sys.path:
+        _sys.path.insert(0, _sub3_path)
+    from zone_metrics import ZONE_METRICS as _ZONE_METRICS
+    _ZONE_METRICS_AVAILABLE = True
+except Exception:
+    _ZONE_METRICS_AVAILABLE = False
+    class _NullZoneMetrics:
+        def to_dict(self):
+            return {"error": "zone_metrics module not available"}
+    _ZONE_METRICS = _NullZoneMetrics()  # type: ignore
 
 PROJECT_ROOT = run_pipeline.project_root
 
@@ -143,7 +172,7 @@ class Agent1Request(BaseModel):
 
 class Agent2Request(BaseModel):
     selected_countries: list[str] = []
-    provider: str = "groq"  # "groq" | "gemini" | "openai" - manual LLM choice
+    provider: str = "groq"  # any key in PROVIDERS registry — groq/gemini/openai/gpt-4o/claude/mistral/etc.
 
 
 class Agent3Request(BaseModel):
@@ -152,7 +181,7 @@ class Agent3Request(BaseModel):
 
 class Agent4Request(BaseModel):
     selected_zones: list[str] = []
-    provider: str = "groq"  # "groq" | "gemini" | "openai" - manual LLM choice
+    provider: str = "groq"  # any key in PROVIDERS registry — groq/gemini/openai/gpt-4o/claude/mistral/etc.
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -177,6 +206,8 @@ def get_status(session_id: str):
         # Map orchestrator agent statuses back to the legacy agent_status dict
         for aid, am in orch_status["agents"].items():
             s.agent_status[str(aid)] = am["status"].capitalize().replace("Done", "Done").replace("Failed", "Error")
+            if str(aid) == "agent3":
+                am["active_instances"] = _ZONE_METRICS.active_workers
         if orch.metrics.output_file:
             s.output_file = orch.metrics.output_file
 
@@ -439,10 +470,13 @@ def _run_agent_1(s: Session, top_n: Optional[int], countries: Optional[list] = N
 
 def _run_agent_2(s: Session, selected_countries: list, provider: str = "groq") -> None:
     if selected_countries:
-        s.state.gdp_ranked_countries = [
-            c for c in s.state.gdp_ranked_countries
-            if c.get("country_name") in selected_countries
-        ]
+        if not s.state.gdp_ranked_countries:
+            s.state.gdp_ranked_countries = [{"country_name": c, "gdp_rank": i+1} for i, c in enumerate(selected_countries)]
+        else:
+            s.state.gdp_ranked_countries = [
+                c for c in s.state.gdp_ranked_countries
+                if (c.get("country_name") if isinstance(c, dict) else c) in selected_countries
+            ]
     s.agent_status["2"] = "Running"
     m = _manual_start(s, "2")
     try:
@@ -470,8 +504,11 @@ def _run_agent_2(s: Session, selected_countries: list, provider: str = "groq") -
 
 def _run_agent_3(s: Session, selected_cities: list) -> None:
     if selected_cities:
-        s.state.all_cities = [c for c in s.state.all_cities
-                              if c.get("city") in selected_cities]
+        if not s.state.all_cities:
+            s.state.all_cities = [{"city": c, "country": "Unknown", "tier": 1} for c in selected_cities]
+        else:
+            s.state.all_cities = [c for c in s.state.all_cities
+                                  if c.get("city") in selected_cities]
     s.agent_status["3"] = "Running"
     m = _manual_start(s, "3")
     try:
@@ -507,12 +544,16 @@ def _run_agent_4(s: Session, selected_zones: list, provider: str = "groq") -> No
             lambda p, d: _mark_rate_limited(s, "4", p, d)
         )
         if selected_zones:
-            orig = s.state.master_zone_registry
-            s.state.master_zone_registry = {
-                (city, co): [z for z in zones if z in selected_zones]
-                for (city, co), zones in orig.items()
-                if any(z in selected_zones for z in zones)
-            }
+            if not s.state.master_zone_registry:
+                # If state is empty, mock a dummy registry to allow the agent to run
+                s.state.master_zone_registry = {("Unknown City", "Unknown Country"): selected_zones}
+            else:
+                orig = s.state.master_zone_registry
+                s.state.master_zone_registry = {
+                    (city, co): [z for z in zones if z in selected_zones]
+                    for (city, co), zones in orig.items()
+                    if any(z in selected_zones for z in zones)
+                }
         phase_4_subarea_mapper(s.state, provider=provider, stop_event=s._manual_stop_event)
         if s._manual_stop_event.is_set():
             s.agent_status["4"] = "Error"
@@ -710,6 +751,65 @@ def get_results_inline(session_id: str):
         "source": "live_state",
         "companies": companies,
     }
+
+
+@app.get("/provider-health")
+def provider_health():
+    """
+    Returns live health and concurrency data for every LLM/search provider
+    that has processed at least one request this process lifetime.
+
+    Response shape (per provider):
+    {
+        "provider":         "groq",
+        "health_score":     0.87,
+        "workers":          8,
+        "max_workers":      12,
+        "success_rate":     0.93,
+        "rate_429":         0.04,
+        "timeout_rate":     0.01,
+        "avg_latency":      1.8,
+        "baseline_latency": 1.5,
+        "latency_ratio":    1.2,
+        "total_calls":      142,
+        "retry_count":      6,
+        "fallback_count":   1,
+        "window_size":      50,
+        "status":           "HEALTHY",
+        "model":            "llama-3.3-70b-versatile"
+    }
+    Consumed by the frontend to render per-provider health badges.
+    """
+    return _all_health_snapshots()
+
+
+@app.get("/agent3/metrics")
+def agent3_metrics():
+    """
+    Returns live Agent 3 (Zone Finder) execution metrics.
+    Updated in real-time as the swarm processes cities.
+
+    Response shape:
+    {
+        "cities_total":        25,
+        "cities_pending":       5,
+        "cities_running":       3,
+        "cities_completed":    16,
+        "cities_failed":        1,
+        "zones_found":        192,
+        "avg_zones_per_city": 12.0,
+        "avg_processing_time": 38.4,   -- seconds
+        "avg_queue_wait":       1.2,   -- seconds
+        "elapsed_sec":        612.0,
+        "retries":              7,
+        "fallback_count":       1,
+        "active_workers":       3,
+        "queue_size":           5,
+        "provider_usage":     { "groq": 14, "gemini": 3 },
+        "failed_cities":      [ { "city": "Delhi", "reason": "..." } ]
+    }
+    """
+    return _ZONE_METRICS.to_dict()
 
 
 @app.get("/health")

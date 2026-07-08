@@ -2,11 +2,22 @@ import os
 import re
 import json
 import sys
+import time
 import requests
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime   
 from dotenv import load_dotenv
+
+# Adaptive concurrency health tracking (soft import — works without the file)
+try:
+    _HERE = os.path.dirname(os.path.abspath(__file__))
+    _PROJECT_ROOT = os.path.dirname(_HERE)
+    if _PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, _PROJECT_ROOT)
+    from adaptive_concurrency import record_outcome as _record_outcome
+except ImportError:
+    def _record_outcome(*a, **kw): pass
 
 log = logging.getLogger(__name__)
 
@@ -57,26 +68,71 @@ GROQ_MODEL   = "llama-3.3-70b-versatile"
 GROQ_MAX_TOK = 8000
 TAVILY_MAX_RES  = 7
 
-# ── Provider registry ─────────────────────────────────────────────
-# Mirrors SUB_AGENT 4 sub area mapper/main.py's PROVIDERS pattern, so the
-# same manual model-choice UI/API contract works for this agent too.
+# ── Provider registry (all 10 LLMs — mirrors Agent 4's PROVIDERS) ───────────
 PROVIDERS = {
+    # ── Groq (fast, free-tier) ──────────────────────────────────────
     "groq": {
         "api_key_env": "GROQ_API_KEY",
         "api_url":     "https://api.groq.com/openai/v1/chat/completions",
         "model":       "llama-3.3-70b-versatile",
         "request_fmt": "openai",
     },
+    "groq-llama-70b": {
+        "api_key_env": "GROQ_API_KEY",
+        "api_url":     "https://api.groq.com/openai/v1/chat/completions",
+        "model":       "llama-3.1-70b-versatile",
+        "request_fmt": "openai",
+    },
+    "groq-llama-8b": {
+        "api_key_env": "GROQ_API_KEY",
+        "api_url":     "https://api.groq.com/openai/v1/chat/completions",
+        "model":       "llama-3.1-8b-instant",
+        "request_fmt": "openai",
+    },
+    "groq-mixtral": {
+        "api_key_env": "GROQ_API_KEY",
+        "api_url":     "https://api.groq.com/openai/v1/chat/completions",
+        "model":       "mixtral-8x7b-32768",
+        "request_fmt": "openai",
+    },
+    # ── Google Gemini ────────────────────────────────────────────────
     "gemini": {
         "api_key_env": "GEMINI_API_KEY",
         "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
         "model":       "gemini-2.0-flash",
         "request_fmt": "gemini",
     },
+    "gemini-pro": {
+        "api_key_env": "GEMINI_API_KEY",
+        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent",
+        "model":       "gemini-1.5-pro",
+        "request_fmt": "gemini",
+    },
+    # ── OpenAI ───────────────────────────────────────────────────────
     "openai": {
         "api_key_env": "OPENAI_API_KEY",
         "api_url":     "https://api.openai.com/v1/chat/completions",
         "model":       "gpt-4o-mini",
+        "request_fmt": "openai",
+    },
+    "gpt-4o": {
+        "api_key_env": "OPENAI_API_KEY",
+        "api_url":     "https://api.openai.com/v1/chat/completions",
+        "model":       "gpt-4o",
+        "request_fmt": "openai",
+    },
+    # ── Anthropic Claude ─────────────────────────────────────────────
+    "claude": {
+        "api_key_env": "ANTHROPIC_API_KEY",
+        "api_url":     "https://api.anthropic.com/v1/messages",
+        "model":       "claude-3-haiku-20240307",
+        "request_fmt": "anthropic",
+    },
+    # ── Mistral ──────────────────────────────────────────────────────
+    "mistral": {
+        "api_key_env": "MISTRAL_API_KEY",
+        "api_url":     "https://api.mistral.ai/v1/chat/completions",
+        "model":       "mistral-7b-instruct",
         "request_fmt": "openai",
     },
 }
@@ -314,6 +370,19 @@ def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PRO
         }
         headers = {"Content-Type": "application/json"}
         url = f"{cfg['api_url']}?key={api_key}"
+    elif cfg["request_fmt"] == "anthropic":
+        payload = {
+            "model": cfg["model"],
+            "max_tokens": GROQ_MAX_TOK,
+            "system": SYSTEM_PROMPT,
+            "messages": [{"role": "user", "content": user_message}],
+        }
+        headers = {
+            "Content-Type":      "application/json",
+            "x-api-key":         api_key,
+            "anthropic-version": "2023-06-01",
+        }
+        url = cfg["api_url"]
     else:
         payload = {
             "model":       cfg["model"],
@@ -330,12 +399,27 @@ def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PRO
         }
         url = cfg["api_url"]
 
-    resp = requests.post(url, headers=headers, json=payload, timeout=120)
-    resp.raise_for_status()
-    rj = resp.json()
-    if cfg["request_fmt"] == "gemini":
-        return rj["candidates"][0]["content"]["parts"][0]["text"]
-    return rj["choices"][0]["message"]["content"]
+    _t0 = time.time()
+    try:
+        resp = requests.post(url, headers=headers, json=payload, timeout=120)
+        _latency = time.time() - _t0
+        is_429 = resp.status_code == 429
+        if is_429:
+            _record_outcome(provider, success=False, is_429=True, is_timeout=False, latency=_latency)
+        resp.raise_for_status()
+        rj = resp.json()
+        _record_outcome(provider, success=True, is_429=False, is_timeout=False, latency=_latency)
+        if cfg["request_fmt"] == "gemini":
+            return rj["candidates"][0]["content"]["parts"][0]["text"]
+        if cfg["request_fmt"] == "anthropic":
+            return rj["content"][0]["text"]
+        return rj["choices"][0]["message"]["content"]
+    except requests.exceptions.Timeout:
+        _record_outcome(provider, success=False, is_429=False, is_timeout=True, latency=time.time() - _t0)
+        raise
+    except Exception:
+        _record_outcome(provider, success=False, is_429=False, is_timeout=False, latency=time.time() - _t0)
+        raise
 
  
 # JSON Parsing
@@ -602,6 +686,29 @@ def process_country(country: str, provider: str = DEFAULT_PROVIDER) -> dict:
 
     log.info("[Step 3/3] Parsing JSON...")
     data = parse_json(raw_response)
+
+    # Validation and Deduplication
+    if not isinstance(data, dict):
+        raise ValueError("Malformed output: Expected root JSON object (dict)")
+        
+    required_keys = ["tier_1_cities", "tier_2_cities", "tier_3_cities"]
+    if not any(k in data for k in required_keys):
+        raise ValueError(f"Malformed output: Missing required tier arrays. Found: {list(data.keys())}")
+
+    seen_cities = set()
+    total_extracted = 0
+    for tier_key in required_keys:
+        clean_list = []
+        for item in data.get(tier_key, []):
+            c_name = item.get("city_name", "").strip()
+            if c_name and c_name.lower() not in seen_cities:
+                seen_cities.add(c_name.lower())
+                clean_list.append(item)
+                total_extracted += 1
+        data[tier_key] = clean_list
+
+    if total_extracted == 0:
+        raise ValueError("Validation failed: No valid cities extracted for this country.")
 
     return data
 

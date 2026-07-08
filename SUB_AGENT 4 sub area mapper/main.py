@@ -10,6 +10,17 @@ from typing import Optional, Dict, Any
 import requests
 from dotenv import load_dotenv
 
+# Adaptive concurrency health tracking (soft import — works without the file)
+try:
+    _HERE_PARENT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if _HERE_PARENT not in __import__('sys').path:
+        __import__('sys').path.insert(0, _HERE_PARENT)
+    from adaptive_concurrency import record_outcome as _record_outcome
+    _ADAPTIVE = True
+except ImportError:
+    _ADAPTIVE = False
+    def _record_outcome(*a, **kw): pass
+
 # ── Load .env: first try the sub-agent's own folder, then walk up to find
 # the project root .env so Supabase/Groq keys are always available when
 # this module is imported from a worker thread in run_pipeline.py.
@@ -77,33 +88,80 @@ else:
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.3-70b-versatile"
 
-# ── Provider registry ─────────────────────────────────────────────
-# Mirrors the pattern in SUB AGENT 3 zone finder/zone_finders_code.py, so
-# the same choose-a-model UI/API contract works across agents. Unlike Agent
-# 3, this is manual selection only (caller passes provider=...) - no
-# automatic rate-limit fallback here, since that wasn't in scope for Agent 4.
+# ── Provider registry (all 10 LLMs matching the frontend selector) ──────────
+# key = provider string the frontend sends.  Falls back to "groq" if an
+# unknown key or missing env var is passed.
 PROVIDERS = {
+    # ── Groq (fast, free-tier) ──────────────────────────────────────
     "groq": {
         "api_key_env": "GROQ_API_KEY",
         "api_url":     "https://api.groq.com/openai/v1/chat/completions",
         "model":       "llama-3.3-70b-versatile",
         "request_fmt": "openai",
     },
+    "groq-llama-70b": {
+        "api_key_env": "GROQ_API_KEY",
+        "api_url":     "https://api.groq.com/openai/v1/chat/completions",
+        "model":       "llama-3.1-70b-versatile",
+        "request_fmt": "openai",
+    },
+    "groq-llama-8b": {
+        "api_key_env": "GROQ_API_KEY",
+        "api_url":     "https://api.groq.com/openai/v1/chat/completions",
+        "model":       "llama-3.1-8b-instant",
+        "request_fmt": "openai",
+    },
+    "groq-mixtral": {
+        "api_key_env": "GROQ_API_KEY",
+        "api_url":     "https://api.groq.com/openai/v1/chat/completions",
+        "model":       "mixtral-8x7b-32768",
+        "request_fmt": "openai",
+    },
+    # ── Google Gemini ────────────────────────────────────────────────
     "gemini": {
         "api_key_env": "GEMINI_API_KEY",
         "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
         "model":       "gemini-2.0-flash",
         "request_fmt": "gemini",
     },
+    "gemini-pro": {
+        "api_key_env": "GEMINI_API_KEY",
+        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent",
+        "model":       "gemini-1.5-pro",
+        "request_fmt": "gemini",
+    },
+    # ── OpenAI ───────────────────────────────────────────────────────
     "openai": {
         "api_key_env": "OPENAI_API_KEY",
         "api_url":     "https://api.openai.com/v1/chat/completions",
         "model":       "gpt-4o-mini",
         "request_fmt": "openai",
     },
+    "gpt-4o": {
+        "api_key_env": "OPENAI_API_KEY",
+        "api_url":     "https://api.openai.com/v1/chat/completions",
+        "model":       "gpt-4o",
+        "request_fmt": "openai",
+    },
+    # ── Anthropic Claude ─────────────────────────────────────────────
+    "claude": {
+        "api_key_env": "ANTHROPIC_API_KEY",
+        "api_url":     "https://api.anthropic.com/v1/messages",
+        "model":       "claude-3-haiku-20240307",
+        "request_fmt": "anthropic",
+    },
+    # ── Mistral ──────────────────────────────────────────────────────
+    "mistral": {
+        "api_key_env": "MISTRAL_API_KEY",
+        "api_url":     "https://api.mistral.ai/v1/chat/completions",
+        "model":       "mistral-7b-instruct",
+        "request_fmt": "openai",
+    },
 }
 
 DEFAULT_PROVIDER = "groq"
+
+
 
 
 def _gemini_payload(prompt: str) -> dict:
@@ -117,6 +175,15 @@ def _openai_payload(prompt: str, model: str) -> dict:
     return {
         "model": model,
         "temperature": 0.1,
+        "max_tokens": 8000,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+
+
+def _anthropic_payload(prompt: str, model: str) -> dict:
+    """Anthropic Messages API payload (claude-3-*)."""
+    return {
+        "model": model,
         "max_tokens": 8000,
         "messages": [{"role": "user", "content": prompt}],
     }
@@ -152,6 +219,14 @@ def call_groq(prompt: str, provider: str = DEFAULT_PROVIDER) -> str:
         payload = _gemini_payload(prompt)
         headers = {"Content-Type": "application/json"}
         url = f"{cfg['api_url']}?key={api_key}"
+    elif cfg["request_fmt"] == "anthropic":
+        payload = _anthropic_payload(prompt, cfg["model"])
+        headers = {
+            "Content-Type":         "application/json",
+            "x-api-key":            api_key,
+            "anthropic-version":    "2023-06-01",
+        }
+        url = cfg["api_url"]
     else:
         payload = _openai_payload(prompt, cfg["model"])
         headers = {
@@ -160,12 +235,27 @@ def call_groq(prompt: str, provider: str = DEFAULT_PROVIDER) -> str:
         }
         url = cfg["api_url"]
 
-    resp = requests.post(url, headers=headers, json=payload, timeout=120)
-    resp.raise_for_status()
-    rj = resp.json()
-    if cfg["request_fmt"] == "gemini":
-        return rj["candidates"][0]["content"]["parts"][0]["text"]
-    return rj["choices"][0]["message"]["content"]
+    _t0 = time.time()
+    try:
+        resp = requests.post(url, headers=headers, json=payload, timeout=120)
+        _latency = time.time() - _t0
+        is_429 = resp.status_code == 429
+        if is_429:
+            _record_outcome(provider, success=False, is_429=True, is_timeout=False, latency=_latency)
+        resp.raise_for_status()
+        rj = resp.json()
+        _record_outcome(provider, success=True, is_429=False, is_timeout=False, latency=_latency)
+        if cfg["request_fmt"] == "gemini":
+            return rj["candidates"][0]["content"]["parts"][0]["text"]
+        if cfg["request_fmt"] == "anthropic":
+            return rj["content"][0]["text"]
+        return rj["choices"][0]["message"]["content"]
+    except requests.exceptions.Timeout:
+        _record_outcome(provider, success=False, is_429=False, is_timeout=True, latency=time.time() - _t0)
+        raise
+    except Exception:
+        _record_outcome(provider, success=False, is_429=False, is_timeout=False, latency=time.time() - _t0)
+        raise
 
 REQUIRED_KEYS = {"status", "agent", "input", "results", "supporting_sources"}
 
