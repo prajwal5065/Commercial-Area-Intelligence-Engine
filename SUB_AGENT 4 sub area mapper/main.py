@@ -291,12 +291,37 @@ def process_zone(zone_name: str, city: str, country: str, provider: str = DEFAUL
             try:
                 log.info(f"Sending request for {zone_name} via {current_provider} (attempt {attempt}/{len(wait_times)})")
                 raw_response = call_groq(final_prompt, provider=current_provider)
+                
+                # Hollow response check
+                if not raw_response or not raw_response.strip():
+                    raise Exception("Hollow response: empty string")
+                temp_parsed = extract_json(raw_response)
+                if temp_parsed and isinstance(temp_parsed, dict) and validate_response(temp_parsed):
+                    if not temp_parsed.get("results"):
+                        raise Exception("Hollow response: 0 results returned")
+                
                 break
             except Exception as e:
                 err_str = str(e).lower()
-                if "429" in err_str or "rate_limit" in err_str or "timeout" in err_str or "network" in err_str or "connection" in err_str or "resolve" in err_str:
+                if "429" in err_str or "rate_limit" in err_str or "timeout" in err_str or "network" in err_str or "connection" in err_str or "resolve" in err_str or "hollow response" in err_str:
                     if "429" in err_str or "rate_limit" in err_str:
                         _report_rate_limit(current_provider, f"zone={zone_name}, attempt={attempt}")
+                        
+                        # Parse retry-after header if available (Groq returns Unix timestamp)
+                        if hasattr(e, 'response') and e.response is not None:
+                            retry_after = e.response.headers.get("retry-after")
+                            if retry_after:
+                                try:
+                                    ra_val = float(retry_after)
+                                    if ra_val > 1e9:
+                                        wait_sec = int(ra_val - time.time()) + 2
+                                    else:
+                                        wait_sec = int(ra_val) + 2
+                                    if wait_sec < 2:
+                                        wait_sec = 2
+                                except (ValueError, TypeError):
+                                    pass
+
                     log.warning(f"{zone_name} [{current_provider}]: Retryable error on attempt {attempt}. Waiting {wait_sec}s. Error: {e}")
                     if attempt < len(wait_times):
                         time.sleep(wait_sec)
@@ -305,7 +330,9 @@ def process_zone(zone_name: str, city: str, country: str, provider: str = DEFAUL
                 else:
                     log.error(f"{zone_name} [{current_provider}]: Non-retryable error: {e}")
                     break  # try next provider
-        if raw_response:
+        if raw_response and not "Hollow response" in str(raw_response):
+            # Also break if we succeeded with non-hollow
+            # Actually, if we get here and raw_response is set and didn't raise Exception, we are good.
             break
 
     if not raw_response:
