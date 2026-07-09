@@ -233,6 +233,7 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
             def _record_outcome(*a, **kw): pass
             print(f"  [{instance_id}] WARNING: record_outcome unavailable — health scoring disabled for Agent 2 ({e})")
 
+        print(f"[{instance_id}] WORKER STARTED for {country_batch}")
         print(f"  [{instance_id}] Processing {len(country_batch)} countries: {country_batch}")
         results = {}
         for idx, country_name in enumerate(country_batch):
@@ -252,6 +253,7 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
                     # Real-time state merge for "No data yet" bug & dashboard live count
                     new_city_names = []
                     with _registry_lock:
+                        print(f"[{instance_id}] MERGING {country_name}, cities so far: {len(state.all_cities)}")
                         print(f"  [{instance_id}] Merging {country_name} into state ({len(state.all_cities)} cities so far)...")
                         state.master_city_registry[country_name] = data
                         for tier_idx, tier_key in enumerate(["tier_1_cities", "tier_2_cities", "tier_3_cities"]):
@@ -289,9 +291,11 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
                         time.sleep(wait_secs)
                     else:
                         print(f"  [{instance_id}] ERROR for {country_name}: {ve}")
+                        print(f"[{instance_id}] Exception in process_country for {country_name}: {repr(ve)}")
                         results[country_name] = {"status": "FAILED", "error": str(ve)}
                         break
                 except Exception as e:
+                    print(f"[{instance_id}] Exception in process_country for {country_name}: {repr(e)}")
                     err_str = str(e).lower()
                     is_rate_limit = any(kw in err_str for kw in ["429", "rate limit", "rate_limit", "too many requests"])
                     
@@ -339,6 +343,9 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
         max_workers=effective_workers,
         on_active_change=_on_active_change,
     )
+
+    print(f"Phase 2 finished. len(state.all_cities) = {len(state.all_cities)}")
+    print(f"[TRACE-08] Exiting Agent 2 with {len(state.all_cities)} total cities.")
 
     for f in failures:
         state.log_failure("Phase 2 — City Segmentation", f)

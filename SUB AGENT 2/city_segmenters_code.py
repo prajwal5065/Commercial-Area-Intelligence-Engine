@@ -65,7 +65,7 @@ load_dotenv()
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_MODEL   = "llama-3.3-70b-versatile"
-GROQ_MAX_TOK = 8000
+GROQ_MAX_TOK = 4000
 TAVILY_MAX_RES  = 7
 
 # ── Provider registry (all 10 LLMs — mirrors Agent 4's PROVIDERS) ───────────
@@ -80,13 +80,13 @@ PROVIDERS = {
     "groq-llama-70b": {
         "api_key_env": "GROQ_API_KEY",
         "api_url":     "https://api.groq.com/openai/v1/chat/completions",
-        "model":       "llama-3.1-70b-versatile",
+        "model":       "llama3-70b-8192",
         "request_fmt": "openai",
     },
     "groq-llama-8b": {
         "api_key_env": "GROQ_API_KEY",
         "api_url":     "https://api.groq.com/openai/v1/chat/completions",
-        "model":       "llama-3.1-8b-instant",
+        "model":       "llama3-8b-8192",
         "request_fmt": "openai",
     },
     "groq-mixtral": {
@@ -98,14 +98,14 @@ PROVIDERS = {
     # ── Google Gemini ────────────────────────────────────────────────
     "gemini": {
         "api_key_env": "GEMINI_API_KEY",
-        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-        "model":       "gemini-2.0-flash",
+        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "model":       "gemini-2.5-flash",
         "request_fmt": "gemini",
     },
     "gemini-pro": {
         "api_key_env": "GEMINI_API_KEY",
-        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent",
-        "model":       "gemini-1.5-pro",
+        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+        "model":       "gemini-2.5-pro",
         "request_fmt": "gemini",
     },
     # ── OpenAI ───────────────────────────────────────────────────────
@@ -229,8 +229,9 @@ Example:
 """
 
 
-def tavily_search(query: str) -> list[dict]:
-
+def tavily_search(query: str, country: str = "Unknown", worker_id: str = "Unknown", retry_num: int = 1) -> list[dict]:
+    import datetime, time, traceback, json
+    
     url = "https://api.tavily.com/search"
     payload = {
         "api_key":      TAVILY_API_KEY,
@@ -240,19 +241,64 @@ def tavily_search(query: str) -> list[dict]:
         "include_answer":      True,
         "include_raw_content": False,
     }
-    resp = requests.post(url, json=payload, timeout=30)
-    resp.raise_for_status()
-    data = resp.json()
-
-    results = data.get("results", [])
-    if data.get("answer"):
-        results.append({
-            "title":   "Tavily synthesised answer",
-            "url":     "tavily-answer",
-            "content": data["answer"],
-        })
-    return results
-
+    
+    print("\n==================================================")
+    print("[TAVILY REQUEST]")
+    print("==================================================")
+    print(f"Query: {query}")
+    print(f"Provider: Tavily")
+    print(f"API Key Loaded: {'Yes' if TAVILY_API_KEY else 'No'}")
+    print(f"Timestamp: {datetime.datetime.now().isoformat()}")
+    print(f"Retry Number: {retry_num}")
+    print(f"Country: {country}")
+    print(f"Worker ID: {worker_id}")
+    print("==================================================")
+    
+    start_time = time.time()
+    try:
+        resp = requests.post(url, json=payload, timeout=30)
+        resp_time = time.time() - start_time
+        
+        try:
+            data = resp.json()
+            raw_body = json.dumps(data)[:1000] + ("..." if len(json.dumps(data)) > 1000 else "")
+            num_results = len(data.get("results", []))
+        except Exception:
+            raw_body = resp.text[:1000]
+            num_results = 0
+            
+        print("\n==================================================")
+        print("[TAVILY RESPONSE]")
+        print("==================================================")
+        print(f"HTTP Status: {resp.status_code}")
+        print(f"Response Time: {resp_time:.2f}s")
+        print(f"Number of Results: {num_results}")
+        print(f"Full Response Body: {raw_body}")
+        print("==================================================")
+        
+        resp.raise_for_status()
+        
+        results = data.get("results", [])
+        if data.get("answer"):
+            results.append({
+                "title":   "Tavily synthesised answer",
+                "url":     "tavily-answer",
+                "content": data["answer"],
+            })
+        return results
+        
+    except Exception as e:
+        print("\n==================================================")
+        print("[TAVILY ERROR]")
+        print("==================================================")
+        print(f"Exception Type: {type(e).__name__}")
+        print(f"Exception Message: {str(e)}")
+        status_code = getattr(e.response, 'status_code', 'N/A') if hasattr(e, 'response') and e.response is not None else 'N/A'
+        print(f"HTTP Status: {status_code}")
+        print(f"Retry Count: {retry_num}")
+        print(f"Stack Trace:\n{traceback.format_exc()}")
+        print("==================================================")
+        raise
 
 def gather_search_context(country: str) -> str:
     queries = [
@@ -265,6 +311,10 @@ def gather_search_context(country: str) -> str:
         log.warning("  [Tavily] Skipping search — no API key.")
         return ""
 
+    print("\n==================================================")
+    print(f"API Key from env: {os.getenv('TAVILY_API_KEY')}")
+    print("==================================================\n")
+
     # Run all 3 queries concurrently instead of sequentially - they're
     # independent (no query depends on a previous result), and each can take
     # 10-20s+ at search_depth="advanced", so sequential execution was adding
@@ -276,7 +326,7 @@ def gather_search_context(country: str) -> str:
 
     def _run_query(q: str) -> list[dict]:
         log.info(f"  [Tavily] {q}")
-        results = tavily_search(q)
+        results = tavily_search(q, country=country)
         log.info(f"           -> {len(results)} result(s)")
         return results
 
@@ -676,13 +726,38 @@ def process_country(country: str, provider: str = DEFAULT_PROVIDER) -> dict:
         log.info("[Step 1/3] Tavily unavailable — skipping search, using LLM-only mode...")
     search_context = gather_search_context(country)
 
-    if search_context:
-        log.info(f"[Step 2/3] Classifying cities via {provider} (with search context)...")
-    else:
-        log.info(f"[Step 2/3] Classifying cities via {provider} (LLM-only, no search context)...")
-    raw_response = groq_classify(country, search_context, provider=provider)
+    fallback_providers = [p for p in PROVIDERS if _provider_has_key(p)]
+    if provider in fallback_providers:
+        fallback_providers.remove(provider)
+        fallback_providers.insert(0, provider)
+    
+    raw_response = None
+    last_error = None
+    hit_429 = False
+    
+    for p in fallback_providers:
+        try:
+            if search_context:
+                log.info(f"[Step 2/3] Classifying cities via {p} (with search context)...")
+            else:
+                log.info(f"[Step 2/3] Classifying cities via {p} (LLM-only, no search context)...")
+            
+            raw_response = groq_classify(country, search_context, provider=p)
+            provider = p # update so downstream logs show the successful provider
+            log.info(f"  [{provider.upper()}] Response received ({len(raw_response)} chars)")
+            break
+        except Exception as e:
+            err_str = str(e).lower()
+            if "429" in err_str or "too many requests" in err_str:
+                hit_429 = True
+            log.warning(f"  [{p.upper()}] Failed: {e}")
+            last_error = e
 
-    log.info(f"  [{provider.upper()}] Response received ({len(raw_response)} chars)")
+    if not raw_response:
+        msg = f"All LLM providers failed. Last error: {last_error}"
+        if hit_429:
+            msg += " (429 Rate limit hit across one or more providers)"
+        raise RuntimeError(msg)
 
     log.info("[Step 3/3] Parsing JSON...")
     data = parse_json(raw_response)

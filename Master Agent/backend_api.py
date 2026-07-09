@@ -512,6 +512,10 @@ def _run_agent_2(s: Session, selected_countries: list, provider: str = "groq") -
             s.agent_status["2"] = "Error"
             m.errors.append("Stopped by user request.")
             _manual_finish(s, m, False, len(s.state.all_cities))
+        elif len(s.state.all_cities) == 0:
+            s.agent_status["2"] = "Error"
+            m.errors.append("No cities found (possible rate limit).")
+            _manual_finish(s, m, False, 0)
         else:
             s.agent_status["2"] = "Done"
             _manual_finish(s, m, True, len(s.state.all_cities))
@@ -679,7 +683,9 @@ def run_agent_5(session_id: str):
 def _active_state(s: Session) -> PipelineState:
     """Return orchestrator state if active, else legacy state."""
     if s.orchestrator.metrics is not None and s.orchestrator._state is not None:
+        print(f"[_active_state] Returning orchestrator state for session {s.id}")
         return s.orchestrator._state
+    print(f"[_active_state] Returning legacy state for session {s.id}")
     return s.state
 
 

@@ -65,8 +65,18 @@ export function AgentDetail({
     >
       {rows.length === 0 ? (
         <EmptyState
-          message={`No data yet for Agent ${agentNum}.`}
-          hint="Execute the pipeline from the Dashboard to populate this."
+          message={
+            status === "error" || status === "failed" || status === "Error" || status === "Failed"
+              ? `Agent ${agentNum} failed to retrieve data.`
+              : status === "done" || status === "Done"
+              ? `Agent ${agentNum} completed but found no data.`
+              : `No data yet for Agent ${agentNum}.`
+          }
+          hint={
+            status === "error" || status === "failed" || status === "Error" || status === "Failed" || status === "done" || status === "Done"
+              ? "Check the backend console for rate limit or API errors."
+              : "Execute the pipeline from the Dashboard to populate this."
+          }
         />
       ) : (
         <div className="overflow-auto scrollbar-thin max-h-[520px] rounded-sm border border-hairline">
