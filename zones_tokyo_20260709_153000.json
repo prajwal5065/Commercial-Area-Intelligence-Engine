@@ -1,0 +1,36 @@
+{
+  "status": "SUCCESS",
+  "city": "Tokyo",
+  "country": "Japan",
+  "provider": "gemini/gemini-2.0-flash",
+  "retrieved_at": "2026-07-09T15:29:58",
+  "zones": [
+    {
+      "zone_name": "Shibuya Business District",
+      "business_count": 5500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "Japan",
+      "rank": 1
+    },
+    {
+      "zone_name": "Shinjuku Business District",
+      "business_count": 0,
+      "count_source": "unknown",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "Japan",
+      "rank": 2
+    },
+    {
+      "zone_name": "Marunouchi",
+      "business_count": 0,
+      "count_source": "unknown",
+      "source_url": "",
+      "city": "Tokyo",
+      "country": "Japan",
+      "rank": 3
+    }
+  ]
+}

@@ -152,13 +152,22 @@ def fault_tolerant_dispatch(worker_fn: Callable, batches: List[Dict],
         
         for attempt in range(max_retries + 1):
             try:
+                # Increment active-instance counter. Isolated in its own try/except
+                # so a callback error (e.g. bad metrics key) never silently aborts
+                # the worker dispatch — it prints a visible warning and continues.
                 if on_active_change:
-                    on_active_change(1)
+                    try:
+                        on_active_change(1)
+                    except Exception as _cb_err:
+                        print(f"  [{instance_id}] WARNING: on_active_change(+1) failed: {_cb_err}")
                 try:
                     result = worker_fn(items, instance_id)
                 finally:
                     if on_active_change:
-                        on_active_change(-1)
+                        try:
+                            on_active_change(-1)
+                        except Exception as _cb_err:
+                            print(f"  [{instance_id}] WARNING: on_active_change(-1) failed: {_cb_err}")
                 return result, None  # Success
             except Exception as e:
                 if attempt < max_retries:
@@ -236,6 +245,9 @@ class PipelineState:
         self.failures = []  # [{"phase": "...", "instance_id": "...", "error": "..."}]
         self.start_time = datetime.now()
         self.on_failure_callback = None
+        # Attached by PipelineOrchestrator.start(); None when running standalone.
+        # Guards in run_pipeline.py check: `if state.orchestrator is not None`
+        self.orchestrator = None  # type: Optional[Any]
 
     def log_failure(self, phase_name: str, failure_dict: Dict) -> None:
         """Log a dropped slice (failed batch execution)."""

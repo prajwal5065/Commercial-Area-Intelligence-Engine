@@ -1194,11 +1194,15 @@ def process_city(city: str, country: str, stop_event=None) -> dict:
         pass  # supabase_client may not expose the required API yet
 
     # Pass 1 — zone discovery
+    # Do NOT catch and swallow here: the outer zone_finder_worker has typed
+    # retry logic (transient vs UNEXPECTED_ERROR). Converting a real exception
+    # to a FAILED status dict bypasses all of that and loses the original
+    # exception type — making retries impossible and logs misleading.
     try:
         zones = discover_zones(city, country)
     except Exception as e:
-        log.error(f"{city}: zone discovery failed — {e}")
-        return {"status": "FAILED", "city": city, "country": country, "zones": []}
+        log.error(f"{city}: zone discovery failed — {type(e).__name__}: {e}")
+        raise  # let zone_finder_worker's retry/fail-fast logic handle it
 
     if stop_event is not None and stop_event.is_set():
         log.warning(f"{city}: stop requested after zone discovery — skipping zone counting.")

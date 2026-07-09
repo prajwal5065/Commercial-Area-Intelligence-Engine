@@ -206,8 +206,6 @@ def get_status(session_id: str):
         # Map orchestrator agent statuses back to the legacy agent_status dict
         for aid, am in orch_status["agents"].items():
             s.agent_status[str(aid)] = am["status"].capitalize().replace("Done", "Done").replace("Failed", "Error")
-            if str(aid) == "agent3":
-                am["active_instances"] = _ZONE_METRICS.active_workers
         if orch.metrics.output_file:
             s.output_file = orch.metrics.output_file
 
@@ -228,6 +226,24 @@ def get_status(session_id: str):
         }
 
     # Fallback: legacy per-agent status (Manual mode - /agents/N/run)
+    return {
+        "session_id": s.id,
+        "running": False,
+        "error": None,
+        "agent_status": s.agent_status,
+        "output_file": s.output_file,
+    }
+
+@app.get("/debug")
+def get_debug():
+    res = {}
+    for sid, s in SESSIONS.items():
+        if s.orchestrator and s.orchestrator.metrics:
+            res[sid] = {
+                "active_workers": {k: v.active_instances for k, v in s.orchestrator.metrics.agents.items()},
+                "input_counts": {k: v.input_count for k, v in s.orchestrator.metrics.agents.items()}
+            }
+    return res
     return {
         "session_id": s.id,
         "running": s._agent_running,

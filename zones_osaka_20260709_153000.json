@@ -1,0 +1,27 @@
+{
+  "status": "SUCCESS",
+  "city": "Osaka",
+  "country": "Japan",
+  "provider": "gemini/gemini-2.0-flash",
+  "retrieved_at": "2026-07-09T15:29:58",
+  "zones": [
+    {
+      "zone_name": "Umeda",
+      "business_count": 2500,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "Japan",
+      "rank": 1
+    },
+    {
+      "zone_name": "Shinsaibashi",
+      "business_count": 0,
+      "count_source": "unknown",
+      "source_url": "",
+      "city": "Osaka",
+      "country": "Japan",
+      "rank": 2
+    }
+  ]
+}

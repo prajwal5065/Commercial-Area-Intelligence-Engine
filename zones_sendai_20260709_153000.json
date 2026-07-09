@@ -1,0 +1,45 @@
+{
+  "status": "SUCCESS",
+  "city": "Sendai",
+  "country": "Japan",
+  "provider": "gemini/gemini-2.0-flash",
+  "retrieved_at": "2026-07-09T15:29:56",
+  "zones": [
+    {
+      "zone_name": "Aoba-dori",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "Japan",
+      "rank": 1
+    },
+    {
+      "zone_name": "Izumi-cho",
+      "business_count": 541,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "Japan",
+      "rank": 2
+    },
+    {
+      "zone_name": "Sendai Station Building",
+      "business_count": 150,
+      "count_source": "Estimated",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "Japan",
+      "rank": 3
+    },
+    {
+      "zone_name": "Kokubuncho",
+      "business_count": 0,
+      "count_source": "unknown",
+      "source_url": "",
+      "city": "Sendai",
+      "country": "Japan",
+      "rank": 4
+    }
+  ]
+}

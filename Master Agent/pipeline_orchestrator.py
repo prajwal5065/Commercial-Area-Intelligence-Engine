@@ -215,10 +215,17 @@ class PipelineMetrics:
         return f"{mins//60}h {mins%60}m {s}s"
 
     def to_dict(self) -> Dict:
-        d = asdict(self)
+        # Build dict manually to avoid asdict()'s deep-copy, which crashes on
+        # the threading.Lock inside each AgentMetrics._lock field.
+        d = {
+            f.name: getattr(self, f.name)
+            for f in fields(self)
+            if f.name != "agents"
+        }
         d["elapsed"] = self.elapsed
-        for k, v in d["agents"].items():
-            v["elapsed"] = self.agents[k].elapsed
+        # Delegate agent serialization to AgentMetrics.to_dict() which already
+        # handles the Lock exclusion correctly.
+        d["agents"] = {k: v.to_dict() for k, v in self.agents.items()}
         return d
 
 

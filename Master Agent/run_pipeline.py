@@ -163,26 +163,39 @@ def phase_1_gdp_ranking(state, args):
 def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
     """
     Take N countries from Phase 1.
-    CALCULATE: K2 = ceil(N / C_max) with C_max = 3 countries per instance.
-    DISPATCH: K2 identical Agent 2 instances in parallel.
+    CALCULATE: K2 = ceil(N / C_max) with C_max = 1 country per instance.
+    DISPATCH: K2 identical Agent 2 instances in parallel (1-to-1 thread
+    isolation). C_MAX was changed from 3 -> 1 because process_country() makes
+    exactly one LLM call per country; grouping 3 per thread never batched
+    anything, it only serialised 3 sequential calls inside one thread at the
+    cost of load-balancing and per-country retry granularity.
 
     provider: which LLM to use for city classification calls
     ("groq" | "gemini" | "openai"). Manual choice, forwarded to
     city_segmenters_code.process_country(). Defaults to "groq", matching
     behavior before provider choice existed.
     """
+    print(f"[TRACE-01] Entering Agent 2")
     countries = [c.get("country_name", c) if isinstance(c, dict) else c
                  for c in state.gdp_ranked_countries]
 
     if not countries:
-        print("  [Phase 2] No countries to process. Skipping.")
+        print("[TRACE-02] No countries to process. Skipping.")
         return
 
+    print(f"[TRACE-03] Countries received: {len(countries)}")
     N = len(countries)
     C_MAX = 1  # 1-to-1 thread isolation (0 extra LLM cost, perfectly load-balanced)
 
     batches = calculate_batches(countries, c_max=C_MAX, agent_name="Agent2")
     K = len(batches)
+    print(f"[TRACE-04] Number of batches: {K}")
+    
+    if state.orchestrator is not None and state.orchestrator.metrics:
+        _am = state.orchestrator.metrics.agents.get("2")
+        if _am is not None:
+            _am.input_count = K
+            print(f"[TRACE-05] Updating input_count to {K}")
 
     print_planning_block(
         phase_num=2, phase_name="City Segmentation",
@@ -200,6 +213,11 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
         )
 
     _registry_lock = threading.Lock()
+    # Seed seen-set from any cities already in state (checkpoint resume safety).
+    # Key is (city_name, country) — NOT bare city_name — so the same city name
+    # appearing under two different countries (e.g. "Springfield, US" vs
+    # "Springfield, AU") is kept as two distinct entries. Name-only dedup was
+    # the original behaviour and silently discarded legitimate cities.
     global_seen_cities = {(c.get("city"), c.get("country")) for c in state.all_cities if c.get("city")}
 
     # Worker function for fault-tolerant dispatch
@@ -234,13 +252,16 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
                     # Real-time state merge for "No data yet" bug & dashboard live count
                     new_city_names = []
                     with _registry_lock:
-                        print(f"MERGING: {country_name}, cities so far: {len(state.all_cities)}")
+                        print(f"  [{instance_id}] Merging {country_name} into state ({len(state.all_cities)} cities so far)...")
                         state.master_city_registry[country_name] = data
                         for tier_idx, tier_key in enumerate(["tier_1_cities", "tier_2_cities", "tier_3_cities"]):
                             for item in data.get(tier_key, []):
                                 city_name = item.get("city_name")
                                 if city_name:
-                                    # Global cross-country deduplication
+                                    # (city_name, country) pair-based dedup — intentional design:
+                                    # allows the same city name once per country so distinct cities
+                                    # that share a name across countries are not silently discarded.
+                                    # Do NOT simplify to name-only dedup.
                                     pair = (city_name, country_name)
                                     if pair not in global_seen_cities:
                                         global_seen_cities.add(pair)
@@ -249,8 +270,12 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
                                             "city": city_name, "country": country_name, "tier": tier_idx + 1
                                         })
                         
-                        if hasattr(state, "orchestrator") and state.orchestrator.metrics:
-                            state.orchestrator.metrics.agents["agent2"].record_output(new_city_names)
+                        if state.orchestrator is not None and state.orchestrator.metrics:
+                            _am = state.orchestrator.metrics.agents.get("2")
+                            if _am is not None:
+                                _am.record_output(new_city_names)
+                            else:
+                                print("[run_pipeline] WARNING: metrics key '2' not found — skipping record_output for Agent 2")
                                 
                     break
                 except ValueError as ve:
@@ -298,8 +323,12 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
     effective_workers = _dynamic_workers(provider, K)
     
     def _on_active_change(delta: int):
-        if hasattr(state, "orchestrator") and state.orchestrator.metrics:
-            state.orchestrator.metrics.agents["agent2"].change_active_instances(delta)
+        if state.orchestrator is not None and state.orchestrator.metrics:
+            _am = state.orchestrator.metrics.agents.get("2")
+            if _am is not None:
+                _am.change_active_instances(delta)
+            else:
+                print("[run_pipeline] WARNING: metrics key '2' not found — skipping change_active_instances for Agent 2")
 
     all_results, failures = fault_tolerant_dispatch(
         worker_fn=segmentation_worker,
@@ -325,8 +354,12 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
 def phase_3_zone_finding(state, stop_event=None):
     """
     Flatten Master City Registry into M cities.
-    CALCULATE: K3 = ceil(M / C_max) with C_max = 4 cities per instance.
-    DISPATCH: K3 identical Agent 3 instances in parallel.
+    CALCULATE: K3 = ceil(M / C_max) with C_max = 1 city per instance.
+    DISPATCH: K3 identical Agent 3 instances in parallel (1-to-1 thread
+    isolation). C_MAX was changed from 4 -> 1 because process_city() makes
+    exactly one LLM+Tavily call per city; grouping 4 per thread never batched
+    anything, it only serialised 4 sequential calls inside one thread at the
+    cost of load-balancing and per-city retry granularity.
 
     stop_event: optional threading.Event. When set, in-progress city loops
     bail out after the current city finishes rather than waiting for the
@@ -345,6 +378,11 @@ def phase_3_zone_finding(state, stop_event=None):
 
     batches = calculate_batches(state.all_cities, c_max=C_MAX, agent_name="Agent3")
     K = len(batches)
+    
+    if state.orchestrator is not None and state.orchestrator.metrics:
+        _am = state.orchestrator.metrics.agents.get("3")
+        if _am is not None:
+            _am.input_count = K
 
     print_planning_block(
         phase_num=3, phase_name="Zone Finding",
@@ -379,7 +417,15 @@ def phase_3_zone_finding(state, stop_event=None):
             city_name = city_info["city"]
             country = city_info["country"]
             
-            time.sleep(1)  # Waits 1 second between API calls to prevent 432 errors on initial burst
+            # Thundering-herd protection: stagger each city by 1 s before its
+            # first API call. The adaptive concurrency governor throttles maximum
+            # concurrent workers in steady state, but cannot react to an initial
+            # burst because it has no latency/outcome data yet — all workers
+            # start in the same millisecond and the first wave of requests hits
+            # Tavily before the health scorer has any signal to step down on.
+            # This sleep specifically guards that initial-burst window.
+            # Do NOT remove without replacing with an equivalent stagger mechanism.
+            time.sleep(1)
             
             max_retries = 3
             for attempt in range(1, max_retries + 1):
@@ -393,13 +439,20 @@ def phase_3_zone_finding(state, stop_event=None):
                         with _registry_lock:
                             if city_name:
                                 state.master_zone_registry[(city_name, country)] = zones
-                            if hasattr(state, "orchestrator") and state.orchestrator.metrics:
-                                state.orchestrator.metrics.agents["agent3"].record_output(zones)
+                            if state.orchestrator is not None and state.orchestrator.metrics:
+                                _am = state.orchestrator.metrics.agents.get("3")
+                                if _am is not None:
+                                    _am.record_output(zones)
+                                else:
+                                    print("[run_pipeline] WARNING: metrics key '3' not found — skipping record_output for Agent 3")
                         
                         break
                     else:
-                        # FAILED status triggered by bubbled-up timeouts/errors inside process_city
-                        raise ValueError(f"Zone finding failed: {data.get('error', 'unknown')}")
+                        # process_city returned None or an unrecognised status
+                        # (not SUCCESS / NO_ZONES / STOPPED). Real exceptions from
+                        # discover_zones now re-raise and are caught above, so this
+                        # path covers only unexpected None returns or unknown statuses.
+                        raise ValueError(f"Zone finding failed: {data.get('error', 'unknown') if data else 'None returned'}")
                         
                 except Exception as e:
                     err_str = str(e).lower()
@@ -434,8 +487,12 @@ def phase_3_zone_finding(state, stop_event=None):
     effective_workers = _dynamic_workers("tavily", K)
     
     def _on_active_change(delta: int):
-        if hasattr(state, "orchestrator") and state.orchestrator.metrics:
-            state.orchestrator.metrics.agents["agent3"].change_active_instances(delta)
+        if state.orchestrator is not None and state.orchestrator.metrics:
+            _am = state.orchestrator.metrics.agents.get("3")
+            if _am is not None:
+                _am.change_active_instances(delta)
+            else:
+                print("[run_pipeline] WARNING: metrics key '3' not found — skipping change_active_instances for Agent 3")
             
     all_results, failures = fault_tolerant_dispatch(
         worker_fn=zone_finder_worker,
@@ -463,8 +520,12 @@ def phase_3_zone_finding(state, stop_event=None):
 def phase_4_subarea_mapper(state, provider: str = "groq", stop_event=None):
     """
     Flatten Master Zone Registry into Z zones.
-    CALCULATE: K5 = ceil(Z / C_max) with C_max = 2 (hyper-parallel, leaf-level).
+    CALCULATE: K5 = ceil(Z / C_max) with C_max = 2 zones per instance.
     DISPATCH: K5 identical Agent 5 instances in parallel.
+    C_MAX=2 is retained here (unlike Agents 2/3 which moved to 1) because
+    process_zone() takes one zone per call — grouping 2 per thread gives
+    modest dispatch-overhead reduction at leaf level with no extra LLM cost.
+    Confirmed: process_zone(zone_name, city, country) signature is 1-zone-per-call.
 
     provider: which LLM to use for zone-to-subarea mapping calls
     ("groq" | "gemini" | "openai"). Manual choice, passed through to
@@ -490,6 +551,11 @@ def phase_4_subarea_mapper(state, provider: str = "groq", stop_event=None):
 
     batches = calculate_batches(all_zone_items, c_max=C_MAX, agent_name="Agent5")
     K = len(batches)
+    
+    if state.orchestrator is not None and state.orchestrator.metrics:
+        _am = state.orchestrator.metrics.agents.get("4")
+        if _am is not None:
+            _am.input_count = K
 
     print_planning_block(
         phase_num=4, phase_name="Sub-Area Mapping (Agent 5)",
@@ -565,15 +631,23 @@ def phase_4_subarea_mapper(state, provider: str = "groq", stop_event=None):
     def _on_active_change(delta: int):
         # The guard allows agents to run standalone without an orchestrator wrapper.
         # Fails silently instead of crashing when 'run_pipeline.py' is executed directly.
-        if hasattr(state, "orchestrator") and state.orchestrator.metrics:
-            state.orchestrator.metrics.agents["agent4"].change_active_instances(delta)
+        if state.orchestrator is not None and state.orchestrator.metrics:
+            _am = state.orchestrator.metrics.agents.get("4")
+            if _am is not None:
+                _am.change_active_instances(delta)
+            else:
+                print("[run_pipeline] WARNING: metrics key '4' not found — skipping change_active_instances for Agent 4")
 
     # Execute with fault tolerance
+    # Wired to the adaptive governor so large zone counts don't spin up
+    # an unbounded thread pool (max_workers=K with no ceiling is a real
+    # risk when Z is large — extras queue safely inside ThreadPoolExecutor).
+    effective_workers = _dynamic_workers(provider, K)
     all_results, failures = fault_tolerant_dispatch(
         worker_fn=subarea_worker,
         batches=batches,
         agent_name="Agent 4 — Sub-Area Mapper",
-        max_workers=K,
+        max_workers=effective_workers,
         on_active_change=_on_active_change,
     )
 
@@ -769,6 +843,11 @@ def phase_5_lead_scraper(state, max_scrolls, max_scrapers, stop_event=None):
 
     batches = calculate_batches(all_subareas, c_max=C_MAX, agent_name="Agent6")
     K = len(batches)
+    
+    if state.orchestrator is not None and state.orchestrator.metrics:
+        _am = state.orchestrator.metrics.agents.get("5")
+        if _am is not None:
+            _am.input_count = K
 
     print_planning_block(
         phase_num=5, phase_name="Lead Scraping (Agent 6)",
@@ -820,8 +899,12 @@ def phase_5_lead_scraper(state, max_scrolls, max_scrapers, stop_event=None):
     def _on_active_change(delta: int):
         # The guard allows agents to run standalone without an orchestrator wrapper.
         # Fails silently instead of crashing when 'run_pipeline.py' is executed directly.
-        if hasattr(state, "orchestrator") and state.orchestrator.metrics:
-            state.orchestrator.metrics.agents["agent5"].change_active_instances(delta)
+        if state.orchestrator is not None and state.orchestrator.metrics:
+            _am = state.orchestrator.metrics.agents.get("5")
+            if _am is not None:
+                _am.change_active_instances(delta)
+            else:
+                print("[run_pipeline] WARNING: metrics key '5' not found — skipping change_active_instances for Agent 5")
 
     # Cap concurrent browser instances for resource safety
     effective_workers = min(K, max_scrapers)

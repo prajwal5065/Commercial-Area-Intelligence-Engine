@@ -699,12 +699,49 @@ def process_country(country: str, provider: str = DEFAULT_PROVIDER) -> dict:
     total_extracted = 0
     for tier_key in required_keys:
         clean_list = []
-        for item in data.get(tier_key, []):
-            c_name = item.get("city_name", "").strip()
-            if c_name and c_name.lower() not in seen_cities:
-                seen_cities.add(c_name.lower())
-                clean_list.append(item)
-                total_extracted += 1
+        if tier_key == "tier_3_cities":
+            # tier_3_cities uses a nested wrapper schema per the system prompt:
+            #   [ { "definition": "...", "cities": [ {city_dict}, ... ] } ]
+            # Iterating items directly and calling item.get("city_name") on the
+            # wrapper object always returns "" — silently dropping every Tier 3
+            # city. We must descend into the nested "cities" array instead.
+            for wrapper in data.get(tier_key, []):
+                if not isinstance(wrapper, dict):
+                    continue
+                # Handle both: wrapper with nested "cities" list, and flat
+                # city-dict (LLM sometimes skips the wrapper on Tier 3).
+                if "cities" in wrapper:
+                    clean_inner = []
+                    for city_item in wrapper.get("cities", []):
+                        if not isinstance(city_item, dict):
+                            continue
+                        c_name = city_item.get("city_name", "").strip()
+                        if c_name and c_name.lower() not in seen_cities:
+                            seen_cities.add(c_name.lower())
+                            clean_inner.append(city_item)
+                            total_extracted += 1
+                    if clean_inner:
+                        clean_list.append({
+                            "definition": wrapper.get("definition", ""),
+                            "cities": clean_inner,
+                        })
+                else:
+                    # Flat dict accidentally placed directly in tier_3_cities
+                    c_name = wrapper.get("city_name", "").strip()
+                    if c_name and c_name.lower() not in seen_cities:
+                        seen_cities.add(c_name.lower())
+                        clean_list.append(wrapper)
+                        total_extracted += 1
+        else:
+            # Tier 1 and Tier 2 are flat lists of city dicts
+            for item in data.get(tier_key, []):
+                if not isinstance(item, dict):
+                    continue
+                c_name = item.get("city_name", "").strip()
+                if c_name and c_name.lower() not in seen_cities:
+                    seen_cities.add(c_name.lower())
+                    clean_list.append(item)
+                    total_extracted += 1
         data[tier_key] = clean_list
 
     if total_extracted == 0:
