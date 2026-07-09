@@ -189,6 +189,7 @@ class Agent2Request(BaseModel):
 
 class Agent3Request(BaseModel):
     selected_cities: list[str] = []
+    provider: str = "groq"
 
 
 class Agent4Request(BaseModel):
@@ -526,7 +527,7 @@ def _run_agent_2(s: Session, selected_countries: list, provider: str = "groq") -
         s._agent_running = False
 
 
-def _run_agent_3(s: Session, selected_cities: list) -> None:
+def _run_agent_3(s: Session, selected_cities: list, provider: str = "groq") -> None:
     original_cities = s.state.all_cities[:] if s.state.all_cities else None
     if selected_cities:
         if not s.state.all_cities:
@@ -541,7 +542,7 @@ def _run_agent_3(s: Session, selected_cities: list) -> None:
         zone_finders_code.set_rate_limit_callback(
             lambda p, d: _mark_rate_limited(s, "3", p, d)
         )
-        phase_3_zone_finding(s.state, stop_event=s._manual_stop_event)
+        phase_3_zone_finding(s.state, provider=provider, stop_event=s._manual_stop_event)
         total_zones = sum(len(z) for z in s.state.master_zone_registry.values())
         if s._manual_stop_event.is_set():
             s.agent_status["3"] = "Error"
@@ -653,7 +654,7 @@ def run_agent_2(session_id: str, body: Agent2Request):
 @app.post("/sessions/{session_id}/agents/3/run")
 def run_agent_3(session_id: str, body: Agent3Request):
     s = _get_session(session_id)
-    _start_agent_thread(s, _run_agent_3, body.selected_cities)
+    _start_agent_thread(s, _run_agent_3, body.selected_cities, body.provider)
     return {"status": "started"}
 
 

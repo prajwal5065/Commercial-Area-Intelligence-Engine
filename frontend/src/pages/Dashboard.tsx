@@ -51,6 +51,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   const [selectedZones, setSelectedZones] = useState<string[]>([]);
   const [manualSubareaTopN, setManualSubareaTopN] = useState("10");
   const [stage2Provider, setStage2Provider] = useState<LlmProvider>("groq");
+  const [stage3Provider, setStage3Provider] = useState<LlmProvider>("groq");
   const [stage4Provider, setStage4Provider] = useState<LlmProvider>("groq");
   const [manualStarting, setManualStarting] = useState<string | null>(null);
 
@@ -225,7 +226,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   async function handleManualRun3() {
     setManualStarting("3");
     try {
-      await api.runAgent3(sessionId, selectedCities);
+      await api.runAgent3(sessionId, selectedCities, stage3Provider);
       refresh();
     } finally {
       setManualStarting(null);
@@ -463,6 +464,12 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                 selectedNames={selectedCities}
                 onSelectedNamesChange={setSelectedCities}
                 disabled={!stage2Done || manualStarting !== null || isAgent3Running}
+              />
+              <ProviderToggle
+                value={stage3Provider}
+                onChange={setStage3Provider}
+                disabled={!stage2Done || manualStarting !== null || isAgent3Running}
+                rateLimited={status.rate_limited_providers}
               />
             </div>
 

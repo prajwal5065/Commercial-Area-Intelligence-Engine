@@ -256,19 +256,21 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
                         state.master_city_registry[country_name] = data
                         for tier_idx, tier_key in enumerate(["tier_1_cities", "tier_2_cities", "tier_3_cities"]):
                             for item in data.get(tier_key, []):
-                                city_name = item.get("city_name")
-                                if city_name:
-                                    # (city_name, country) pair-based dedup — intentional design:
-                                    # allows the same city name once per country so distinct cities
-                                    # that share a name across countries are not silently discarded.
-                                    # Do NOT simplify to name-only dedup.
-                                    pair = (city_name, country_name)
-                                    if pair not in global_seen_cities:
-                                        global_seen_cities.add(pair)
-                                        new_city_names.append(city_name)
-                                        state.all_cities.append({
-                                            "city": city_name, "country": country_name, "tier": tier_idx + 1
-                                        })
+                                sub_items = item.get("cities", [item]) if isinstance(item, dict) else []
+                                for sub_item in sub_items:
+                                    city_name = sub_item.get("city_name") if isinstance(sub_item, dict) else None
+                                    if city_name:
+                                        # (city_name, country) pair-based dedup — intentional design:
+                                        # allows the same city name once per country so distinct cities
+                                        # that share a name across countries are not silently discarded.
+                                        # Do NOT simplify to name-only dedup.
+                                        pair = (city_name, country_name)
+                                        if pair not in global_seen_cities:
+                                            global_seen_cities.add(pair)
+                                            new_city_names.append(city_name)
+                                            state.all_cities.append({
+                                                "city": city_name, "country": country_name, "tier": tier_idx + 1
+                                            })
                         
                         if state.orchestrator is not None and state.orchestrator.metrics:
                             _am = state.orchestrator.metrics.agents.get("2")
@@ -351,7 +353,7 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
 #  PHASE 3 — Zone Finding (Agent 3) — Massive Parallel
 # ═══════════════════════════════════════════════════════════════════
 
-def phase_3_zone_finding(state, stop_event=None):
+def phase_3_zone_finding(state, provider: str = "groq", stop_event=None):
     """
     Flatten Master City Registry into M cities.
     CALCULATE: K3 = ceil(M / C_max) with C_max = 1 city per instance.
@@ -370,8 +372,9 @@ def phase_3_zone_finding(state, stop_event=None):
         print("  [Phase 3] No cities to process. Skipping.")
         return
 
-    from zone_finders_code import _EXHAUSTED_PROVIDERS
+    from zone_finders_code import _EXHAUSTED_PROVIDERS, _apply_provider
     _EXHAUSTED_PROVIDERS.clear()  # fresh fallback chain for this run (module state is shared across sessions)
+    _apply_provider(provider)
 
     M = len(state.all_cities)
     C_MAX = 1  # 1-to-1 thread isolation
