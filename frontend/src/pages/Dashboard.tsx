@@ -173,6 +173,12 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   const stage3Done = (status.agent_status["3"] ?? "").toLowerCase() === "done";
   const stage4Done = (status.agent_status["4"] ?? "").toLowerCase() === "done";
 
+  const isAgent1Running = (status.agent_status["1"] ?? "").toLowerCase() === "running" || manualStarting === "1";
+  const isAgent2Running = (status.agent_status["2"] ?? "").toLowerCase() === "running" || manualStarting === "2";
+  const isAgent3Running = (status.agent_status["3"] ?? "").toLowerCase() === "running" || manualStarting === "3";
+  const isAgent4Running = (status.agent_status["4"] ?? "").toLowerCase() === "running" || manualStarting === "4";
+  const isAgent5Running = (status.agent_status["5"] ?? "").toLowerCase() === "running" || manualStarting === "5";
+
   useEffect(() => {
     if (runMode !== "manual" || !stage1Done) return;
     api.getCountries(sessionId).then((rows) =>
@@ -379,9 +385,9 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                   1 · Country Discovery
                   {stage1Done && <span className="ml-2 text-xs font-normal text-status-done">Done</span>}
                 </h3>
-                <Button variant="primary" onClick={handleManualRun1} disabled={manualStarting !== null} className="!text-xs !px-3 !py-1.5">
+                <Button variant="primary" onClick={handleManualRun1} disabled={manualStarting !== null || isAgent1Running} className="!text-xs !px-3 !py-1.5">
                   <Play className="w-3 h-3" />
-                  {manualStarting === "1" ? "Running…" : stage1Done ? "Re-run" : "Run"}
+                  {isAgent1Running ? "Running…" : stage1Done ? "Re-run" : "Run"}
                 </Button>
               </div>
               <StageConfigurator
@@ -392,7 +398,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                 nameOptions={[]}
                 selectedNames={manualCountryNames}
                 onSelectedNamesChange={setManualCountryNames}
-                disabled={manualStarting !== null}
+                disabled={manualStarting !== null || isAgent1Running}
                 allowFreeText
               />
               <p className="text-[11px] text-body-mid -mt-1">
@@ -409,9 +415,9 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                   2 · City Discovery
                   {stage2Done && <span className="ml-2 text-xs font-normal text-status-done">Done</span>}
                 </h3>
-                <Button variant="primary" onClick={handleManualRun2} disabled={!stage1Done || manualStarting !== null} className="!text-xs !px-3 !py-1.5">
+                <Button variant="primary" onClick={handleManualRun2} disabled={!stage1Done || manualStarting !== null || isAgent2Running} className="!text-xs !px-3 !py-1.5">
                   <Play className="w-3 h-3" />
-                  {manualStarting === "2" ? "Running…" : stage2Done ? "Re-run" : "Run"}
+                  {isAgent2Running ? "Running…" : stage2Done ? "Re-run" : "Run"}
                 </Button>
               </div>
               <StageConfigurator
@@ -422,7 +428,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                 nameOptions={countryOptions}
                 selectedNames={selectedCountries}
                 onSelectedNamesChange={setSelectedCountries}
-                disabled={!stage1Done || manualStarting !== null}
+                disabled={!stage1Done || manualStarting !== null || isAgent2Running}
               />
               <p className="text-[11px] text-body-mid -mt-1">
                 Name mode filters to specific countries (e.g. India, USA, Japan) discovered in Stage 1
@@ -431,7 +437,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
               <ProviderToggle
                 value={stage2Provider}
                 onChange={setStage2Provider}
-                disabled={!stage1Done || manualStarting !== null}
+                disabled={!stage1Done || manualStarting !== null || isAgent2Running}
                 rateLimited={status.rate_limited_providers}
               />
             </div>
@@ -443,9 +449,9 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                   3 · Zone Discovery
                   {stage3Done && <span className="ml-2 text-xs font-normal text-status-done">Done</span>}
                 </h3>
-                <Button variant="primary" onClick={handleManualRun3} disabled={!stage2Done || manualStarting !== null} className="!text-xs !px-3 !py-1.5">
+                <Button variant="primary" onClick={handleManualRun3} disabled={!stage2Done || manualStarting !== null || isAgent3Running} className="!text-xs !px-3 !py-1.5">
                   <Play className="w-3 h-3" />
-                  {manualStarting === "3" ? "Running…" : stage3Done ? "Re-run" : "Run"}
+                  {isAgent3Running ? "Running…" : stage3Done ? "Re-run" : "Run"}
                 </Button>
               </div>
               <StageConfigurator
@@ -456,7 +462,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                 nameOptions={cityOptions}
                 selectedNames={selectedCities}
                 onSelectedNamesChange={setSelectedCities}
-                disabled={!stage2Done || manualStarting !== null}
+                disabled={!stage2Done || manualStarting !== null || isAgent3Running}
               />
             </div>
 
@@ -467,9 +473,9 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                   4 · Sub-Area Mapping
                   {stage4Done && <span className="ml-2 text-xs font-normal text-status-done">Done</span>}
                 </h3>
-                <Button variant="primary" onClick={handleManualRun4} disabled={!stage3Done || manualStarting !== null} className="!text-xs !px-3 !py-1.5">
+                <Button variant="primary" onClick={handleManualRun4} disabled={!stage3Done || manualStarting !== null || isAgent4Running} className="!text-xs !px-3 !py-1.5">
                   <Play className="w-3 h-3" />
-                  {manualStarting === "4" ? "Running…" : stage4Done ? "Re-run" : "Run"}
+                  {isAgent4Running ? "Running…" : stage4Done ? "Re-run" : "Run"}
                 </Button>
               </div>
               <StageConfigurator
@@ -480,12 +486,12 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                 nameOptions={zoneOptions}
                 selectedNames={selectedZones}
                 onSelectedNamesChange={setSelectedZones}
-                disabled={!stage3Done || manualStarting !== null}
+                disabled={!stage3Done || manualStarting !== null || isAgent4Running}
               />
               <ProviderToggle
                 value={stage4Provider}
                 onChange={setStage4Provider}
-                disabled={!stage3Done || manualStarting !== null}
+                disabled={!stage3Done || manualStarting !== null || isAgent4Running}
                 rateLimited={status.rate_limited_providers}
               />
             </div>
@@ -498,9 +504,9 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
                   Scrapes company data for all mapped sub-areas from the previous stage.
                 </p>
               </div>
-              <Button variant="primary" onClick={handleManualRun5} disabled={!stage4Done || manualStarting !== null} className="!text-xs !px-4 !py-2">
+              <Button variant="primary" onClick={handleManualRun5} disabled={!stage4Done || manualStarting !== null || isAgent5Running} className="!text-xs !px-4 !py-2">
                 <Play className="w-3.5 h-3.5" />
-                {manualStarting === "5" ? "Running…" : "Run Scraper"}
+                {isAgent5Running ? "Running…" : "Run Scraper"}
               </Button>
             </div>
 

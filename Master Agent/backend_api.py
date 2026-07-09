@@ -104,6 +104,14 @@ app.add_middleware(
 #  Session model — now holds a PipelineOrchestrator + fallback PipelineState
 # ═══════════════════════════════════════════════════════════════════════════
 
+class _MockOrchestratorMetrics:
+    def __init__(self, agent_metrics):
+        self.agents = agent_metrics
+
+class _MockOrchestrator:
+    def __init__(self, agent_metrics):
+        self.metrics = _MockOrchestratorMetrics(agent_metrics)
+
 class Session:
     def __init__(self) -> None:
         self.id = str(uuid.uuid4())
@@ -130,6 +138,10 @@ class Session:
         self.agent_metrics: dict[str, AgentMetrics] = {}
         self.log_bus = LogBus()
         self._manual_stop_event = threading.Event()
+        
+        # FIX: Link the mock orchestrator so that run_pipeline.py can find
+        # the agent_metrics in Manual Mode.
+        self.state.orchestrator = _MockOrchestrator(self.agent_metrics)
 
         # Which LLM/search providers have hit a rate limit / quota error during
         # this session. Surfaced in /status as rate_limited_providers so the
@@ -228,24 +240,6 @@ def get_status(session_id: str):
     # Fallback: legacy per-agent status (Manual mode - /agents/N/run)
     return {
         "session_id": s.id,
-        "running": False,
-        "error": None,
-        "agent_status": s.agent_status,
-        "output_file": s.output_file,
-    }
-
-@app.get("/debug")
-def get_debug():
-    res = {}
-    for sid, s in SESSIONS.items():
-        if s.orchestrator and s.orchestrator.metrics:
-            res[sid] = {
-                "active_workers": {k: v.active_instances for k, v in s.orchestrator.metrics.agents.items()},
-                "input_counts": {k: v.input_count for k, v in s.orchestrator.metrics.agents.items()}
-            }
-    return res
-    return {
-        "session_id": s.id,
         "running": s._agent_running,
         "error": s._agent_error,
         "agent_status": s.agent_status,
@@ -269,6 +263,17 @@ def get_debug():
         # can show a warning triangle on that provider's toggle button.
         "rate_limited_providers": sorted(s.rate_limited_providers),
     }
+
+@app.get("/debug")
+def get_debug():
+    res = {}
+    for sid, s in SESSIONS.items():
+        if s.orchestrator and s.orchestrator.metrics:
+            res[sid] = {
+                "active_workers": {k: v.active_instances for k, v in s.orchestrator.metrics.agents.items()},
+                "input_counts": {k: v.input_count for k, v in s.orchestrator.metrics.agents.items()}
+            }
+    return res
 
 
 @app.delete("/sessions/{session_id}")
@@ -485,6 +490,7 @@ def _run_agent_1(s: Session, top_n: Optional[int], countries: Optional[list] = N
 
 
 def _run_agent_2(s: Session, selected_countries: list, provider: str = "groq") -> None:
+    original_gdp = s.state.gdp_ranked_countries[:] if s.state.gdp_ranked_countries else None
     if selected_countries:
         if not s.state.gdp_ranked_countries:
             s.state.gdp_ranked_countries = [{"country_name": c, "gdp_rank": i+1} for i, c in enumerate(selected_countries)]
@@ -515,10 +521,13 @@ def _run_agent_2(s: Session, selected_countries: list, provider: str = "groq") -
         m.errors.append(str(e))
         _manual_finish(s, m, False)
     finally:
+        if original_gdp is not None:
+            s.state.gdp_ranked_countries = original_gdp
         s._agent_running = False
 
 
 def _run_agent_3(s: Session, selected_cities: list) -> None:
+    original_cities = s.state.all_cities[:] if s.state.all_cities else None
     if selected_cities:
         if not s.state.all_cities:
             s.state.all_cities = [{"city": c, "country": "Unknown", "tier": 1} for c in selected_cities]
@@ -548,10 +557,13 @@ def _run_agent_3(s: Session, selected_cities: list) -> None:
         m.errors.append(str(e))
         _manual_finish(s, m, False)
     finally:
+        if original_cities is not None:
+            s.state.all_cities = original_cities
         s._agent_running = False
 
 
 def _run_agent_4(s: Session, selected_zones: list, provider: str = "groq") -> None:
+    original_zones = s.state.master_zone_registry.copy() if s.state.master_zone_registry else None
     s.agent_status["4"] = "Running"
     m = _manual_start(s, "4")
     try:
@@ -585,6 +597,8 @@ def _run_agent_4(s: Session, selected_zones: list, provider: str = "groq") -> No
         m.errors.append(str(e))
         _manual_finish(s, m, False)
     finally:
+        if original_zones is not None:
+            s.state.master_zone_registry = original_zones
         s._agent_running = False
 
 
