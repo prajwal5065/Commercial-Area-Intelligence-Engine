@@ -6,9 +6,10 @@ import time
 import logging
 from datetime import datetime
 from typing import Optional, Dict, Any
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 from dotenv import load_dotenv
+from config import GEMINI_MODEL
 
 # Adaptive concurrency health tracking (soft import — works without the file)
 try:
@@ -120,14 +121,14 @@ PROVIDERS = {
     # ── Google Gemini ────────────────────────────────────────────────
     "gemini": {
         "api_key_env": "GEMINI_API_KEY",
-        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-        "model":       "gemini-2.0-flash",
+        "api_url":     f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+        "model":       GEMINI_MODEL,
         "request_fmt": "gemini",
     },
     "gemini-pro": {
         "api_key_env": "GEMINI_API_KEY",
-        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent",
-        "model":       "gemini-1.5-pro",
+        "api_url":     f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+        "model":       GEMINI_MODEL,
         "request_fmt": "gemini",
     },
     # ── OpenAI ───────────────────────────────────────────────────────
@@ -237,7 +238,22 @@ def call_groq(prompt: str, provider: str = DEFAULT_PROVIDER) -> str:
 
     _t0 = time.time()
     try:
+        t_start = datetime.now().isoformat()
         resp = requests.post(url, headers=headers, json=payload, timeout=120)
+        t_end = datetime.now().isoformat()
+        
+        if cfg["request_fmt"] == "gemini":
+            log.info(
+                "\n=====================================\n"
+                f"Worker ID              : Agent4 Worker\n"
+                f"Country                : Unknown\n"
+                f"Selected Provider      : {provider}\n"
+                f"Gemini Model           : {cfg['model']}\n"
+                f"API Request Started    : {t_start}\n"
+                f"API Request Completed  : {t_end}\n"
+                f"HTTP Status            : {resp.status_code}\n"
+                "====================================="
+            )
         _latency = time.time() - _t0
         is_429 = resp.status_code == 429
         if is_429:

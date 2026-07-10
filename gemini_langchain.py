@@ -1,6 +1,12 @@
 # gemini_langchain.py
 # pip install langchain langchain-google-genai google-generativeai
 
+import os
+import sys
+from dotenv import load_dotenv
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from config import GEMINI_MODEL
 import google.generativeai as genai
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 
@@ -43,12 +49,12 @@ if other_models:
 
 # ── 2. Test a chat model via LangChain ───────────────────────────────────────
 print("\n" + "=" * 60)
-print("TESTING CHAT MODEL (gemini-2.5-flash)")
+print(f"TESTING CHAT MODEL ({GEMINI_MODEL})")
 print("=" * 60)
 
 try:
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
+        model=GEMINI_MODEL,
         google_api_key=API_KEY,
         temperature=0.3,
     )

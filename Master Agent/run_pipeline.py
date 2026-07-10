@@ -1,8 +1,8 @@
-
 import os
 import sys
 import json
 import math
+import random
 import argparse
 import threading
 from datetime import datetime
@@ -240,11 +240,24 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
             if stop_event is not None and stop_event.is_set():
                 print(f"  [{instance_id}] Stop requested — halting before next country.")
                 break
+
+            # Thundering-herd protection: stagger each worker by 1 s per
+            # slot index before its first API call.  Mirrors the identical
+            # pattern used in Agent 3's zone_finder_worker (run_pipeline.py
+            # line ~438: `time.sleep(1)` per city).  The adaptive concurrency
+            # governor can step down after health data arrives, but cannot
+            # react to the very first burst because it has no latency/outcome
+            # data yet — all workers start in the same millisecond and fire
+            # simultaneously before the health scorer has any signal.
+            # This sleep specifically guards that initial-burst window.
+            # Do NOT remove without replacing with an equivalent stagger.
+            time.sleep(1)
+
             max_retries = 3
             for attempt in range(1, max_retries + 1):
                 start_ts = time.monotonic()
                 try:
-                    data = city_segmenters_code.process_country(country_name, provider=provider)
+                    data = city_segmenters_code.process_country(country_name, provider=provider, worker_id=instance_id, fallback_enabled=False)
                     latency = time.monotonic() - start_ts
                     _record_outcome(provider, True, False, False, latency)
                     
@@ -286,8 +299,10 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
                     # Validation/Parsing error (LLM returned bad shape) - Retryable
                     _record_outcome(provider, False, False, False, time.monotonic() - start_ts)
                     if attempt < max_retries:
-                        wait_secs = 10 * attempt
-                        print(f"  [{instance_id}] Validation Error for {country_name} (attempt {attempt}): {ve} — retrying in {wait_secs}s...")
+                        # Jitter on validation retries too — same formula for consistency.
+                        base_wait = 10
+                        wait_secs = base_wait * attempt + random.uniform(0, base_wait / 2)
+                        print(f"  [{instance_id}] Validation Error for {country_name} (attempt {attempt}): {ve} — retrying in {wait_secs:.1f}s...")
                         time.sleep(wait_secs)
                     else:
                         print(f"  [{instance_id}] ERROR for {country_name}: {ve}")
@@ -301,15 +316,19 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
                     
                     # Type-aware transient check
                     is_network_err = isinstance(e, (requests.exceptions.RequestException, TimeoutError, ConnectionError))
-                    is_transient = is_rate_limit or is_network_err or any(kw in err_str for kw in ["timeout", "connection", "read error"])
+                    is_transient = is_rate_limit or is_network_err or any(kw in err_str for kw in ["timeout", "connection", "read error", "503"])
                     
                     if is_transient:
                         _record_outcome(provider, False, is_rate_limit, "timeout" in err_str or isinstance(e, TimeoutError), time.monotonic() - start_ts)
                         if is_rate_limit:
                             city_segmenters_code._report_rate_limit(provider, f"country={country_name}, attempt={attempt}")
                         if attempt < max_retries:
-                            wait_secs = 20 * attempt  # 20s, 40s backoff
-                            print(f"  [{instance_id}] Transient/Rate limit for {country_name} (attempt {attempt}) — waiting {wait_secs}s before retry...")
+                            # Jitter desynchronises retrying workers so they don't
+                            # pile up again in lockstep and trigger a second 429 burst.
+                            # Formula: base_wait * attempt + uniform(0, base_wait/2)
+                            base_wait = 20
+                            wait_secs = base_wait * attempt + random.uniform(0, base_wait / 2)
+                            print(f"  [{instance_id}] Transient/Rate limit for {country_name} (attempt {attempt}) — waiting {wait_secs:.1f}s before retry...")
                             time.sleep(wait_secs)
                         else:
                             tb = traceback.format_exc()
@@ -962,6 +981,9 @@ def phase_5_lead_scraper(state, max_scrolls, max_scrapers, stop_event=None):
 # ═══════════════════════════════════════════════════════════════════
 
 def main():
+    import time
+    start_time = time.time()
+    
     args = parse_args()
     state = PipelineState()
 
@@ -1054,6 +1076,37 @@ def main():
             print(f"    Instance: {fail.get('instance_id', '?')}")
             print(f"    Error: {fail.get('error', '?')}")
             print(f"    ---")
+            
+    elapsed_time = time.time() - start_time
+    total_countries = len(state.gdp_ranked_countries)
+    total_cities = len(state.all_cities)
+    total_zones = sum(len(z) for z in state.master_zone_registry.values())
+    total_subareas = len(state.all_subarea_rows)
+    total_companies = len(state.scraped_companies)
+    
+    final_summary = (
+        f"Final Report: {total_countries} Countries -> {total_cities} Cities -> "
+        f"{total_zones} Zones -> {total_subareas} Sub-areas -> {total_companies} Companies scraped in {elapsed_time:.1f}s"
+    )
+    
+    print("\n" + "─" * 60)
+    print(f"  {final_summary}")
+    print("─" * 60 + "\n")
+    
+    # Also log to orchestrator stream if running under it
+    if state.orchestrator and hasattr(state.orchestrator, 'log_bus'):
+        from pipeline_orchestrator import LogEntry
+        from datetime import datetime
+        try:
+            entry = LogEntry(
+                ts=datetime.now().strftime("%H:%M:%S"),
+                level="SUCCESS",
+                agent="SYSTEM",
+                message=final_summary
+            )
+            state.orchestrator.log_bus.emit(entry)
+        except Exception:
+            pass
 
     print("=" * 60 + "\n")
 

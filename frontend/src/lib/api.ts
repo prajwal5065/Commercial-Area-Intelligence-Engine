@@ -1,7 +1,7 @@
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-export type AgentStatus = "Pending" | "Running" | "Done" | "Error" | "pending" | "running" | "done" | "failed" | "skipped";
+export type AgentStatus = "Pending" | "Running" | "Done" | "Error" | "error" | "pending" | "running" | "done" | "failed" | "Failed" | "skipped";
 
 // Manual model choice for agents that support it.
 // Matches the PROVIDERS registry in the backend agents.
@@ -38,6 +38,7 @@ export interface AgentDetail {
   retry_count: number;
   errors: string[];
   items_out: string[];
+  active_instances: number;
 }
 
 export interface SessionStatus {

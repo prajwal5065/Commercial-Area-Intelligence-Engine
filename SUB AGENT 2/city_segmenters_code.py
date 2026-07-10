@@ -3,11 +3,13 @@ import re
 import json
 import sys
 import time
+import random
 import requests
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime   
 from dotenv import load_dotenv
+from config import GEMINI_MODEL
 
 # Adaptive concurrency health tracking (soft import — works without the file)
 try:
@@ -15,8 +17,17 @@ try:
     _PROJECT_ROOT = os.path.dirname(_HERE)
     if _PROJECT_ROOT not in sys.path:
         sys.path.insert(0, _PROJECT_ROOT)
+    from adaptive_concurrency import get_provider_manager as _get_provider_manager
     from adaptive_concurrency import record_outcome as _record_outcome
 except ImportError:
+    def _get_provider_manager(*a, **kw):
+        """Fallback: returns a no-op stub when adaptive_concurrency is absent."""
+        class _NoOpSem:
+            def acquire_blocking(self, timeout=None): return True
+            def release(self): pass
+        class _NoOpMgr:
+            sem = _NoOpSem()
+        return _NoOpMgr()
     def _record_outcome(*a, **kw): pass
 
 log = logging.getLogger(__name__)
@@ -96,16 +107,21 @@ PROVIDERS = {
         "request_fmt": "openai",
     },
     # ── Google Gemini ────────────────────────────────────────────────
+    # "gemini"     = gemini-2.0-flash (fast, via GEMINI_MODEL in config.py)
+    # "gemini-pro" = gemini-2.0-flash-lite (distinct lighter stable model)
+    # NOTE: Both share the same API key. If the free-tier quota is exhausted
+    # (HTTP 429, RESOURCE_EXHAUSTED, limit=0) use Groq instead — no code fix
+    # will help until billing is enabled on the Google Cloud project.
     "gemini": {
         "api_key_env": "GEMINI_API_KEY",
-        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-        "model":       "gemini-2.5-flash",
+        "api_url":     f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+        "model":       GEMINI_MODEL,
         "request_fmt": "gemini",
     },
     "gemini-pro": {
         "api_key_env": "GEMINI_API_KEY",
-        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
-        "model":       "gemini-2.5-pro",
+        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent",
+        "model":       "gemini-2.0-flash-lite",
         "request_fmt": "gemini",
     },
     # ── OpenAI ───────────────────────────────────────────────────────
@@ -369,7 +385,7 @@ def gather_search_context(country: str) -> str:
 
 
 
-def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PROVIDER) -> str:
+def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PROVIDER, worker_id: str = "Unknown") -> str:
     """Classify a country's cities via the chosen LLM provider. Name kept as
     groq_classify for backward compatibility with any existing callers that
     don't pass a provider - defaults to Groq, identical to prior behavior.
@@ -449,9 +465,35 @@ def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PRO
         }
         url = cfg["api_url"]
 
+    # ── Semaphore: acquire a permit from the per-provider health-scored
+    # concurrency manager BEFORE firing the HTTP request.  This is the
+    # only gate between the ThreadPoolExecutor (which caps total threads)
+    # and the actual API call — without it, all threads can send requests
+    # to the same provider simultaneously regardless of the thread cap.
+    # Release is in a finally block so a permit is NEVER leaked on any
+    # exception path (including KeyboardInterrupt).
+    _mgr = _get_provider_manager(provider)
+    _mgr.sem.acquire_blocking()
     _t0 = time.time()
     try:
+        t_start = datetime.now().isoformat()
         resp = requests.post(url, headers=headers, json=payload, timeout=120)
+        t_end = datetime.now().isoformat()
+        status = resp.status_code
+
+        if cfg["request_fmt"] == "gemini":
+            log.info(
+                "\n=====================================\n"
+                f"Worker ID              : {worker_id}\n"
+                f"Country                : {country}\n"
+                f"Selected Provider      : {provider}\n"
+                f"Gemini Model           : {cfg['model']}\n"
+                f"API Request Started    : {t_start}\n"
+                f"API Request Completed  : {t_end}\n"
+                f"HTTP Status            : {status}\n"
+                "====================================="
+            )
+
         _latency = time.time() - _t0
         is_429 = resp.status_code == 429
         if is_429:
@@ -470,6 +512,10 @@ def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PRO
     except Exception:
         _record_outcome(provider, success=False, is_429=False, is_timeout=False, latency=time.time() - _t0)
         raise
+    finally:
+        # Always release the semaphore permit — covers success, 429, timeout,
+        # JSON parse error, KeyboardInterrupt, and any other exception.
+        _mgr.sem.release()
 
  
 # JSON Parsing
@@ -690,7 +736,7 @@ def print_results(data: dict) -> None:
 # ──────────────────────────────────────────────
 #  MAIN
 # ──────────────────────────────────────────────
-def process_country(country: str, provider: str = DEFAULT_PROVIDER) -> dict:
+def process_country(country: str, provider: str = DEFAULT_PROVIDER, worker_id: str = "Unknown", fallback_enabled: bool = False) -> dict:
     """
     Reusable worker function for Master Agent.
     Takes a country name and returns parsed JSON data.
@@ -726,29 +772,50 @@ def process_country(country: str, provider: str = DEFAULT_PROVIDER) -> dict:
         log.info("[Step 1/3] Tavily unavailable — skipping search, using LLM-only mode...")
     search_context = gather_search_context(country)
 
-    fallback_providers = [p for p in PROVIDERS if _provider_has_key(p)]
-    if provider in fallback_providers:
-        fallback_providers.remove(provider)
-        fallback_providers.insert(0, provider)
+    if fallback_enabled:
+        fallback_providers = [p for p in PROVIDERS if _provider_has_key(p)]
+        if provider in fallback_providers:
+            fallback_providers.remove(provider)
+            fallback_providers.insert(0, provider)
+    else:
+        fallback_providers = [provider]
     
     raw_response = None
     last_error = None
     hit_429 = False
     
+    attempt = 0
     for p in fallback_providers:
+        attempt += 1
         try:
+            fallback_used = "Yes" if p != provider else "No"
+            fallback_reason_str = str(last_error) if fallback_used == "Yes" and last_error else "N/A"
+            fallback_enabled_str = "Yes" if fallback_enabled else "No"
+
+            log.info(
+                "\n=====================================\n"
+                f"Worker ID              : {worker_id}\n"
+                f"Country                : {country}\n"
+                f"Selected Provider      : {provider}\n"
+                f"Actual Provider Used   : {p}\n"
+                f"Fallback Enabled       : {fallback_enabled_str}\n"
+                f"Fallback Used          : {fallback_used}\n"
+                f"Fallback Reason        : {fallback_reason_str}\n"
+                f"Attempt Number         : {attempt}\n"
+                "====================================="
+            )
+
             if search_context:
                 log.info(f"[Step 2/3] Classifying cities via {p} (with search context)...")
             else:
                 log.info(f"[Step 2/3] Classifying cities via {p} (LLM-only, no search context)...")
             
-            raw_response = groq_classify(country, search_context, provider=p)
-            provider = p # update so downstream logs show the successful provider
-            log.info(f"  [{provider.upper()}] Response received ({len(raw_response)} chars)")
+            raw_response = groq_classify(country, search_context, provider=p, worker_id=worker_id)
+            log.info(f"  [{p.upper()}] Response received ({len(raw_response)} chars)")
             break
         except Exception as e:
             err_str = str(e).lower()
-            if "429" in err_str or "too many requests" in err_str:
+            if "429" in err_str or "too many requests" in err_str or "503" in err_str:
                 hit_429 = True
             log.warning(f"  [{p.upper()}] Failed: {e}")
             last_error = e

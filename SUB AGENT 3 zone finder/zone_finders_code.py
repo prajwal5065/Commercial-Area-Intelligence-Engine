@@ -55,6 +55,11 @@ Optional env vars (new in v2):
     MAX_INSTANCES          — maximum parallel worker count (default 12)
     WORKERS_MIN            — minimum parallel worker count (default 2)
 """
+import uuid
+import re
+
+from config import GEMINI_MODEL
+
 import os
 import sys
 
@@ -279,16 +284,16 @@ PROVIDERS = {
     # ── Google Gemini ─────────────────────────────────────────────
     "gemini": {
         "api_key_env":  "GEMINI_API_KEY",
-        "api_url":      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-        "model":        "gemini-2.0-flash",
+        "api_url":      f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+        "model":        GEMINI_MODEL,
         "max_out_tok":  4096,
         "tpm_limit":    None,
         "request_fmt":  "gemini",
     },
     "gemini-pro": {
         "api_key_env":  "GEMINI_API_KEY",
-        "api_url":      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent",
-        "model":        "gemini-1.5-pro",
+        "api_url":      f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+        "model":        GEMINI_MODEL,
         "max_out_tok":  4096,
         "tpm_limit":    None,
         "request_fmt":  "gemini",
@@ -620,7 +625,22 @@ def call_llm(system: str, user: str) -> str:
 
         try:
             _t0 = time.time()
+            t_start = datetime.now().isoformat()
             resp = _HTTP_SESSION.post(url, headers=headers, json=payload, timeout=120)
+            t_end = datetime.now().isoformat()
+            
+            if LLM_FMT == "gemini":
+                log.info(
+                    "\n=====================================\n"
+                    f"Worker ID              : Agent3 Worker\n"
+                    f"Country                : Unknown\n"
+                    f"Selected Provider      : {ACTIVE_PROVIDER}\n"
+                    f"Gemini Model           : {LLM_MODEL}\n"
+                    f"API Request Started    : {t_start}\n"
+                    f"API Request Completed  : {t_end}\n"
+                    f"HTTP Status            : {resp.status_code}\n"
+                    "====================================="
+                )
         except requests.exceptions.Timeout:
             _record_outcome(ACTIVE_PROVIDER, success=False, is_429=False, is_timeout=True, latency=time.time() - _t0)
             log.warning(f"[{ACTIVE_PROVIDER.upper()}] Timeout on attempt {attempt}")

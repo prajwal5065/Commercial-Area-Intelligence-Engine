@@ -66,11 +66,18 @@ from pipeline_orchestrator import PipelineOrchestrator, AgentMetrics, LogBus, Lo
 # Adaptive concurrency health tracking (may not exist yet — soft import)
 try:
     from adaptive_concurrency import all_health_snapshots as _all_health_snapshots
+    from adaptive_concurrency import get_provider_manager, probe_provider
     _ADAPTIVE_AVAILABLE = True
 except ImportError:
     _ADAPTIVE_AVAILABLE = False
     def _all_health_snapshots():
         return []
+    def probe_provider(provider):
+        return {"success": True}
+    def get_provider_manager(provider):
+        class _MockMgr:
+            def status_label(self): return "HEALTHY"
+        return _MockMgr()
 
 # Agent 3 live metrics (may not exist yet — soft import)
 try:
@@ -503,6 +510,17 @@ def _run_agent_2(s: Session, selected_countries: list, provider: str = "groq") -
     s.agent_status["2"] = "Running"
     m = _manual_start(s, "2")
     try:
+        # Pre-run validation: proactive probe and health check
+        if _ADAPTIVE_AVAILABLE:
+            probe_provider(provider)
+            status = get_provider_manager(provider).status_label()
+            if status in ("UNAVAILABLE", "CRITICAL"):
+                raise RuntimeError(
+                    f"Selected provider '{provider}' is currently {status}. "
+                    "If using Gemini, your free-tier quota may be exhausted (limit: 0). "
+                    "Please select Groq or enable billing."
+                )
+
         import city_segmenters_code
         city_segmenters_code.set_rate_limit_callback(
             lambda p, d: _mark_rate_limited(s, "2", p, d)

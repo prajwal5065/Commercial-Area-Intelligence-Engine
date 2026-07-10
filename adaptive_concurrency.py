@@ -105,6 +105,53 @@ MIN_SAMPLES_BEFORE_ADJUST: int = int(os.getenv("MIN_SAMPLES_BEFORE_ADJUST", "5")
 # Hysteresis: minimum seconds between two consecutive concurrency adjustments
 ADJUSTMENT_COOLDOWN_SEC: float = float(os.getenv("ADJUSTMENT_COOLDOWN_SEC", "10.0"))
 
+# ── Proactive probe configuration ─────────────────────────────────────────────
+# TTL for the cached probe result: probe is re-fired at most once per this many
+# seconds. Set to 0 to disable probing entirely.
+PROBE_CACHE_TTL_SEC: float = float(os.getenv("PROBE_CACHE_TTL_SEC", "60.0"))
+
+# Per-provider minimal probe definitions.
+# Each probe fires one HTTP POST/GET with a 1-token payload and records the
+# outcome directly into the provider's existing record_outcome() path.
+# Add an entry here for any provider that needs proactive health seeding.
+# Keys must match the provider keys in PROVIDERS dicts in city_segmenters_code.py.
+# Probes are intentionally tiny (1 token, 10s timeout) to consume minimal quota.
+PROVIDER_PROBES: Dict[str, dict] = {
+    "groq": {
+        "url":     "https://api.groq.com/openai/v1/chat/completions",
+        "env_key": "GROQ_API_KEY",
+        "auth":    "bearer",
+        "payload": {
+            "model": "llama-3.3-70b-versatile",
+            "max_tokens": 1,
+            "messages": [{"role": "user", "content": "Hi"}],
+        },
+        "success_codes": {200},
+    },
+    "gemini": {
+        "url_template": "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}",
+        "env_key":      "GEMINI_API_KEY",
+        "model":        "gemini-2.0-flash",
+        "auth":         "query",   # key is embedded in URL
+        "payload": {
+            "contents": [{"role": "user", "parts": [{"text": "Hi"}]}],
+            "generationConfig": {"maxOutputTokens": 1},
+        },
+        "success_codes": {200},
+    },
+    "gemini-pro": {
+        "url_template": "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}",
+        "env_key":      "GEMINI_API_KEY",
+        "model":        "gemini-2.0-flash-lite",
+        "auth":         "query",
+        "payload": {
+            "contents": [{"role": "user", "parts": [{"text": "Hi"}]}],
+            "generationConfig": {"maxOutputTokens": 1},
+        },
+        "success_codes": {200},
+    },
+}
+
 
 # ─────────────────────────────────────────────
 # Resizable semaphore
@@ -209,6 +256,11 @@ class _SlidingWindow:
     def __len__(self) -> int:
         return len(self._buf)
 
+    def __len_unlocked(self) -> int:  # noqa: N802
+        """Length without acquiring any external lock — safe only when the
+        caller already holds ProviderConcurrencyManager._lock."""
+        return len(self._buf)
+
     # ── derived metrics ────────────────────────────────────────────────
 
     def _samples(self) -> List[_Sample]:
@@ -292,6 +344,12 @@ class ProviderConcurrencyManager:
         self._lock            = threading.Lock()
         self._last_adjust     = 0.0      # monotonic timestamp of last resize
         self.model            = model    # informational, updated by callers
+        # ── Proactive probe state ──────────────────────────────────────────
+        self._probe_failed:    bool  = False   # True when last probe returned non-success
+        self._probe_error:     str   = ""      # last probe error message (for /provider-health)
+        self._probe_status_code: int = 0       # last probe HTTP status code
+        self._last_probe_ts:   float = 0.0     # monotonic ts of last probe fire
+        self._probe_lock       = threading.Lock()
 
     # ── public API ────────────────────────────────────────────────────
 
@@ -340,6 +398,11 @@ class ProviderConcurrencyManager:
 
     def status_label(self) -> str:
         h = self.health_score
+        # UNAVAILABLE: probe has fired and failed, AND no successful traffic yet.
+        # Distinct from CRITICAL (degraded-under-real-traffic) — here the provider
+        # is genuinely unreachable / quota-zeroed before any real request is made.
+        if self._probe_failed and self._window._SlidingWindow__len_unlocked() == 0:  # noqa: SLF001
+            return "UNAVAILABLE"
         if h >= SCORE_INCREASE_THRESHOLD:
             return "HEALTHY"
         if h >= SCORE_DECREASE_THRESHOLD:
@@ -350,6 +413,7 @@ class ProviderConcurrencyManager:
         """
         Rich snapshot consumed by /provider-health API endpoint.
         All metric values come from the current sliding window.
+        Includes probe_status / probe_error from the proactive probe.
         """
         with self._lock:
             w = self._window
@@ -370,12 +434,21 @@ class ProviderConcurrencyManager:
                 "window_size":        len(w),
                 "status":             self._status_label_unlocked(),
                 "model":              self.model,
+                # Proactive probe fields (empty string / 0 when not yet probed)
+                "probe_status_code":  self._probe_status_code,
+                "probe_error":        self._probe_error,
+                "probe_failed":       self._probe_failed,
             }
 
     # ── private ───────────────────────────────────────────────────────
 
     def _status_label_unlocked(self) -> str:
         """Must be called while holding self._lock."""
+        # UNAVAILABLE: probe fired and failed, no real traffic yet.
+        # Must check probe state without acquiring _probe_lock (deadlock risk);
+        # _probe_failed is a plain bool read which is safe under the GIL.
+        if self._probe_failed and self._window.total_calls == 0:
+            return "UNAVAILABLE"
         if self._health >= SCORE_INCREASE_THRESHOLD:
             return "HEALTHY"
         if self._health >= SCORE_DECREASE_THRESHOLD:
@@ -478,6 +551,126 @@ def all_health_snapshots() -> list:
     """
     with _REGISTRY_LOCK:
         return [m.to_dict() for m in _MANAGERS.values()]
+
+
+def probe_provider(provider: str) -> dict:
+    """
+    Fire a lightweight proactive probe for the given provider and record the
+    result into the same record_outcome() path reactive traffic uses.
+
+    Results are cached for PROBE_CACHE_TTL_SEC (default 60 s): calling this
+    function more frequently than that returns the cached result immediately
+    without making another HTTP request.
+
+    Returns a dict:
+        { "probed": bool, "cached": bool, "status_code": int,
+          "success": bool, "error": str }
+
+    The probe result is also reflected in the manager's to_dict() snapshot
+    (probe_status_code, probe_error, probe_failed) and in the status label
+    (UNAVAILABLE when probe failed and no real traffic has occurred yet).
+
+    If PROBE_CACHE_TTL_SEC == 0, or no probe definition exists for this
+    provider, returns immediately with probed=False.
+    """
+    if PROBE_CACHE_TTL_SEC <= 0:
+        return {"probed": False, "cached": False, "status_code": 0,
+                "success": True, "error": "probing disabled"}
+
+    defn = PROVIDER_PROBES.get(provider)
+    if not defn:
+        return {"probed": False, "cached": False, "status_code": 0,
+                "success": True, "error": "no probe defined"}
+
+    mgr = get_provider_manager(provider)
+
+    # ── TTL cache check (under probe lock to prevent thundering herd) ────
+    with mgr._probe_lock:
+        now = time.monotonic()
+        if now - mgr._last_probe_ts < PROBE_CACHE_TTL_SEC:
+            return {
+                "probed": True, "cached": True,
+                "status_code": mgr._probe_status_code,
+                "success": not mgr._probe_failed,
+                "error": mgr._probe_error,
+            }
+        mgr._last_probe_ts = now   # reserve the slot before releasing
+
+    # ── Build request ─────────────────────────────────────────────
+    try:
+        import requests as _req
+    except ImportError:
+        return {"probed": False, "cached": False, "status_code": 0,
+                "success": True, "error": "requests not installed"}
+
+    api_key   = os.getenv(defn["env_key"], "")
+    auth_mode = defn.get("auth", "bearer")
+    payload   = defn["payload"]
+    model_str = defn.get("model", "")
+    success_codes = defn.get("success_codes", {200})
+
+    if not api_key:
+        err = f"{defn['env_key']} not set in environment"
+        with mgr._probe_lock:
+            mgr._probe_failed = True
+            mgr._probe_error  = err
+        return {"probed": True, "cached": False, "status_code": 0,
+                "success": False, "error": err}
+
+    if auth_mode == "query":
+        url = defn["url_template"].format(model=model_str, key=api_key)
+        headers = {"Content-Type": "application/json"}
+    else:   # bearer
+        url = defn["url"]
+        headers = {"Authorization": f"Bearer {api_key}",
+                   "Content-Type": "application/json"}
+
+    # ── Fire the probe ───────────────────────────────────────────────
+    t0  = time.monotonic()
+    status_code = 0
+    err_str     = ""
+    success     = False
+    try:
+        resp = _req.post(url, headers=headers, json=payload, timeout=10)
+        status_code = resp.status_code
+        success     = status_code in success_codes
+        if not success:
+            try:
+                body = resp.json()
+                err_str = (body.get("error", {}).get("message")
+                           or body.get("error", {}).get("code")
+                           or resp.text[:200])
+            except Exception:
+                err_str = resp.text[:200]
+    except Exception as exc:
+        err_str = str(exc)
+
+    latency = time.monotonic() - t0
+    is_429  = (status_code == 429)
+
+    # ── Feed result into existing record_outcome() path ───────────────
+    # This is the single health signal; there is no second parallel system.
+    mgr.record_outcome(
+        success=success, is_429=is_429, is_timeout=False, latency=latency
+    )
+
+    # ── Update probe state cache ────────────────────────────────────
+    with mgr._probe_lock:
+        mgr._probe_failed      = not success
+        mgr._probe_error       = err_str
+        mgr._probe_status_code = status_code
+
+    log.info(
+        "[ProactiveProbe] provider=%-10s status=%d success=%s "
+        "latency=%.2fs error=%s",
+        provider, status_code, success, latency, err_str[:80] or "none",
+    )
+    return {
+        "probed": True, "cached": False,
+        "status_code": status_code,
+        "success": success,
+        "error": err_str,
+    }
 
 
 def dynamic_max_workers(provider: str, n_inputs: int) -> int:
