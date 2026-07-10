@@ -31,7 +31,7 @@ def node_load_subareas(state: ExecutionState) -> ExecutionState:
 
 
 def node_run_swarm(state: ExecutionState) -> ExecutionState:
-    from config import EXECUTION_ENGINE_WORKERS
+    from scraper_config import EXECUTION_ENGINE_WORKERS
     subareas = state["subareas"]
     total_companies = state["total_companies"]
     completed = state["completed"]

@@ -896,7 +896,7 @@ def phase_5_lead_scraper(state, max_scrolls, max_scrapers, stop_event=None):
     # Worker function — processes a batch of subareas
     def scraper_worker(subarea_batch, instance_id):
         from execution_worker import scrape_subarea
-        import config as exec_config
+        import scraper_config as exec_config
         import traceback
         
         # Dynamically apply CLI scroll overrides

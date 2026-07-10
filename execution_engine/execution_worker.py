@@ -2,7 +2,7 @@ import time
 import logging
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeout
 from execution_utils import process_card_text
-from config import (
+from scraper_config import (
     PLAYWRIGHT_HEADLESS, PLAYWRIGHT_SLOW_MO, PLAYWRIGHT_TIMEOUT,
     MAPS_LOAD_WAIT, SCROLL_ITERATIONS, SCROLL_DELAY_MS,
     MAX_RETRIES, RETRY_DELAY_BASE

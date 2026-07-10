@@ -2,7 +2,7 @@ import time
 import logging
 from datetime import datetime
 from supabase import create_client
-from config import SUPABASE_URL, SUPABASE_KEY, MAX_RETRIES, RETRY_DELAY_BASE
+from scraper_config import SUPABASE_URL, SUPABASE_KEY, MAX_RETRIES, RETRY_DELAY_BASE
 
 log = logging.getLogger(__name__)
 

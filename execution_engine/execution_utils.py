@@ -1,6 +1,6 @@
 import re
 import logging
-from config import IGNORE_KEYWORDS, CATEGORY_SCORE
+from scraper_config import IGNORE_KEYWORDS, CATEGORY_SCORE
 
 log = logging.getLogger(__name__)
 

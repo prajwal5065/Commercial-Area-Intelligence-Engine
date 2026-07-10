@@ -30,9 +30,11 @@ Include a sub-area ONLY IF:
 Exclude:
 
 * Independent neighboring localities
-* Roads, streets, buildings, tech parks
-* Apartments, layouts, gated communities
 * Fabricated or unofficial names
+
+IF THE ZONE IS A TECH PARK, SEZ, OR CANNOT BE SUBDIVIDED:
+* If the zone name represents a single tech park, SEZ, building complex, or industrial area that has no recognized internal sub-areas, YOU MUST RETURN THE ZONE ITSELF AS A SINGLE SUB-AREA.
+* Do NOT return an empty results array.
 
 ---
 

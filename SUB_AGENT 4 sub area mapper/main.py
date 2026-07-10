@@ -414,9 +414,10 @@ def process_zone(zone_name: str, city: str, country: str, provider: str = DEFAUL
                 if not raw_response or not raw_response.strip():
                     raise Exception("Hollow response: empty string")
                 temp_parsed = extract_json(raw_response)
-                if temp_parsed and isinstance(temp_parsed, dict) and validate_response(temp_parsed):
-                    if not temp_parsed.get("results"):
-                        raise Exception("Hollow response: 0 results returned")
+                if not temp_parsed or not isinstance(temp_parsed, dict) or not validate_response(temp_parsed):
+                    raise Exception("Invalid JSON or missing keys returned by LLM")
+                if not temp_parsed.get("results"):
+                    raise Exception("Hollow response: 0 results returned")
                 
                 break
             except Exception as e:
