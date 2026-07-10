@@ -58,7 +58,13 @@ Optional env vars (new in v2):
 import uuid
 import re
 
-from config import GEMINI_MODEL
+from config import (
+    GEMINI_MODEL, 
+    PROVIDER_MAX_WAIT, 
+    PROVIDER_RETRY_COUNT, 
+    PROVIDER_RETRY_DELAY,
+    PROVIDER_SEMAPHORE_LIMIT
+)
 
 import os
 import sys
@@ -338,9 +344,6 @@ PROVIDERS = {
 TAVILY_API_KEY  = os.getenv("TAVILY_API_KEY")
 TAVILY_API_URL  = "https://api.tavily.com/search"
 
-RETRY_ATTEMPTS  = 5
-RETRY_DELAY_SEC = 5
-
 # Automatic fallback chain: if the active provider is rate-limited (429) and
 # exhausts its own retries, call_llm() switches to the next provider in this
 # list that has an API key configured, rather than failing the whole call
@@ -378,26 +381,22 @@ def _apply_provider(name: str) -> None:
         LLM_MAX_CONTEXT_CHARS = 60_000
 
 
-_EXHAUSTED_PROVIDERS: set[str] = set()
-
-
-def _switch_provider() -> bool:
+def _switch_provider(visited: set) -> bool:
     """Try to move to the next provider in FALLBACK_CHAIN that has an API key
-    set and hasn't already been exhausted this run, skipping whichever is
-    currently active. Returns True if a switch happened. Called by call_llm()
-    after the active provider's own retries (RETRY_ATTEMPTS) are exhausted on
-    a 429, instead of failing the whole call outright."""
-    _EXHAUSTED_PROVIDERS.add(ACTIVE_PROVIDER)
+    set and hasn't already been visited this call, skipping whichever is
+    currently active. Returns True if a switch happened."""
+    visited.add(ACTIVE_PROVIDER)
     candidates = [p for p in FALLBACK_CHAIN
-                  if p != ACTIVE_PROVIDER and p not in _EXHAUSTED_PROVIDERS and p in PROVIDERS]
+                  if p not in visited and p in PROVIDERS]
     for name in candidates:
         if os.getenv(PROVIDERS[name]["api_key_env"]):
             old = ACTIVE_PROVIDER
             _apply_provider(name)
             log.warning(
-                f"[FALLBACK] {old.upper()} rate-limited after {RETRY_ATTEMPTS} attempts — "
+                f"[FALLBACK] {old.upper()} rate-limited after {PROVIDER_RETRY_COUNT} attempts — "
                 f"switching to {name.upper()} for the remainder of this run."
             )
+            log.warning(f"PROVIDER_FALLBACK_TRIGGERED:{name}")
             return True
     return False
 
@@ -480,18 +479,28 @@ def tavily_search(query: str, max_results: int = 7) -> list:
         "include_answer":      True,
         "include_raw_content": False,
     }
-    for attempt in range(1, RETRY_ATTEMPTS + 1):
+    for attempt in range(1, PROVIDER_RETRY_COUNT + 1):
         try:
             _t0 = time.time()
             resp = _HTTP_SESSION.post(TAVILY_API_URL, json=payload, timeout=30)
             _latency = time.time() - _t0
-            err_str = str(resp.status_code)
-            if resp.status_code in (429, 432):
-                log.warning(f"Tavily plan/rate limit hit (HTTP {resp.status_code}) — disabling Tavily for this run.")
-                _report_rate_limit("tavily", f"HTTP {resp.status_code}")
-                _record_outcome("tavily", success=False, is_429=True, is_timeout=False, latency=_latency)
+            
+            if resp.status_code == 432:
+                log.warning(f"Tavily plan limit hit (HTTP 432) — disabling Tavily for this run.")
+                _report_rate_limit("tavily", "HTTP 432")
+                _record_outcome("tavily", success=False, is_429=False, is_timeout=False, latency=_latency)
                 TAVILY_AVAILABLE = False
                 return []
+            
+            if resp.status_code == 429:
+                log.warning(f"Tavily rate limit (HTTP 429) — waiting {PROVIDER_RETRY_DELAY}s (attempt {attempt}/{PROVIDER_RETRY_COUNT})")
+                _record_outcome("tavily", success=False, is_429=True, is_timeout=False, latency=_latency)
+                if attempt < PROVIDER_RETRY_COUNT:
+                    time.sleep(PROVIDER_RETRY_DELAY)
+                    continue
+                else:
+                    return []
+
             resp.raise_for_status()
             data    = resp.json()
             results = data.get("results", [])
@@ -505,24 +514,33 @@ def tavily_search(query: str, max_results: int = 7) -> list:
             return results
         except requests.exceptions.Timeout:
             _record_outcome("tavily", success=False, is_429=False, is_timeout=True, latency=time.time() - _t0)
-            if attempt < RETRY_ATTEMPTS:
-                time.sleep(RETRY_DELAY_SEC)
+            if attempt < PROVIDER_RETRY_COUNT:
+                time.sleep(PROVIDER_RETRY_DELAY)
             else:
-                log.warning(f"Tavily failed after {RETRY_ATTEMPTS} attempts (timeout)")
+                log.warning(f"Tavily failed after {PROVIDER_RETRY_COUNT} attempts (timeout)")
                 return []
         except Exception as e:
             err_str = str(e).lower()
-            if any(kw in err_str for kw in ["432", "429", "rate limit", "rate_limit", "quota", "credits", "too many requests"]):
-                log.warning(f"Tavily plan/rate limit error — disabling Tavily for this run: {e}")
+            if "432" in err_str or "quota" in err_str or "credits" in err_str:
+                log.warning(f"Tavily plan limit error — disabling Tavily for this run: {e}")
                 _report_rate_limit("tavily", str(e)[:120])
-                _record_outcome("tavily", success=False, is_429=True, is_timeout=False, latency=time.time() - _t0)
+                _record_outcome("tavily", success=False, is_429=False, is_timeout=False, latency=time.time() - _t0)
                 TAVILY_AVAILABLE = False
                 return []
+            if "429" in err_str or "rate limit" in err_str or "rate_limit" in err_str or "too many requests" in err_str:
+                log.warning(f"Tavily rate limit error — waiting {PROVIDER_RETRY_DELAY}s (attempt {attempt}/{PROVIDER_RETRY_COUNT})")
+                _record_outcome("tavily", success=False, is_429=True, is_timeout=False, latency=time.time() - _t0)
+                if attempt < PROVIDER_RETRY_COUNT:
+                    time.sleep(PROVIDER_RETRY_DELAY)
+                    continue
+                else:
+                    return []
+            
             _record_outcome("tavily", success=False, is_429=False, is_timeout=False, latency=time.time() - _t0)
-            if attempt < RETRY_ATTEMPTS:
-                time.sleep(RETRY_DELAY_SEC)
+            if attempt < PROVIDER_RETRY_COUNT:
+                time.sleep(PROVIDER_RETRY_DELAY)
             else:
-                log.warning(f"Tavily failed after {RETRY_ATTEMPTS} attempts: {e}")
+                log.warning(f"Tavily failed after {PROVIDER_RETRY_COUNT} attempts: {e}")
                 return []
 
 
@@ -580,16 +598,34 @@ def _gemini_extract(rj):
     return c["content"]["parts"][0]["text"], c.get("finishReason", "")
 
 
-def call_llm(system: str, user: str) -> str:
+def call_llm(system: str, user: str, visited: set = None) -> str:
     """
     Call the active LLM provider.
     Retries on 429 / 500 / 502 / 503.
     Trims context and retries on 413.
     Raises RuntimeError after all attempts exhausted.
     """
+    global ACTIVE_PROVIDER
+    if visited is None:
+        visited = set()
+
+    mgr = _get_provider_manager(ACTIVE_PROVIDER)
+    if mgr and mgr.is_exhausted():
+        log.warning(
+            "\n=====================================\n"
+            f"Provider           : {ACTIVE_PROVIDER.capitalize()}\n"
+            f"Status             : Skipped\n"
+            f"Remaining Cooldown : {int(mgr.remaining_cooldown())} seconds\n"
+            f"Reason             : Provider currently exhausted\n"
+            "====================================="
+        )
+        if _switch_provider(visited):
+            return call_llm(system, user, visited)
+        raise RuntimeError(f"{ACTIVE_PROVIDER.upper()} quota exhausted and no fallback provider has an API key configured.")
+
     cur_user = user
 
-    for attempt in range(1, RETRY_ATTEMPTS + 1):
+    for attempt in range(1, PROVIDER_RETRY_COUNT + 1):
         if _stop_requested():
             log.warning(f"[{ACTIVE_PROVIDER.upper()}] Stop requested — aborting retry loop.")
             raise RuntimeError("Stopped by user request.")
@@ -644,15 +680,15 @@ def call_llm(system: str, user: str) -> str:
         except requests.exceptions.Timeout:
             _record_outcome(ACTIVE_PROVIDER, success=False, is_429=False, is_timeout=True, latency=time.time() - _t0)
             log.warning(f"[{ACTIVE_PROVIDER.upper()}] Timeout on attempt {attempt}")
-            if attempt < RETRY_ATTEMPTS:
-                time.sleep(RETRY_DELAY_SEC * attempt)
+            if attempt < PROVIDER_RETRY_COUNT:
+                time.sleep(PROVIDER_RETRY_DELAY * attempt)
                 continue
             raise
         except requests.exceptions.ConnectionError as ce:
             _record_outcome(ACTIVE_PROVIDER, success=False, is_429=False, is_timeout=False, latency=time.time() - _t0)
             log.warning(f"[{ACTIVE_PROVIDER.upper()}] Connection error on attempt {attempt}: {ce}")
-            if attempt < RETRY_ATTEMPTS:
-                time.sleep(RETRY_DELAY_SEC * attempt)
+            if attempt < PROVIDER_RETRY_COUNT:
+                time.sleep(PROVIDER_RETRY_DELAY * attempt)
                 continue
             raise
 
@@ -664,26 +700,38 @@ def call_llm(system: str, user: str) -> str:
             lm  = re.search(r"Limit\s+(\d+)", err)
             rm  = re.search(r"Requested\s+(\d+)", err)
             cut = ((int(rm.group(1)) - int(lm.group(1)) + 100) * 4) if lm and rm else len(cur_user) // 2
-            if attempt < RETRY_ATTEMPTS:
+            if attempt < PROVIDER_RETRY_COUNT:
                 cur_user = cur_user[:-cut] if cut < len(cur_user) else cur_user[:2000]
                 log.warning(f"[{ACTIVE_PROVIDER.upper()}] 413 — trimmed context, retrying...")
                 continue
             raise RuntimeError("413 persists. Raise tpm_limit or switch ACTIVE_PROVIDER.")
 
         if resp.status_code == 429:
-            # Parse retry-after header (Groq returns a future Unix timestamp)
-            wait = 65  # Safe default
+            err_text = resp.text.lower()
+            if "limit: 0" in err_text or "quota" in err_text or "insufficient_quota" in err_text:
+                log.warning(f"[{ACTIVE_PROVIDER.upper()}] Hard quota limit hit. Failing fast.")
+                _report_rate_limit(ACTIVE_PROVIDER, "Hard quota limit hit")
+                _ZONE_METRICS.record_fallback()
+                if mgr: mgr.mark_exhausted(600)
+                if _switch_provider(visited):
+                    return call_llm(system, user, visited)
+                raise RuntimeError(f"{ACTIVE_PROVIDER.upper()} quota exhausted and no fallback provider has an API key configured.")
+
+            wait = 15
             retry_after = resp.headers.get("retry-after")
             if retry_after:
                 try:
                     ra_val = float(retry_after)
-                    # If > 1e9, it's a Unix timestamp, not relative seconds
                     if ra_val > 1e9:
                         wait = int(ra_val - time.time()) + 2
                     else:
                         wait = int(ra_val) + 2
                 except (ValueError, TypeError):
                     pass
+            else:
+                m = re.search(r'try again in ([\d\.]+)s', err_text)
+                if m:
+                    wait = int(float(m.group(1))) + 2
             
             # # Cap maximum wait to 120 seconds to avoid absurd delays
             # wait = max(5, min(wait, 120))
@@ -691,13 +739,22 @@ def call_llm(system: str, user: str) -> str:
             if wait < 2:
                 wait = 2  # Minimum 2 seconds to be safe
 
+            max_wait = PROVIDER_MAX_WAIT.get(ACTIVE_PROVIDER, 60)
+            if wait > max_wait:
+                log.warning(f"[{ACTIVE_PROVIDER.upper()}] Wait time {wait}s exceeds {max_wait}s ceiling. Treating as quota exhaustion.")
+                _record_outcome(ACTIVE_PROVIDER, success=False, is_429=True, is_timeout=False, latency=time.time() - _t0)
+                if mgr: mgr.mark_exhausted(max_wait)
+                if _switch_provider(visited):
+                    return call_llm(system, user, visited)
+                raise RuntimeError(f"{ACTIVE_PROVIDER.upper()} rate limit wait ({wait}s) is too long and no fallback is available.")
+
             log.warning(
                 f"[{ACTIVE_PROVIDER.upper()}] 429 rate limit — "
-                f"waiting {wait}s (attempt {attempt}/{RETRY_ATTEMPTS})"
+                f"waiting {wait}s (attempt {attempt}/{PROVIDER_RETRY_COUNT})"
             )
             _record_outcome(ACTIVE_PROVIDER, success=False, is_429=True, is_timeout=False, latency=time.time() - _t0)
             _ZONE_METRICS.record_retry()
-            if attempt < RETRY_ATTEMPTS:
+            if attempt < PROVIDER_RETRY_COUNT:
                 # Sleep in short chunks so a stop request doesn't have to wait
                 # out the full 429 backoff (which can be 65s+) before taking effect.
                 remaining = wait
@@ -714,19 +771,20 @@ def call_llm(system: str, user: str) -> str:
                 # This provider's retries are exhausted on a 429. Rather than
                 # failing the whole call (and silently producing zero zones -
                 # the original bug), try the next configured provider.
-                _report_rate_limit(ACTIVE_PROVIDER, f"after {RETRY_ATTEMPTS} attempts")
+                _report_rate_limit(ACTIVE_PROVIDER, f"after {PROVIDER_RETRY_COUNT} attempts")
                 _ZONE_METRICS.record_fallback()
-                if _switch_provider():
-                    return call_llm(system, user)
+                if _switch_provider(visited):
+                    return call_llm(system, user, visited)
                 raise RuntimeError(
-                    f"{ACTIVE_PROVIDER.upper()} rate-limited after {RETRY_ATTEMPTS} attempts "
+                    f"{ACTIVE_PROVIDER.upper()} rate-limited after {PROVIDER_RETRY_COUNT} attempts "
                     "and no fallback provider has an API key configured."
                 )
 
         if resp.status_code in (500, 502, 503):
+            if mgr: mgr.record_5xx()
             log.warning(f"[{ACTIVE_PROVIDER.upper()}] HTTP {resp.status_code} — retrying...")
-            if attempt < RETRY_ATTEMPTS:
-                time.sleep(RETRY_DELAY_SEC)
+            if attempt < PROVIDER_RETRY_COUNT:
+                time.sleep(PROVIDER_RETRY_DELAY)
                 continue
 
         resp.raise_for_status()
@@ -743,7 +801,7 @@ def call_llm(system: str, user: str) -> str:
         log.info(f"[{ACTIVE_PROVIDER.upper()}] OK — {len(content)} chars returned")
         return content
 
-    raise RuntimeError(f"LLM call failed after {RETRY_ATTEMPTS} attempts.")
+    raise RuntimeError(f"LLM call failed after {PROVIDER_RETRY_COUNT} attempts.")
 
 
 # ═══════════════════════════════════════════════════════════════════

@@ -1,0 +1,171 @@
+{
+  "status": "SUCCESS",
+  "city": "Pune",
+  "country": "India",
+  "provider": "groq/llama-3.3-70b-versatile",
+  "retrieved_at": "2026-07-10T10:37:51",
+  "zones": [
+    {
+      "zone_name": "Hinjewadi",
+      "business_count": 3118,
+      "count_source": "directory_total",
+      "source_url": "https://www.magicbricks.com/Hinjewadi-in-Pune-Overview",
+      "city": "Pune",
+      "country": "India",
+      "rank": 1
+    },
+    {
+      "zone_name": "Rajiv Gandhi Infotech Park",
+      "business_count": 800,
+      "count_source": "authority_page",
+      "source_url": "https://en.wikipedia.org/wiki/Hinjawadi",
+      "city": "Pune",
+      "country": "India",
+      "rank": 2
+    },
+    {
+      "zone_name": "Hinjawadi Phase I of Infotech Park",
+      "business_count": 800,
+      "count_source": "directory_total",
+      "source_url": "tavily-answer",
+      "city": "Pune",
+      "country": "India",
+      "rank": 3
+    },
+    {
+      "zone_name": "Hinjawadi Phase II",
+      "business_count": 800,
+      "count_source": "authority_page",
+      "source_url": "https://en.wikipedia.org/wiki/Hinjawadi",
+      "city": "Pune",
+      "country": "India",
+      "rank": 4
+    },
+    {
+      "zone_name": "Embassy Tech Zone",
+      "business_count": 500,
+      "count_source": "generic",
+      "source_url": "https://www.scribd.com/document/654215670/List-of-IT-Companies-in-Pune",
+      "city": "Pune",
+      "country": "India",
+      "rank": 5
+    },
+    {
+      "zone_name": "Kharadi",
+      "business_count": 495,
+      "count_source": "directory_total",
+      "source_url": "https://www.magicbricks.com/rera-registered-projects-Kharadi-in-Pune",
+      "city": "Pune",
+      "country": "India",
+      "rank": 6
+    },
+    {
+      "zone_name": "SEEPZ",
+      "business_count": 400,
+      "count_source": "directory_total",
+      "source_url": "https://en.wikipedia.org/wiki/SEEPZ",
+      "city": "Pune",
+      "country": "India",
+      "rank": 7
+    },
+    {
+      "zone_name": "Khed City Industrial Zone",
+      "business_count": 300,
+      "count_source": "authority_page",
+      "source_url": "https://indiandistricts.in/statistics/maharashtra/pune/industry",
+      "city": "Pune",
+      "country": "India",
+      "rank": 8
+    },
+    {
+      "zone_name": "DLF Akruti",
+      "business_count": 200,
+      "count_source": "generic",
+      "source_url": "https://en.wikipedia.org/wiki/DLF_(company)",
+      "city": "Pune",
+      "country": "India",
+      "rank": 9
+    },
+    {
+      "zone_name": "Pune Camp",
+      "business_count": 200,
+      "count_source": "directory_total",
+      "source_url": "https://www.scribd.com/doc/299640784/Pune-Companies-Data-With-Email-Address-00",
+      "city": "Pune",
+      "country": "India",
+      "rank": 10
+    },
+    {
+      "zone_name": "Kothrud",
+      "business_count": 200,
+      "count_source": "directory_total",
+      "source_url": "https://www.scribd.com/doc/299640784/Pune-Companies-Data-With-Email-Address-00",
+      "city": "Pune",
+      "country": "India",
+      "rank": 11
+    },
+    {
+      "zone_name": "Hinjewadi IT Park",
+      "business_count": 140,
+      "count_source": "authority_page",
+      "source_url": "https://www.linkedin.com/posts/krishnasinghhthakur_37-it-firms-exit-hinjewadi-in-the-last-activity-7362472615619215360-GKhO",
+      "city": "Pune",
+      "country": "India",
+      "rank": 12
+    },
+    {
+      "zone_name": "MIDC",
+      "business_count": 100,
+      "count_source": "authority_page",
+      "source_url": "https://www.scribd.com/doc/251790768/PUNE-MIDC",
+      "city": "Pune",
+      "country": "India",
+      "rank": 13
+    },
+    {
+      "zone_name": "Magarpatta Township",
+      "business_count": 40,
+      "count_source": "authority_page",
+      "source_url": "tavily-answer",
+      "city": "Pune",
+      "country": "India",
+      "rank": 14
+    },
+    {
+      "zone_name": "Magarpatta City",
+      "business_count": 30,
+      "count_source": "authority_page",
+      "source_url": "tavily-answer",
+      "city": "Pune",
+      "country": "India",
+      "rank": 15
+    },
+    {
+      "zone_name": "EON Kharadi Free Zone",
+      "business_count": 30,
+      "count_source": "authority_page",
+      "source_url": "https://www.scribd.com/doc/276641596/EON-IT-Park-Kharadi-2015-16",
+      "city": "Pune",
+      "country": "India",
+      "rank": 16
+    },
+    {
+      "zone_name": "Quadron Business Parks",
+      "business_count": 30,
+      "count_source": "authority_page",
+      "source_url": "https://www.scribd.com/doc/314469626/Pune-Companies",
+      "city": "Pune",
+      "country": "India",
+      "rank": 17
+    },
+    {
+      "zone_name": "Serum Bio-Pharma Park",
+      "business_count": 1,
+      "count_source": "company description",
+      "source_url": "https://in.linkedin.com/company/serum-institute-of-india-limited",
+      "city": "Pune",
+      "country": "India",
+      "rank": 18
+    }
+  ]
+}

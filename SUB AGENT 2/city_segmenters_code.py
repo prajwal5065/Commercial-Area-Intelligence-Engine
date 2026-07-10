@@ -9,8 +9,12 @@ import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime   
 from dotenv import load_dotenv
-from config import GEMINI_MODEL
-
+from config import (
+    GEMINI_MODEL,
+    PROVIDER_MAX_WAIT,
+    PROVIDER_RETRY_COUNT,
+    PROVIDER_RETRY_DELAY,
+)
 # Adaptive concurrency health tracking (soft import — works without the file)
 try:
     _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -91,13 +95,13 @@ PROVIDERS = {
     "groq-llama-70b": {
         "api_key_env": "GROQ_API_KEY",
         "api_url":     "https://api.groq.com/openai/v1/chat/completions",
-        "model":       "llama3-70b-8192",
+        "model":       "llama-3.1-70b-versatile",
         "request_fmt": "openai",
     },
     "groq-llama-8b": {
         "api_key_env": "GROQ_API_KEY",
         "api_url":     "https://api.groq.com/openai/v1/chat/completions",
-        "model":       "llama3-8b-8192",
+        "model":       "llama-3.1-8b-instant",
         "request_fmt": "openai",
     },
     "groq-mixtral": {
@@ -498,6 +502,21 @@ def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PRO
         is_429 = resp.status_code == 429
         if is_429:
             _record_outcome(provider, success=False, is_429=True, is_timeout=False, latency=_latency)
+            wait = 15
+            retry_after = resp.headers.get("retry-after")
+            if retry_after:
+                try:
+                    ra_val = float(retry_after)
+                    if ra_val > 1e9: wait = int(ra_val - time.time()) + 2
+                    else: wait = int(ra_val) + 2
+                except (ValueError, TypeError): pass
+            else:
+                m = re.search(r'try again in ([\d\.]+)s', resp.text.lower())
+                if m: wait = int(float(m.group(1))) + 2
+            if wait < 2: wait = 2
+            max_wait = PROVIDER_MAX_WAIT.get(provider, 60)
+            if wait > max_wait:
+                _mgr.mark_exhausted(max_wait)
         resp.raise_for_status()
         rj = resp.json()
         _record_outcome(provider, success=True, is_429=False, is_timeout=False, latency=_latency)
@@ -509,7 +528,9 @@ def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PRO
     except requests.exceptions.Timeout:
         _record_outcome(provider, success=False, is_429=False, is_timeout=True, latency=time.time() - _t0)
         raise
-    except Exception:
+    except Exception as e:
+        if hasattr(e, 'response') and e.response is not None and e.response.status_code in (500, 502, 503, 504):
+            _mgr.record_5xx()
         _record_outcome(provider, success=False, is_429=False, is_timeout=False, latency=time.time() - _t0)
         raise
     finally:
@@ -788,9 +809,26 @@ def process_country(country: str, provider: str = DEFAULT_PROVIDER, worker_id: s
     for p in fallback_providers:
         attempt += 1
         try:
+            _mgr = _get_provider_manager(p)
+            if _mgr.is_exhausted():
+                log.warning(
+                    "\n=====================================\n"
+                    f"Provider           : {p.capitalize()}\n"
+                    f"Status             : Skipped\n"
+                    f"Remaining Cooldown : {int(_mgr.remaining_cooldown())} seconds\n"
+                    f"Worker ID          : {worker_id}\n"
+                    f"Country            : {country}\n"
+                    f"Reason             : Provider currently exhausted\n"
+                    "====================================="
+                )
+                continue
+
             fallback_used = "Yes" if p != provider else "No"
             fallback_reason_str = str(last_error) if fallback_used == "Yes" and last_error else "N/A"
             fallback_enabled_str = "Yes" if fallback_enabled else "No"
+            
+            if p != provider:
+                log.warning(f"PROVIDER_FALLBACK_TRIGGERED:{p}")
 
             log.info(
                 "\n=====================================\n"

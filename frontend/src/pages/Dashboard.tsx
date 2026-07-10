@@ -32,6 +32,7 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
   const [skipSupabase, setSkipSupabase] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [starting, setStarting] = useState(false);
+  const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
   const esRef = useRef<EventSource | null>(null);
 
   // Which agent is selected in the hierarchy view (drives Instance Details panel)
@@ -94,6 +95,17 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
           es.close();
           return;
         }
+        if (entry.message.startsWith("PROVIDER_FALLBACK_TRIGGERED:")) {
+          const newProvider = entry.message.split(":")[1] as LlmProvider;
+          setStage2Provider(newProvider);
+          setStage3Provider(newProvider);
+          setStage4Provider(newProvider);
+          localStorage.setItem("active_provider", newProvider);
+          setFallbackNotice(`Automatically switched to ${newProvider.toUpperCase()} because the previously selected provider failed.`);
+          // Also remove the log so it doesn't clutter the UI directly, or keep it.
+          // Let's just keep it in logs but also show the notice.
+        }
+
         setLogs(prev => [...prev.slice(-1999), entry]);
       } catch { /* ignore malformed */ }
     };
@@ -253,6 +265,12 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
 
   return (
     <div className="flex flex-col gap-8">
+      {fallbackNotice && (
+        <div className="mb-2 p-4 bg-status-running/10 border border-status-running rounded-lg text-sm text-status-running flex justify-between items-center">
+          <span><strong>Notice:</strong> {fallbackNotice}</span>
+          <button onClick={() => setFallbackNotice(null)} className="opacity-70 hover:opacity-100 text-lg">&times;</button>
+        </div>
+      )}
       {/* ── Execution Summary ─────────────────────────────────────────── */}
       <ExecutionSummary
         agentStatus={status.agent_status}

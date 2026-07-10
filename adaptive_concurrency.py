@@ -243,6 +243,7 @@ class _SlidingWindow:
         self.total_calls:   int = 0
         self.retry_count:   int = 0
         self.fallback_count: int = 0
+        self.total_5xx_count: int = 0
 
     def add(self, s: _Sample) -> None:
         self._buf.append(s)
@@ -344,6 +345,13 @@ class ProviderConcurrencyManager:
         self._lock            = threading.Lock()
         self._last_adjust     = 0.0      # monotonic timestamp of last resize
         self.model            = model    # informational, updated by callers
+        
+        # ── Exhaustion tracking ──────────────────────────────────────────
+        self._exhausted_until: float = 0.0
+        self.times_exhausted:  int = 0
+        self.recovery_count:   int = 0
+        self._was_exhausted:   bool = False
+
         # ── Proactive probe state ──────────────────────────────────────────
         self._probe_failed:    bool  = False   # True when last probe returned non-success
         self._probe_error:     str   = ""      # last probe error message (for /provider-health)
@@ -386,6 +394,32 @@ class ProviderConcurrencyManager:
         """Increment the fallback counter (does not affect health score)."""
         with self._lock:
             self._window.fallback_count += 1
+
+    def record_5xx(self) -> None:
+        """Increment the 5xx counter (does not affect health score directly here)."""
+        with self._lock:
+            self._window.total_5xx_count += 1
+
+    def is_exhausted(self) -> bool:
+        """Check if provider is currently in a forced cooldown period. Recovers automatically."""
+        with self._lock:
+            exhausted = time.time() < self._exhausted_until
+            if not exhausted and self._was_exhausted:
+                self._was_exhausted = False
+                self.recovery_count += 1
+            return exhausted
+
+    def mark_exhausted(self, wait_seconds: float) -> None:
+        """Mark provider as exhausted for a specific duration."""
+        with self._lock:
+            self._exhausted_until = time.time() + wait_seconds
+            self.times_exhausted += 1
+            self._was_exhausted = True
+
+    def remaining_cooldown(self) -> float:
+        """Return seconds left until recovery."""
+        with self._lock:
+            return max(0.0, self._exhausted_until - time.time())
 
     @property
     def health_score(self) -> float:
@@ -431,6 +465,9 @@ class ProviderConcurrencyManager:
                 "total_calls":        w.total_calls,
                 "retry_count":        w.retry_count,
                 "fallback_count":     w.fallback_count,
+                "5xx_count":          w.total_5xx_count,
+                "times_exhausted":    self.times_exhausted,
+                "recovery_count":     self.recovery_count,
                 "window_size":        len(w),
                 "status":             self._status_label_unlocked(),
                 "model":              self.model,
@@ -681,3 +718,30 @@ def dynamic_max_workers(provider: str, n_inputs: int) -> int:
     """
     mgr = get_provider_manager(provider)
     return min(n_inputs, mgr.current_workers)
+
+def generate_provider_summary() -> str:
+    """
+    Generates a tabular summary of provider metrics at the end of a pipeline run.
+    """
+    lines = ["\n=====================================", "Provider Summary"]
+    with _REGISTRY_LOCK:
+        for provider, mgr in _MANAGERS.items():
+            lines.append("")
+            lines.append(f"{provider.capitalize()}")
+            with mgr._lock:
+                w = mgr._window
+                reqs = w.total_calls
+                r_429 = sum(1 for s in w._samples() if s.is_429)
+                r_5xx = w.total_5xx_count
+                falls = w.fallback_count
+                status = mgr._status_label_unlocked()
+            lines.append(f"Requests : {reqs}")
+            lines.append(f"Successful Requests : {reqs - r_429 - r_5xx}")
+            lines.append(f"429 Count : {r_429}")
+            lines.append(f"5xx Count : {r_5xx}")
+            lines.append(f"Fallback Count : {falls}")
+            lines.append(f"Times Marked Exhausted : {mgr.times_exhausted}")
+            lines.append(f"Recovery Count : {mgr.recovery_count}")
+            lines.append(f"Status : {status}")
+    lines.append("=====================================")
+    return "\n".join(lines)

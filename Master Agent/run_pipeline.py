@@ -257,7 +257,7 @@ def phase_2_city_segmentation(state, provider: str = "groq", stop_event=None):
             for attempt in range(1, max_retries + 1):
                 start_ts = time.monotonic()
                 try:
-                    data = city_segmenters_code.process_country(country_name, provider=provider, worker_id=instance_id, fallback_enabled=False)
+                    data = city_segmenters_code.process_country(country_name, provider=provider, worker_id=instance_id, fallback_enabled=True)
                     latency = time.monotonic() - start_ts
                     _record_outcome(provider, True, False, False, latency)
                     
@@ -398,8 +398,7 @@ def phase_3_zone_finding(state, provider: str = "groq", stop_event=None):
         print("  [Phase 3] No cities to process. Skipping.")
         return
 
-    from zone_finders_code import _EXHAUSTED_PROVIDERS, _apply_provider
-    _EXHAUSTED_PROVIDERS.clear()  # fresh fallback chain for this run (module state is shared across sessions)
+    from zone_finders_code import _apply_provider
     _apply_provider(provider)
 
     M = len(state.all_cities)
@@ -1098,6 +1097,9 @@ def main():
         from pipeline_orchestrator import LogEntry
         from datetime import datetime
         try:
+            from adaptive_concurrency import generate_provider_summary
+            final_summary += "\n" + generate_provider_summary()
+            
             entry = LogEntry(
                 ts=datetime.now().strftime("%H:%M:%S"),
                 level="SUCCESS",
