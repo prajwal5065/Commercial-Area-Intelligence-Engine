@@ -1,0 +1,55 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Matoda, Sari and Chachanvadi Vasna SEZ",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Matoda",
+      "parent_zone": "Matoda, Sari and Chachanvadi Vasna SEZ",
+      "business_volume": 1000,
+      "city": "Ahmedabad",
+      "source_url": "https://www.sezindia.nic.in/",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Sari",
+      "parent_zone": "Matoda, Sari and Chachanvadi Vasna SEZ",
+      "business_volume": 800,
+      "city": "Ahmedabad",
+      "source_url": "https://www.sezindia.nic.in/",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Chachanvadi Vasna",
+      "parent_zone": "Matoda, Sari and Chachanvadi Vasna SEZ",
+      "business_volume": 600,
+      "city": "Ahmedabad",
+      "source_url": "https://www.sezindia.nic.in/",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "SEZ India - Ministry of Commerce & Industry",
+      "url": "https://www.sezindia.nic.in/",
+      "category": "validation | geography | business",
+      "priority": "high"
+    },
+    {
+      "name": "Google Maps - Matoda SEZ",
+      "url": "https://www.google.com/maps/place/Matoda+SEZ",
+      "category": "geography",
+      "priority": "medium"
+    }
+  ]
+}

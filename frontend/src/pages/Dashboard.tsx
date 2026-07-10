@@ -138,6 +138,9 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
       await api.runFullPipeline(sessionId, {
         top_n: parseInt(topN, 10) || null,
         skip_supabase: skipSupabase,
+        stage2_provider: stage2Provider,
+        stage3_provider: stage3Provider,
+        stage4_provider: stage4Provider,
       });
       startStream();
       refresh();
@@ -170,6 +173,9 @@ export function Dashboard({ sessionId, status, refresh }: Props) {
       await api.runFullPipeline(sessionId, {
         top_n: parseInt(topN, 10) || null,
         skip_supabase: skipSupabase,
+        stage2_provider: stage2Provider,
+        stage3_provider: stage3Provider,
+        stage4_provider: stage4Provider,
       });
       startStream();
       refresh();

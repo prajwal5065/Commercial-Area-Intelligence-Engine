@@ -1,0 +1,35 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Dwarka",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Dwarka Circle",
+      "parent_zone": "Dwarka",
+      "business_volume": 1000,
+      "city": "Ahmedabad",
+      "source_url": "https://www.google.com/maps/place/Dwarka+Circle,+Ahmedabad,+Gujarat+380058",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Google Maps - Dwarka Circle",
+      "url": "https://www.google.com/maps/place/Dwarka+Circle,+Ahmedabad,+Gujarat+380058",
+      "category": "geography | business",
+      "priority": "high"
+    },
+    {
+      "name": "OpenStreetMap - Dwarka Circle",
+      "url": "https://www.openstreetmap.org/node/248559289",
+      "category": "geography",
+      "priority": "medium"
+    }
+  ]
+}

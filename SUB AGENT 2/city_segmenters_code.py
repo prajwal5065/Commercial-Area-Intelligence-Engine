@@ -75,6 +75,16 @@ if hasattr(sys.stderr, 'reconfigure'):
 
 load_dotenv()
 
+try:
+    import sys
+    _PROJ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if _PROJ not in sys.path:
+        sys.path.insert(0, _PROJ)
+    from rate_limiter import gemini_limiter
+except ImportError:
+    class NoOpLimiter:
+        def wait(self): pass
+    gemini_limiter = NoOpLimiter()
 
 
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
@@ -124,8 +134,8 @@ PROVIDERS = {
     },
     "gemini-pro": {
         "api_key_env": "GEMINI_API_KEY",
-        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent",
-        "model":       "gemini-2.0-flash-lite",
+        "api_url":     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
+        "model":       "gemini-2.5-flash-lite",
         "request_fmt": "gemini",
     },
     # ── OpenAI ───────────────────────────────────────────────────────
@@ -430,113 +440,166 @@ def groq_classify(country: str, search_context: str, provider: str = DEFAULT_PRO
             f"Return ONLY valid JSON — be thorough and list as many real cities as possible."
         )
 
-    if cfg["request_fmt"] == "gemini":
-        payload = {
-            "contents": [{
-                "role": "user",
-                "parts": [{"text": f"{SYSTEM_PROMPT}\n\n{user_message}"}],
-            }],
-            "generationConfig": {"temperature": 0.1, "maxOutputTokens": GROQ_MAX_TOK},
-        }
-        headers = {"Content-Type": "application/json"}
-        url = f"{cfg['api_url']}?key={api_key}"
-    elif cfg["request_fmt"] == "anthropic":
-        payload = {
-            "model": cfg["model"],
-            "max_tokens": GROQ_MAX_TOK,
-            "system": SYSTEM_PROMPT,
-            "messages": [{"role": "user", "content": user_message}],
-        }
-        headers = {
-            "Content-Type":      "application/json",
-            "x-api-key":         api_key,
-            "anthropic-version": "2023-06-01",
-        }
-        url = cfg["api_url"]
-    else:
-        payload = {
-            "model":       cfg["model"],
-            "temperature": 0.1,
-            "max_tokens":  GROQ_MAX_TOK,
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user",   "content": user_message},
-            ],
-        }
-        headers = {
-            "Content-Type":  "application/json",
-            "Authorization": f"Bearer {api_key}",
-        }
-        url = cfg["api_url"]
-
-    # ── Semaphore: acquire a permit from the per-provider health-scored
-    # concurrency manager BEFORE firing the HTTP request.  This is the
-    # only gate between the ThreadPoolExecutor (which caps total threads)
-    # and the actual API call — without it, all threads can send requests
-    # to the same provider simultaneously regardless of the thread cap.
-    # Release is in a finally block so a permit is NEVER leaked on any
-    # exception path (including KeyboardInterrupt).
-    _mgr = _get_provider_manager(provider)
-    _mgr.sem.acquire_blocking()
-    _t0 = time.time()
-    try:
-        t_start = datetime.now().isoformat()
-        resp = requests.post(url, headers=headers, json=payload, timeout=120)
-        t_end = datetime.now().isoformat()
-        status = resp.status_code
+    visited_providers = set([provider])
+    
+    while True:
+        cfg = PROVIDERS[provider]
+        api_key = os.getenv(cfg["api_key_env"])
 
         if cfg["request_fmt"] == "gemini":
-            log.info(
-                "\n=====================================\n"
-                f"Worker ID              : {worker_id}\n"
-                f"Country                : {country}\n"
-                f"Selected Provider      : {provider}\n"
-                f"Gemini Model           : {cfg['model']}\n"
-                f"API Request Started    : {t_start}\n"
-                f"API Request Completed  : {t_end}\n"
-                f"HTTP Status            : {status}\n"
-                "====================================="
-            )
+            payload = {
+                "contents": [{
+                    "role": "user",
+                    "parts": [{"text": f"{SYSTEM_PROMPT}\n\n{user_message}"}],
+                }],
+                "generationConfig": {"temperature": 0.1, "maxOutputTokens": GROQ_MAX_TOK},
+            }
+            headers = {"Content-Type": "application/json"}
+            url = f"{cfg['api_url']}?key={api_key}"
+        elif cfg["request_fmt"] == "anthropic":
+            payload = {
+                "model": cfg["model"],
+                "max_tokens": GROQ_MAX_TOK,
+                "system": SYSTEM_PROMPT,
+                "messages": [{"role": "user", "content": user_message}],
+            }
+            headers = {
+                "Content-Type":      "application/json",
+                "x-api-key":         api_key,
+                "anthropic-version": "2023-06-01",
+            }
+            url = cfg["api_url"]
+        else:
+            payload = {
+                "model":       cfg["model"],
+                "temperature": 0.1,
+                "max_tokens":  GROQ_MAX_TOK,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user",   "content": user_message},
+                ],
+            }
+            headers = {
+                "Content-Type":  "application/json",
+                "Authorization": f"Bearer {api_key}",
+            }
+            url = cfg["api_url"]
 
-        _latency = time.time() - _t0
-        is_429 = resp.status_code == 429
-        if is_429:
-            _record_outcome(provider, success=False, is_429=True, is_timeout=False, latency=_latency)
-            wait = 15
-            retry_after = resp.headers.get("retry-after")
-            if retry_after:
-                try:
-                    ra_val = float(retry_after)
-                    if ra_val > 1e9: wait = int(ra_val - time.time()) + 2
-                    else: wait = int(ra_val) + 2
-                except (ValueError, TypeError): pass
-            else:
-                m = re.search(r'try again in ([\d\.]+)s', resp.text.lower())
-                if m: wait = int(float(m.group(1))) + 2
-            if wait < 2: wait = 2
-            max_wait = PROVIDER_MAX_WAIT.get(provider, 60)
-            if wait > max_wait:
-                _mgr.mark_exhausted(max_wait)
-        resp.raise_for_status()
-        rj = resp.json()
-        _record_outcome(provider, success=True, is_429=False, is_timeout=False, latency=_latency)
-        if cfg["request_fmt"] == "gemini":
-            return rj["candidates"][0]["content"]["parts"][0]["text"]
-        if cfg["request_fmt"] == "anthropic":
-            return rj["content"][0]["text"]
-        return rj["choices"][0]["message"]["content"]
-    except requests.exceptions.Timeout:
-        _record_outcome(provider, success=False, is_429=False, is_timeout=True, latency=time.time() - _t0)
-        raise
-    except Exception as e:
-        if hasattr(e, 'response') and e.response is not None and e.response.status_code in (500, 502, 503, 504):
-            _mgr.record_5xx()
-        _record_outcome(provider, success=False, is_429=False, is_timeout=False, latency=time.time() - _t0)
-        raise
-    finally:
-        # Always release the semaphore permit — covers success, 429, timeout,
-        # JSON parse error, KeyboardInterrupt, and any other exception.
-        _mgr.sem.release()
+        # Retry loop for the current provider
+        max_attempts = 3
+        provider_succeeded = False
+        
+        for attempt in range(1, max_attempts + 1):
+            if provider.startswith("gemini"):
+                gemini_limiter.wait()
+
+            _mgr = _get_provider_manager(provider)
+            _mgr.sem.acquire_blocking()
+            _t0 = time.time()
+            try:
+                t_start = datetime.now().isoformat()
+                
+                # Mask API key in URL for debug logging
+                masked_url = re.sub(r'key=[^&]+', 'key=***', url)
+                log.debug(f"Sending request to: {masked_url}")
+                
+                resp = requests.post(url, headers=headers, json=payload, timeout=120)
+                t_end = datetime.now().isoformat()
+                status = resp.status_code
+
+                if cfg["request_fmt"] == "gemini":
+                    log.info(
+                        "\n=====================================\n"
+                        f"Worker ID              : {worker_id}\n"
+                        f"Country                : {country}\n"
+                        f"Selected Provider      : {provider}\n"
+                        f"Gemini Model           : {cfg['model']}\n"
+                        f"API Request Started    : {t_start}\n"
+                        f"API Request Completed  : {t_end}\n"
+                        f"HTTP Status            : {status}\n"
+                        "====================================="
+                    )
+
+                _latency = time.time() - _t0
+                is_429 = resp.status_code == 429
+                
+                if is_429:
+                    log.warning(f"[{provider.upper()}] HTTP 429 Rate Limit. Full error: {resp.text}")
+                    _record_outcome(provider, success=False, is_429=True, is_timeout=False, latency=_latency)
+                    _report_rate_limit(provider, f"country={country}, attempt={attempt}")
+                    
+                    wait = min(PROVIDER_MAX_WAIT.get(provider, 60), (2 ** attempt) + random.uniform(0, 1))
+                    
+                    # Parse retry-after from headers if available
+                    retry_after = resp.headers.get("retry-after")
+                    if retry_after:
+                        try:
+                            ra_val = float(retry_after)
+                            if ra_val > 1e9: wait = int(ra_val - time.time()) + 2
+                            else: wait = int(ra_val) + 2
+                        except (ValueError, TypeError): pass
+                    else:
+                        try:
+                            err_json = resp.json()
+                            if "error" in err_json and "retryDelay" in err_json["error"]:
+                                wait = float(err_json["error"]["retryDelay"][:-1]) + 2 # e.g. "10s"
+                        except Exception:
+                            m = re.search(r'try again in ([\d\.]+)s', resp.text.lower())
+                            if m: wait = int(float(m.group(1))) + 2
+                            
+                    if wait < 2: wait = 2
+                    
+                    if attempt < max_attempts:
+                        log.warning(f"  [{provider.upper()}] Waiting {wait:.1f}s before retry {attempt+1}/{max_attempts}...")
+                        time.sleep(wait)
+                        continue
+                    else:
+                        max_wait = PROVIDER_MAX_WAIT.get(provider, 60)
+                        if wait > max_wait:
+                            _mgr.mark_exhausted(max_wait)
+                        break # Exceeded retries, break to fallback
+
+                resp.raise_for_status()
+                rj = resp.json()
+                _record_outcome(provider, success=True, is_429=False, is_timeout=False, latency=_latency)
+                
+                if cfg["request_fmt"] == "gemini":
+                    return rj["candidates"][0]["content"]["parts"][0]["text"]
+                if cfg["request_fmt"] == "anthropic":
+                    return rj["content"][0]["text"]
+                return rj["choices"][0]["message"]["content"]
+
+            except requests.exceptions.Timeout:
+                _record_outcome(provider, success=False, is_429=False, is_timeout=True, latency=time.time() - _t0)
+                if attempt < max_attempts:
+                    time.sleep(PROVIDER_RETRY_DELAY * attempt)
+                    continue
+                break
+            except Exception as e:
+                if hasattr(e, 'response') and e.response is not None:
+                    if e.response.status_code == 404:
+                        log.error(f"[{provider.upper()}] HTTP 404 Not Found. Please check if the model '{cfg['model']}' is still valid. Full error: {e.response.text}")
+                        raise RuntimeError(f"[{provider.upper()}] Model '{cfg['model']}' returned 404 Not Found.")
+                    if e.response.status_code in (500, 502, 503, 504):
+                        _mgr.record_5xx()
+                        if attempt < max_attempts:
+                            time.sleep(PROVIDER_RETRY_DELAY * attempt)
+                            continue
+                _record_outcome(provider, success=False, is_429=False, is_timeout=False, latency=time.time() - _t0)
+                break # break to fallback
+            finally:
+                _mgr.sem.release()
+                
+        # If we reach here, the current provider failed all retries
+        visited_providers.add(provider)
+        log.warning(f"  [{provider.upper()}] Exhausted retries or encountered hard error.")
+        
+        fallback_candidates = [p for p in ["groq", "gemini", "openai"] if p not in visited_providers and _provider_has_key(p)]
+        if not fallback_candidates:
+            raise RuntimeError(f"All LLM providers exhausted. Last provider {provider} failed.")
+            
+        provider = fallback_candidates[0]
+        log.warning(f"  [WARN] Falling back to {provider.upper()}")
 
  
 # JSON Parsing
@@ -771,6 +834,7 @@ def process_country(country: str, provider: str = DEFAULT_PROVIDER, worker_id: s
         raise ValueError("Country name cannot be empty")
 
     if provider not in PROVIDERS:
+        log.warning(f"Requested provider '{provider}' not in registry. Falling back to default '{DEFAULT_PROVIDER}'.")
         provider = DEFAULT_PROVIDER
     if not _provider_has_key(provider):
         # groq_classify() will itself fall back further and warn; only raise

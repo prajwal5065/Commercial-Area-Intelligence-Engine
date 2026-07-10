@@ -1,0 +1,24 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "TCS Garima Park IT/ITES SEZ",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [],
+  "supporting_sources": [
+    {
+      "name": "TCS Garima Park, Ahmedabad - Official Page",
+      "url": "https://www.tcs.com/tcs-garima-park-ahmedabad",
+      "category": "validation",
+      "priority": "high"
+    },
+    {
+      "name": "Google Maps - TCS Garima Park",
+      "url": "https://maps.app.goo.gl/19121999",
+      "category": "geography",
+      "priority": "medium"
+    }
+  ]
+}

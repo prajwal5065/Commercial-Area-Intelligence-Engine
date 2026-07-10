@@ -1,0 +1,27 @@
+```json
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Prahlad Nagar IT Belt",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Prahlad Nagar Corporate Hub",
+      "parent_zone": "Prahlad Nagar IT Belt",
+      "business_volume": 1000,
+      "city": "Ahmedabad",
+      "source_url": "https://www.google.com/maps/place/Corporate+Rd,+Prahlad+Nagar,+Ahmedabad,+Gujarat",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Prahlad Nagar 100 Ft Ring Road Commercial Zone",
+      "parent_zone": "Prahlad Nagar IT Belt",
+      "business_volume": 800,
+      "city": "Ahmedabad",
+      "source_url": "https://www.google.com/maps/place/Prahladnagar+100+Feet

@@ -4,7 +4,7 @@
 # ProviderToggle UI labels it as, confirmed present in the model list for this
 # API key via ListModels. If the free-tier quota for this key is fully
 # exhausted, switch to Groq in the frontend ProviderToggle instead.
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-2.5-flash"
 
 # Operational Provider Defaults
 PROVIDER_MAX_WAIT = {

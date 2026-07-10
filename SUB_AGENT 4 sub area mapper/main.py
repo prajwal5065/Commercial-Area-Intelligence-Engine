@@ -13,14 +13,22 @@ from config import GEMINI_MODEL
 
 # Adaptive concurrency health tracking (soft import — works without the file)
 try:
-    _HERE_PARENT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    if _HERE_PARENT not in __import__('sys').path:
-        __import__('sys').path.insert(0, _HERE_PARENT)
+    import sys
+    _PROJ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if _PROJ not in sys.path:
+        sys.path.insert(0, _PROJ)
+    from adaptive_concurrency import get_provider_manager as _get_provider_manager
     from adaptive_concurrency import record_outcome as _record_outcome
-    _ADAPTIVE = True
 except ImportError:
-    _ADAPTIVE = False
-    def _record_outcome(*a, **kw): pass
+    def _get_provider_manager(p): return type('dummy', (), {'sem': type('s', (), {'acquire_blocking': lambda: None, 'release': lambda: None})()})
+    def _record_outcome(*args, **kwargs): pass
+
+try:
+    from rate_limiter import gemini_limiter
+except ImportError:
+    class NoOpLimiter:
+        def wait(self): pass
+    gemini_limiter = NoOpLimiter()
 
 # ── Load .env: first try the sub-agent's own folder, then walk up to find
 # the project root .env so Supabase/Groq keys are always available when
@@ -236,6 +244,9 @@ def call_groq(prompt: str, provider: str = DEFAULT_PROVIDER) -> str:
         }
         url = cfg["api_url"]
 
+    if provider.startswith("gemini"):
+        gemini_limiter.wait()
+
     _t0 = time.time()
     try:
         t_start = datetime.now().isoformat()
@@ -257,6 +268,7 @@ def call_groq(prompt: str, provider: str = DEFAULT_PROVIDER) -> str:
         _latency = time.time() - _t0
         is_429 = resp.status_code == 429
         if is_429:
+            log.warning(f"[main.py] [{provider.upper()}] HTTP 429 Rate Limit. Full error: {resp.text}")
             _record_outcome(provider, success=False, is_429=True, is_timeout=False, latency=_latency)
         resp.raise_for_status()
         rj = resp.json()
@@ -388,14 +400,14 @@ def process_zone(zone_name: str, city: str, country: str, provider: str = DEFAUL
     elif provider == "openai":
         providers_to_try.extend(["groq", "gemini"])
 
-    wait_times = [4, 8, 16, 32, 64]
+    max_attempts = 3
     raw_response = None
 
     for current_provider in providers_to_try:
         log.info(f"Trying provider: {current_provider} for {zone_name}")
-        for attempt, wait_sec in enumerate(wait_times, start=1):
+        for attempt in range(1, max_attempts + 1):
             try:
-                log.info(f"Sending request for {zone_name} via {current_provider} (attempt {attempt}/{len(wait_times)})")
+                log.info(f"Sending request for {zone_name} via {current_provider} (attempt {attempt}/{max_attempts})")
                 raw_response = call_groq(final_prompt, provider=current_provider)
                 
                 # Hollow response check
@@ -410,11 +422,20 @@ def process_zone(zone_name: str, city: str, country: str, provider: str = DEFAUL
             except Exception as e:
                 err_str = str(e).lower()
                 if "429" in err_str or "rate_limit" in err_str or "timeout" in err_str or "network" in err_str or "connection" in err_str or "resolve" in err_str or "hollow response" in err_str:
+                    import random
+                    wait_sec = (2 ** attempt) + random.uniform(0, 1)
+
                     if "429" in err_str or "rate_limit" in err_str:
                         _report_rate_limit(current_provider, f"zone={zone_name}, attempt={attempt}")
                         
-                        # Parse retry-after header if available (Groq returns Unix timestamp)
                         if hasattr(e, 'response') and e.response is not None:
+                            try:
+                                err_json = e.response.json()
+                                if "error" in err_json and "retryDelay" in err_json["error"]:
+                                    wait_sec = float(err_json["error"]["retryDelay"][:-1]) + 2
+                            except Exception:
+                                pass
+
                             retry_after = e.response.headers.get("retry-after")
                             if retry_after:
                                 try:
@@ -423,16 +444,18 @@ def process_zone(zone_name: str, city: str, country: str, provider: str = DEFAUL
                                         wait_sec = int(ra_val - time.time()) + 2
                                     else:
                                         wait_sec = int(ra_val) + 2
-                                    if wait_sec < 2:
-                                        wait_sec = 2
                                 except (ValueError, TypeError):
                                     pass
+                                    
+                    if wait_sec < 2:
+                        wait_sec = 2
 
-                    log.warning(f"{zone_name} [{current_provider}]: Retryable error on attempt {attempt}. Waiting {wait_sec}s. Error: {e}")
-                    if attempt < len(wait_times):
+                    log.warning(f"{zone_name} [{current_provider}]: Retryable error on attempt {attempt}. Waiting {wait_sec:.1f}s. Error: {e}")
+                    if attempt < max_attempts:
                         time.sleep(wait_sec)
                     else:
-                        log.error(f"{zone_name} [{current_provider}]: All {len(wait_times)} attempts failed.")
+                        log.error(f"{zone_name} [{current_provider}]: All {max_attempts} attempts failed.")
+
                 else:
                     log.error(f"{zone_name} [{current_provider}]: Non-retryable error: {e}")
                     break  # try next provider

@@ -338,6 +338,9 @@ class PipelineOrchestrator:
         max_scrolls: int = 8,
         max_scrapers: int = 3,
         skip_supabase: bool = False,
+        stage2_provider: str = "groq",
+        stage3_provider: str = "groq",
+        stage4_provider: str = "groq",
     ) -> None:
         with self._lock:
             if self.is_running():
@@ -351,7 +354,8 @@ class PipelineOrchestrator:
             self._thread = threading.Thread(
                 target=self._run,
                 args=(top_n, selected_countries or [], selected_cities or [],
-                      selected_zones or [], max_scrolls, max_scrapers, skip_supabase),
+                      selected_zones or [], max_scrolls, max_scrapers, skip_supabase,
+                      stage2_provider, stage3_provider, stage4_provider),
                 daemon=True,
             )
             self._thread.start()
@@ -605,6 +609,9 @@ class PipelineOrchestrator:
         max_scrolls: int,
         max_scrapers: int,
         skip_supabase: bool,
+        stage2_provider: str,
+        stage3_provider: str,
+        stage4_provider: str,
     ) -> None:
         m = self.metrics
         state = self._state
@@ -698,7 +705,7 @@ class PipelineOrchestrator:
             self._log("Agent 2 — City Discovery", "INFO",
                       f"  Processing {len(country_names)} countries: {', '.join(str(x) for x in country_names)}")
             try:
-                phase_2_city_segmentation(state, stop_event=self._stop_event)
+                phase_2_city_segmentation(state, provider=stage2_provider, stop_event=self._stop_event)
                 m.cities = len(state.all_cities)
                 am2.input_count = len(country_names)
                 am2.items_out = [c.get("city", "") for c in state.all_cities]
@@ -743,7 +750,7 @@ class PipelineOrchestrator:
             self._log("Agent 3 — Commercial Zone Discovery", "INFO",
                       f"  Discovering zones for {len(state.all_cities)} cities…")
             try:
-                phase_3_zone_finding(state, stop_event=self._stop_event)
+                phase_3_zone_finding(state, provider=stage3_provider, stop_event=self._stop_event)
                 total_zones = sum(len(z) for z in state.master_zone_registry.values())
                 m.zones = total_zones
                 am3.input_count = len(state.all_cities)

@@ -1,0 +1,35 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Ashram Road",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Income Tax Circle",
+      "parent_zone": "Ashram Road",
+      "business_volume": 1000,
+      "city": "Ahmedabad",
+      "source_url": "https://www.google.com/maps/place/Income+Tax+Circle,+Ashram+Rd,+Ahmedabad,+Gujarat+380009",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Google Maps - Ashram Road, Ahmedabad",
+      "url": "https://www.google.com/maps/place/Ashram+Rd,+Ahmedabad,+Gujarat",
+      "category": "geography | validation | business",
+      "priority": "high"
+    },
+    {
+      "name": "OpenStreetMap - Ashram Road, Ahmedabad",
+      "url": "https://www.openstreetmap.org/search?query=Ashram%20Road%2C%20Ahmedabad",
+      "category": "geography | validation",
+      "priority": "high"
+    }
+  ]
+}

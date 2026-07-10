@@ -1,0 +1,37 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "GIDC Ahmedabad Apparel Park SEZ",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [],
+  "supporting_sources": [
+    {
+      "name": "SEZ India Portal",
+      "url": "https://www.sezindia.nic.in/",
+      "category": "validation | geography",
+      "priority": "high"
+    },
+    {
+      "name": "Gujarat Industrial Development Corporation (GIDC) Official Website",
+      "url": "https://gidc.gujarat.gov.in/",
+      "category": "validation | geography",
+      "priority": "high"
+    },
+    {
+      "name": "Google Maps - GIDC Ahmedabad Apparel Park SEZ",
+      "url": "https://www.google.com/maps/place/GIDC+Ahmedabad+Apparel+Park+SEZ/@22.973972,72.643333,15z/data=!4m6!3m5!1s0x395e870000000000:0x0!8m2!3d22.973972!4d72.643333!16s%2Fg%2F11c2100000?entry=ttu",
+      "category": "geography | validation",
+      "priority": "medium"
+    },
+    {
+      "name": "OpenStreetMap - GIDC Ahmedabad Apparel Park SEZ",
+      "url": "https://www.openstreetmap.org/search?query=GIDC%20Ahmedabad%20Apparel%20Park%20SEZ",
+      "category": "geography | validation",
+      "priority": "medium"
+    }
+  ],
+  "retrieved_at": "2023-10-27T10:00:00Z"
+}

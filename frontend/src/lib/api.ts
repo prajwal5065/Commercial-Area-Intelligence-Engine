@@ -81,6 +81,9 @@ export interface PipelineRunRequest {
   max_scrolls?: number;
   max_scrapers?: number;
   skip_supabase?: boolean;
+  stage2_provider?: string;
+  stage3_provider?: string;
+  stage4_provider?: string;
 }
 
 async function req<T>(path: string, options?: RequestInit): Promise<T> {

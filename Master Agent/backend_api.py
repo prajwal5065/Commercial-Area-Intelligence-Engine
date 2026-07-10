@@ -182,6 +182,9 @@ class PipelineRunRequest(BaseModel):
     max_scrolls: int = 8
     max_scrapers: int = 3
     skip_supabase: bool = False
+    stage2_provider: str = "groq"
+    stage3_provider: str = "groq"
+    stage4_provider: str = "groq"
 
 
 class Agent1Request(BaseModel):
@@ -320,6 +323,9 @@ def run_full_pipeline(session_id: str, body: PipelineRunRequest):
         max_scrolls=body.max_scrolls,
         max_scrapers=body.max_scrapers,
         skip_supabase=body.skip_supabase,
+        stage2_provider=body.stage2_provider,
+        stage3_provider=body.stage3_provider,
+        stage4_provider=body.stage4_provider,
     )
     return {
         "status": "started",

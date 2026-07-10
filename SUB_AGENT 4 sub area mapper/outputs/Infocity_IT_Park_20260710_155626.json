@@ -1,0 +1,24 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Infocity IT Park",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia - Infocity, Gandhinagar",
+      "url": "https://en.wikipedia.org/wiki/Infocity,_Gandhinagar",
+      "category": "geography | validation",
+      "priority": "high"
+    },
+    {
+      "name": "Google Maps - Infocity IT Park",
+      "url": "https://www.google.com/maps/place/Infocity+IT+Park/@23.217316,72.645061,15z",
+      "category": "geography | validation",
+      "priority": "high"
+    }
+  ]
+}

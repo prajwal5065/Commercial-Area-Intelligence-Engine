@@ -1,0 +1,36 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Vatva SEZ",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [],
+  "supporting_sources": [
+    {
+      "name": "SEZ India - List of Operational SEZs in Gujarat (Ministry of Commerce & Industry, Govt. of India)",
+      "url": "https://www.sezindia.nic.in/upload/uploadfiles/files/Operational%20SEZs%20as%20on%2031_03_2024.pdf",
+      "category": "validation | geography",
+      "priority": "high"
+    },
+    {
+      "name": "Gujarat Industrial Development Corporation (GIDC) - Vatva Industrial Estate",
+      "url": "https://gidc.gujarat.gov.in/industrial-estates/vatva",
+      "category": "geography | validation",
+      "priority": "high"
+    },
+    {
+      "name": "Wikipedia - Vatva",
+      "url": "https://en.wikipedia.org/wiki/Vatva",
+      "category": "geography | validation",
+      "priority": "medium"
+    },
+    {
+      "name": "Google Maps - Vatva SEZ, Ahmedabad",
+      "url": "https://www.google.com/maps/place/Vatva+SEZ,+Ahmedabad,+Gujarat/@22.969168,72.639198,15z/data=!3m1!4b1!4m6!3m5!1s0x395e865741639679:0x111352462211246!8m2!3d22.969168!4d72.639198!16s%2Fg%2F11c215220c?entry=ttu",
+      "category": "geography",
+      "priority": "medium"
+    }
+  ]
+}

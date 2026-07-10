@@ -1,0 +1,85 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "SG Highway Tech Corridor",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Prahladnagar",
+      "parent_zone": "SG Highway Tech Corridor",
+      "business_volume": 1000,
+      "city": "Ahmedabad",
+      "source_url": "https://en.wikipedia.org/wiki/Prahladnagar",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Bodakdev",
+      "parent_zone": "SG Highway Tech Corridor",
+      "business_volume": 800,
+      "city": "Ahmedabad",
+      "source_url": "https://en.wikipedia.org/wiki/Bodakdev",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 3,
+      "subarea_name": "Satellite",
+      "parent_zone": "SG Highway Tech Corridor",
+      "business_volume": 700,
+      "city": "Ahmedabad",
+      "source_url": "https://en.wikipedia.org/wiki/Satellite,_Ahmedabad",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 4,
+      "subarea_name": "Makarba",
+      "parent_zone": "SG Highway Tech Corridor",
+      "business_volume": 600,
+      "city": "Ahmedabad",
+      "source_url": "https://en.wikipedia.org/wiki/Makarba",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 5,
+      "subarea_name": "Thaltej",
+      "parent_zone": "SG Highway Tech Corridor",
+      "business_volume": 500,
+      "city": "Ahmedabad",
+      "source_url": "https://en.wikipedia.org/wiki/Thaltej",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 6,
+      "subarea_name": "Gota",
+      "parent_zone": "SG Highway Tech Corridor",
+      "business_volume": 400,
+      "city": "Ahmedabad",
+      "source_url": "https://en.wikipedia.org/wiki/Gota,_Ahmedabad",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Wikipedia - Ahmedabad",
+      "url": "https://en.wikipedia.org/wiki/Ahmedabad",
+      "category": "geography | validation",
+      "priority": "high"
+    },
+    {
+      "name": "Google Maps - SG Highway Ahmedabad",
+      "url": "https://www.google.com/maps/search/SG+Highway+Ahmedabad",
+      "category": "geography | validation",
+      "priority": "high"
+    }
+  ]
+}

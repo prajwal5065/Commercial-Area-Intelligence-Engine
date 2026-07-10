@@ -97,7 +97,7 @@ import requests
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
-from rate_limiter import tavily_limiter, groq_limiter
+from rate_limiter import tavily_limiter, groq_limiter, gemini_limiter
 
 from supabase_client import upsert_zone, zone_exists
 
@@ -631,6 +631,8 @@ def call_llm(system: str, user: str, visited: set = None) -> str:
             raise RuntimeError("Stopped by user request.")
         if ACTIVE_PROVIDER == "groq" and 'groq_limiter' in globals():
             groq_limiter.wait()
+        elif ACTIVE_PROVIDER.startswith("gemini") and 'gemini_limiter' in globals():
+            gemini_limiter.wait()
         if LLM_FMT == "openai":
             payload = _openai_payload(system, cur_user)
             headers = {
@@ -708,6 +710,8 @@ def call_llm(system: str, user: str, visited: set = None) -> str:
 
         if resp.status_code == 429:
             err_text = resp.text.lower()
+            log.warning(f"[{ACTIVE_PROVIDER.upper()}] HTTP 429 Rate Limit. Full error: {resp.text}")
+            
             if "limit: 0" in err_text or "quota" in err_text or "insufficient_quota" in err_text:
                 log.warning(f"[{ACTIVE_PROVIDER.upper()}] Hard quota limit hit. Failing fast.")
                 _report_rate_limit(ACTIVE_PROVIDER, "Hard quota limit hit")
@@ -729,13 +733,20 @@ def call_llm(system: str, user: str, visited: set = None) -> str:
                 except (ValueError, TypeError):
                     pass
             else:
-                m = re.search(r'try again in ([\d\.]+)s', err_text)
-                if m:
-                    wait = int(float(m.group(1))) + 2
+                try:
+                    err_json = resp.json()
+                    if "error" in err_json and "retryDelay" in err_json["error"]:
+                        wait = float(err_json["error"]["retryDelay"][:-1]) + 2
+                    else:
+                        raise ValueError()
+                except Exception:
+                    m = re.search(r'try again in ([\d\.]+)s', err_text)
+                    if m:
+                        wait = int(float(m.group(1))) + 2
+                    else:
+                        import random
+                        wait = (2 ** attempt) + random.uniform(0, 1)
             
-            # # Cap maximum wait to 120 seconds to avoid absurd delays
-            # wait = max(5, min(wait, 120))
-            # Honor the exact wait time from the API header
             if wait < 2:
                 wait = 2  # Minimum 2 seconds to be safe
 
@@ -750,11 +761,12 @@ def call_llm(system: str, user: str, visited: set = None) -> str:
 
             log.warning(
                 f"[{ACTIVE_PROVIDER.upper()}] 429 rate limit — "
-                f"waiting {wait}s (attempt {attempt}/{PROVIDER_RETRY_COUNT})"
+                f"waiting {wait:.1f}s (attempt {attempt}/3 fallback threshold)"
             )
             _record_outcome(ACTIVE_PROVIDER, success=False, is_429=True, is_timeout=False, latency=time.time() - _t0)
             _ZONE_METRICS.record_retry()
-            if attempt < PROVIDER_RETRY_COUNT:
+            
+            if attempt < 3:
                 # Sleep in short chunks so a stop request doesn't have to wait
                 # out the full 429 backoff (which can be 65s+) before taking effect.
                 remaining = wait
@@ -762,21 +774,18 @@ def call_llm(system: str, user: str, visited: set = None) -> str:
                     if _stop_requested():
                         log.warning(f"[{ACTIVE_PROVIDER.upper()}] Stop requested during 429 backoff — aborting.")
                         raise RuntimeError("Stopped by user request.")
-                    # Exponential backoff with a floor of the Retry-After value
                     chunk = min(2, remaining)
                     time.sleep(chunk)
                     remaining -= chunk
                 continue
             else:
-                # This provider's retries are exhausted on a 429. Rather than
-                # failing the whole call (and silently producing zero zones -
-                # the original bug), try the next configured provider.
-                _report_rate_limit(ACTIVE_PROVIDER, f"after {PROVIDER_RETRY_COUNT} attempts")
+                # This provider's retries are exhausted on a 429.
+                _report_rate_limit(ACTIVE_PROVIDER, "after 3 attempts")
                 _ZONE_METRICS.record_fallback()
                 if _switch_provider(visited):
                     return call_llm(system, user, visited)
                 raise RuntimeError(
-                    f"{ACTIVE_PROVIDER.upper()} rate-limited after {PROVIDER_RETRY_COUNT} attempts "
+                    f"{ACTIVE_PROVIDER.upper()} rate-limited after 3 attempts "
                     "and no fallback provider has an API key configured."
                 )
 

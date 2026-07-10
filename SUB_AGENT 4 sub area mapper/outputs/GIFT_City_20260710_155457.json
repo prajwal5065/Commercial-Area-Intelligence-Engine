@@ -1,0 +1,39 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "GIFT City",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "SEZ Area",
+      "parent_zone": "GIFT City",
+      "business_volume": 1000,
+      "city": "Ahmedabad",
+      "source_url": "https://giftgujarat.in/sez-non-sez/",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    },
+    {
+      "rank": 2,
+      "subarea_name": "Non-SEZ Area",
+      "parent_zone": "GIFT City",
+      "business_volume": 800,
+      "city": "Ahmedabad",
+      "source_url": "https://giftgujarat.in/sez-non-sez/",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "GIFT City Official Website - SEZ & Non-SEZ",
+      "url": "https://giftgujarat.in/sez-non-sez/",
+      "category": "geography | validation | business",
+      "priority": "high"
+    }
+  ]
+}

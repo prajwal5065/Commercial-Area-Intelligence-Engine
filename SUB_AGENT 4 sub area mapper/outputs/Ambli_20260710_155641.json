@@ -1,0 +1,41 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Ambli",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [
+    {
+      "rank": 1,
+      "subarea_name": "Ambli Gam",
+      "parent_zone": "Ambli",
+      "business_volume": 300,
+      "city": "Ahmedabad",
+      "source_url": "https://www.google.com/maps/place/Ambli+Gam,+Ambli,+Ahmedabad,+Gujarat+380058",
+      "retrieved_at": "2024-07-30T12:00:00Z",
+      "status": "SUCCESS"
+    }
+  ],
+  "supporting_sources": [
+    {
+      "name": "Google Maps - Ambli Gam",
+      "url": "https://www.google.com/maps/place/Ambli+Gam,+Ambli,+Ahmedabad,+Gujarat+380058",
+      "category": "geography | validation",
+      "priority": "high"
+    },
+    {
+      "name": "OpenStreetMap - Ambli Gam",
+      "url": "https://www.openstreetmap.org/search?query=Ambli%20Gam%20Ahmedabad#map=16/23.0031/72.4836",
+      "category": "geography | validation",
+      "priority": "high"
+    },
+    {
+      "name": "Wikipedia - Ambli",
+      "url": "https://en.wikipedia.org/wiki/Ambli",
+      "category": "validation",
+      "priority": "medium"
+    }
+  ]
+}

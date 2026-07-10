@@ -1,0 +1,30 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "Dascroi IT/ITES SEZ",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [],
+  "supporting_sources": [
+    {
+      "name": "SEZ India (Ministry of Commerce & Industry, Govt. of India)",
+      "url": "https://www.sezindia.nic.in/cms/sez-in-india.php",
+      "category": "validation | geography",
+      "priority": "high"
+    },
+    {
+      "name": "Industries & Mines Department, Government of Gujarat",
+      "url": "https://industries.gujarat.gov.in/industrial-infrastructure/special-economic-zones",
+      "category": "validation | geography",
+      "priority": "high"
+    },
+    {
+      "name": "Wikipedia - List of Special Economic Zones in India",
+      "url": "https://en.wikipedia.org/wiki/List_of_Special_Economic_Zones_in_India",
+      "category": "validation | geography",
+      "priority": "medium"
+    }
+  ]
+}

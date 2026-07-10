@@ -1,0 +1,30 @@
+{
+  "status": "SUCCESS",
+  "agent": "SUB-AGENT 4 — SUB-AREA MAPPER",
+  "input": {
+    "zone_name": "GIDC Gandhinagar Electronic Estate",
+    "city": "Ahmedabad",
+    "country": "India"
+  },
+  "results": [],
+  "supporting_sources": [
+    {
+      "name": "Gujarat Industrial Development Corporation (GIDC) Official Website",
+      "url": "https://gidc.gujarat.gov.in/",
+      "category": "validation",
+      "priority": "high"
+    },
+    {
+      "name": "Google Maps - GIDC Electronic Estate, Gandhinagar",
+      "url": "https://www.google.com/maps/place/GIDC+Electronic+Estate/@23.230758,72.645014,15z/",
+      "category": "geography | validation",
+      "priority": "high"
+    },
+    {
+      "name": "OpenStreetMap - GIDC Electronic Estate, Gandhinagar",
+      "url": "https://www.openstreetmap.org/search?query=GIDC%20Gandhinagar%20Electronic%20Estate",
+      "category": "geography | validation",
+      "priority": "medium"
+    }
+  ]
+}
