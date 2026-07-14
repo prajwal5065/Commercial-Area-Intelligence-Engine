@@ -64,7 +64,7 @@ try:
     from adaptive_concurrency import dynamic_max_workers as _dynamic_workers
 except ImportError:
     def _dynamic_workers(provider: str, n_inputs: int) -> int:
-        return min(n_inputs, int(os.getenv("MAX_INSTANCES", "12")))
+        return min(n_inputs, int(os.getenv("MAX_INSTANCES", "50")))
 
 
 def parse_args():
