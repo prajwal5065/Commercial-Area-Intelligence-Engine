@@ -76,7 +76,7 @@ log = logging.getLogger(__name__)
 # Configurable constants (all override-able via env)
 # ─────────────────────────────────────────────
 
-MAX_INSTANCES: int = int(os.getenv("MAX_INSTANCES", "12"))
+MAX_INSTANCES: int = int(os.getenv("MAX_INSTANCES", "50"))
 WORKERS_MIN:   int = int(os.getenv("WORKERS_MIN",   "2"))
 
 # Workers removed per aggressive decrease / added per gradual increase
